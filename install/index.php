@@ -29,16 +29,23 @@ foreach ($required_extensions as $ext) {
 
 $all_extensions_ok = !in_array(false, $extension_status, true);
 
-// Writable directories
-$writable_dirs = [
+// Attempt to auto-create missing directories
+$required_dirs = [
     '../config',
     '../uploads',
     '../uploads/ads',
+    '../uploads/proofs',
     '../inc'
 ];
+foreach ($required_dirs as $dir) {
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0755, true);
+    }
+}
 
+// Writable directories check
 $writable_status = [];
-foreach ($writable_dirs as $dir) {
+foreach ($required_dirs as $dir) {
     $writable_status[$dir] = is_writable($dir);
 }
 
