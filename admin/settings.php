@@ -39,6 +39,18 @@ include __DIR__ . '/../templates/admin_header.php';
                     </div>
                 </div>
 
+                <h3 class="font-bold text-lg mt-8 mb-4 text-green-700">SEO & Meta Configuration</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-2">Default Meta Description</label>
+                        <textarea name="s[meta_description]" rows="3" class="w-full p-2 border rounded text-sm"><?php echo h($settings['meta_description'] ?? ''); ?></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-2">Default Meta Keywords</label>
+                        <input type="text" name="s[meta_keywords]" value="<?php echo h($settings['meta_keywords'] ?? ''); ?>" class="w-full p-2 border rounded text-sm" placeholder="keyword1, keyword2, ...">
+                    </div>
+                </div>
+
                 <h3 class="font-bold text-lg mt-8 mb-4 text-green-700">Email (SMTP) Configuration</h3>
                 <div class="space-y-4">
                     <div>

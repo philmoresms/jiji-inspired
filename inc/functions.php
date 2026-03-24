@@ -110,3 +110,23 @@ function generate_ad_url($ad) {
 
     return "/$state/$cat/$slug-{$ad['id']}";
 }
+
+/**
+ * Extract SEO Keywords from text
+ */
+function extract_keywords($text, $additional = "") {
+    $premium_words = ['buy', 'sell', 'cheap', 'best', 'nigeria', 'price', 'new', 'used', 'deals'];
+    $text = strtolower($text . " " . $additional);
+    $text = preg_replace('/[^a-z0-9\s]/', '', $text);
+    $words = explode(' ', $text);
+
+    // Filter out short and common words
+    $common = ['the', 'and', 'with', 'for', 'this', 'that', 'your', 'from'];
+    $filtered = array_filter($words, function($w) use ($common) {
+        return strlen($w) > 3 && !in_array($w, $common);
+    });
+
+    // Prioritize premium words
+    $keywords = array_unique(array_merge($premium_words, $filtered));
+    return implode(', ', array_slice($keywords, 0, 15));
+}

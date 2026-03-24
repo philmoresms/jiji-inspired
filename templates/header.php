@@ -18,7 +18,10 @@ if (isset($pdo)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo h($settings['site_name'] ?? 'Jiji Inspired'); ?></title>
+    <title><?php echo h($page_title ?? ($settings['site_name'] ?? 'Jiji Inspired')); ?></title>
+    <meta name="description" content="<?php echo h($page_desc ?? ($settings['meta_description'] ?? '')); ?>">
+    <meta name="keywords" content="<?php echo h($page_keywords ?? ($settings['meta_keywords'] ?? '')); ?>">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="manifest" href="/manifest.json">
@@ -26,7 +29,7 @@ if (isset($pdo)) {
 <body class="bg-gray-100 min-h-screen">
     <nav class="bg-white shadow-sm border-b sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <a href="/" class="text-2xl font-bold text-green-600">Jiji Clone</a>
+            <a href="/" class="text-2xl font-bold text-green-600"><?php echo h($settings['site_name'] ?? 'Jiji Clone'); ?></a>
 
             <div class="flex-1 max-w-xl mx-8 hidden md:block">
                 <form action="search.php" method="GET" class="relative">

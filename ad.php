@@ -44,6 +44,11 @@ $stmt = $pdo->prepare("SELECT image_path, is_main FROM ad_images WHERE ad_id = ?
 $stmt->execute([$id]);
 $images = $stmt->fetchAll();
 
+// SEO Meta Data
+$page_title = $ad['title'] . " - " . ($settings['site_name'] ?? 'Jiji Inspired');
+$page_desc = substr(strip_tags($ad['description']), 0, 160);
+$page_keywords = extract_keywords($ad['title'], $ad['cat_name']);
+
 // Get similar ads (same category, active, not current)
 $stmt = $pdo->prepare("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name
                      FROM ads a
