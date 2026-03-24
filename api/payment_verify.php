@@ -17,9 +17,14 @@ if (isset($_GET['ref']) && isset($_GET['ad_id']) && isset($_GET['method'])) {
     $stmt = $pdo->prepare("INSERT INTO payments (ad_id, reference, method, amount, status) VALUES (?, ?, ?, ?, 'successful')");
     $stmt->execute([$ad_id, $ref, $method, $boost_price]);
 
-    // Boost the ad
-    $stmt = $pdo->prepare("UPDATE ads SET is_featured = 1 WHERE id = ?");
-    $stmt->execute([$ad_id]);
+    // Fetch premium duration
+    $stmt = $pdo->query("SELECT setting_value FROM settings WHERE setting_key = 'premium_ad_duration'");
+    $p_duration = (int)($stmt->fetchColumn() ?: 30);
+    $new_expiry = date('Y-m-d H:i:s', strtotime("+$p_duration days"));
+
+    // Boost the ad, extend expiry, and bump to top
+    $stmt = $pdo->prepare("UPDATE ads SET is_featured = 1, status = 'active', expires_at = ?, bumped_at = CURRENT_TIMESTAMP WHERE id = ?");
+    $stmt->execute([$new_expiry, $ad_id]);
 
     redirect('../profile.php', 'Payment successful! Your ad is now featured.');
 } else {

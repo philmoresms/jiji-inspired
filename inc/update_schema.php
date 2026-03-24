@@ -36,6 +36,15 @@ try {
         error_log("Migration: Added state_id index to lgas table.");
     }
 
+    // 4. Add Ad lifecycle columns
+    $stmt = $pdo->query("SHOW COLUMNS FROM ads LIKE 'expires_at'");
+    if (!$stmt->fetch()) {
+        $pdo->exec("ALTER TABLE ads ADD COLUMN expires_at TIMESTAMP NULL DEFAULT NULL AFTER video_url");
+        $pdo->exec("ALTER TABLE ads ADD COLUMN bumped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER expires_at");
+        $pdo->exec("ALTER TABLE ads MODIFY status ENUM('pending', 'active', 'declined', 'sold', 'expired') DEFAULT 'pending'");
+        error_log("Migration: Added lifecycle columns to ads table.");
+    }
+
 } catch (PDOException $e) {
     // Migration might fail if already exists or other DB issues
     error_log("Migration Error: " . $e->getMessage());

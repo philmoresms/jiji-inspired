@@ -79,6 +79,20 @@ include __DIR__ . '/../templates/admin_header.php';
                         <p class="text-[10px] text-green-600 mt-1 uppercase font-bold tracking-widest">Amount users pay to feature their ads</p>
                     </div>
 
+                    <div class="p-4 bg-purple-50 rounded border border-purple-200 mb-4">
+                        <h4 class="font-bold text-purple-800 text-sm mb-3 uppercase tracking-widest">Ad Package Durations</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-purple-600 mb-1">Free Ad (Days)</label>
+                                <input type="number" name="s[free_ad_duration]" value="<?php echo h($settings['free_ad_duration'] ?? '15'); ?>" class="w-full p-2 border rounded text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-purple-600 mb-1">Premium Ad (Days)</label>
+                                <input type="number" name="s[premium_ad_duration]" value="<?php echo h($settings['premium_ad_duration'] ?? '30'); ?>" class="w-full p-2 border rounded text-sm">
+                            </div>
+                        </div>
+                    </div>
+
                     <h4 class="font-bold text-sm text-gray-600 mb-2 uppercase tracking-widest">API Gateway Keys</h4>
                     <div class="p-4 bg-yellow-50 rounded border border-yellow-200 mb-4">
                         <p class="text-sm text-yellow-800 font-bold">Paystack Configuration</p>
@@ -121,6 +135,12 @@ include __DIR__ . '/../templates/admin_header.php';
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="mt-10 bg-gray-900 text-green-400 p-6 rounded-xl font-mono text-xs overflow-x-auto">
+            <p class="mb-2 font-bold uppercase text-gray-400">// Automation Cron Job Path</p>
+            <p>php <?php echo realpath(__DIR__ . '/../inc/cron.php'); ?></p>
+            <p class="mt-4 text-gray-500 italic">Set this to run every hour via your cPanel Cron Jobs</p>
         </div>
 
         <div class="mt-10 border-t pt-6 flex justify-end">

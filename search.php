@@ -39,7 +39,7 @@ if ($max_price) {
     $params[] = $max_price;
 }
 
-$query .= " ORDER BY a.is_featured DESC, a.created_at DESC";
+$query .= " ORDER BY a.is_featured DESC, a.bumped_at DESC";
 
 $stmt = $pdo->prepare($query);
 $stmt->execute($params);

@@ -15,8 +15,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = $_POST['description'];
     $video_url = $_POST['video_url'] ?? null;
 
-    $stmt = $pdo->prepare("INSERT INTO ads (user_id, cat_id, state_id, lga_id, title, price, description, status, video_url) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)");
-    $stmt->execute([$user_id, $cat_id, $state_id, $lga_id, $title, $price, $description, $video_url]);
+    // Get free ad duration
+    $stmt = $pdo->query("SELECT setting_value FROM settings WHERE setting_key = 'free_ad_duration'");
+    $duration = (int)($stmt->fetchColumn() ?: 15);
+    $expires_at = date('Y-m-d H:i:s', strtotime("+$duration days"));
+
+    $stmt = $pdo->prepare("INSERT INTO ads (user_id, cat_id, state_id, lga_id, title, price, description, status, video_url, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)");
+    $stmt->execute([$user_id, $cat_id, $state_id, $lga_id, $title, $price, $description, $video_url, $expires_at]);
     $ad_id = $pdo->lastInsertId();
 
     // Process Images

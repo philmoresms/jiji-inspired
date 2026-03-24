@@ -62,7 +62,7 @@ include __DIR__ . '/templates/header.php';
                 <div class="relative h-48">
                     <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
                     <span class="absolute top-4 left-4 text-[10px] font-bold px-3 py-1 rounded-full uppercase shadow-md <?php
-                        echo $ad['status'] == 'active' ? 'bg-green-500 text-white' : ($ad['status'] == 'pending' ? 'bg-yellow-400 text-white' : 'bg-red-500 text-white');
+                        echo $ad['status'] == 'active' ? 'bg-green-500 text-white' : ($ad['status'] == 'pending' ? 'bg-yellow-400 text-white' : ($ad['status'] == 'expired' ? 'bg-gray-700 text-white' : 'bg-red-500 text-white'));
                     ?>">
                         <?php echo $ad['status']; ?>
                     </span>
@@ -78,7 +78,7 @@ include __DIR__ . '/templates/header.php';
                         <?php if (!$ad['is_featured'] && $ad['status'] == 'active'): ?>
                             <a href="boost.php?ad_id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-green-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-green-700 transition uppercase shadow-md tracking-wider">Boost Ad</a>
                         <?php endif; ?>
-                        <?php if ($ad['status'] != 'sold'): ?>
+                        <?php if ($ad['status'] != 'sold' && $ad['status'] != 'expired'): ?>
                             <a href="edit-ad.php?id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-yellow-500 text-white py-2 rounded-lg text-xs font-bold hover:bg-yellow-600 transition uppercase shadow-md tracking-wider">Edit</a>
                         <?php else: ?>
                             <a href="api/republish.php?id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-blue-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition uppercase shadow-md tracking-wider">Republish</a>

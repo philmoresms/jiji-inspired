@@ -20,7 +20,7 @@ $stmt = $pdo->prepare("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id
                      FROM ads a
                      JOIN states s ON a.state_id = s.id
                      WHERE a.cat_id = ? AND a.status = 'active'
-                     ORDER BY a.is_featured DESC, a.created_at DESC");
+                     ORDER BY a.is_featured DESC, a.bumped_at DESC");
 $stmt->execute([$cat_id]);
 $ads = $stmt->fetchAll();
 
