@@ -80,7 +80,7 @@ include __DIR__ . '/templates/header.php';
                     <?php foreach ($featured_ads as $ad): ?>
                     <a href="ad.php?id=<?php echo $ad['id']; ?>" class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition">
                         <div class="relative h-40">
-                            <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
+                            <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
                             <span class="absolute top-2 left-2 bg-yellow-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Featured</span>
                         </div>
                         <div class="p-3">
@@ -104,7 +104,7 @@ include __DIR__ . '/templates/header.php';
                     <?php foreach ($recent_ads as $ad): ?>
                     <a href="ad.php?id=<?php echo $ad['id']; ?>" class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition">
                         <div class="h-40">
-                            <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
+                            <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
                         </div>
                         <div class="p-3">
                             <h4 class="text-sm font-bold text-gray-800 line-clamp-2 h-10 mb-2"><?php echo h($ad['title']); ?></h4>

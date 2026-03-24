@@ -20,7 +20,20 @@ $stmt->execute([$id]);
 $ad = $stmt->fetch();
 
 if (!$ad) {
-    redirect('index.php', 'Ad not found or pending moderation.');
+    // Check if it's a preview by the owner
+    $stmt = $pdo->prepare("SELECT a.*, u.full_name as seller_name, u.phone as seller_phone, u.is_verified, c.name as cat_name, s.name as state_name, l.name as lga_name
+                         FROM ads a
+                         JOIN users u ON a.user_id = u.id
+                         JOIN categories c ON a.cat_id = c.id
+                         JOIN states s ON a.state_id = s.id
+                         JOIN lgas l ON a.lga_id = l.id
+                         WHERE a.id = ?");
+    $stmt->execute([$id]);
+    $ad = $stmt->fetch();
+
+    if (!$ad || ($ad['status'] !== 'active' && (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != $ad['user_id']) && !isset($_SESSION['admin_id']))) {
+        redirect('index.php', 'Ad not found or pending moderation.');
+    }
 }
 
 // Increment views
@@ -35,17 +48,31 @@ include __DIR__ . '/templates/header.php';
 ?>
 
 <div class="container mx-auto px-4 py-8">
+    <?php if ($ad['status'] !== 'active'): ?>
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded shadow-sm flex items-center justify-between" role="alert">
+            <div>
+                <p class="font-bold">Ad Preview Mode</p>
+                <p class="text-sm">This ad is currently <strong><?php echo h($ad['status']); ?></strong>. Only you (the owner) and admins can see this page.</p>
+                <?php if ($ad['status'] === 'declined'): ?>
+                    <p class="mt-2 text-sm"><strong>Reason for rejection:</strong> <?php echo h($ad['decline_reason']); ?></p>
+                <?php endif; ?>
+            </div>
+            <?php if ($ad['status'] === 'declined' && isset($_SESSION['user_id']) && $_SESSION['user_id'] == $ad['user_id']): ?>
+                <a href="edit-ad.php?id=<?php echo $ad['id']; ?>" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition shadow-md">Edit Ad & Re-submit</a>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
     <div class="flex flex-col lg:flex-row gap-8">
         <!-- Main Content (Left) -->
         <div class="lg:w-2/3">
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-8">
                 <!-- Gallery -->
                 <div class="relative h-96 bg-black flex items-center justify-center group">
-                    <img id="mainImage" src="/uploads/ads/<?php echo $images[0]['image_path'] ?? 'default.jpg'; ?>" class="max-h-full max-w-full object-contain">
+                    <img id="mainImage" src="uploads/ads/<?php echo $images[0]['image_path'] ?? 'default.jpg'; ?>" class="max-h-full max-w-full object-contain">
                     <?php if (count($images) > 1): ?>
                         <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto p-2 bg-black/40 rounded-lg backdrop-blur-sm max-w-[90%]">
                             <?php foreach ($images as $img): ?>
-                                <img src="/uploads/ads/<?php echo $img['image_path']; ?>" class="w-12 h-12 rounded object-cover cursor-pointer border-2 border-transparent hover:border-green-500 transition-all" onclick="document.getElementById('mainImage').src = this.src">
+                                <img src="uploads/ads/<?php echo $img['image_path']; ?>" class="w-12 h-12 rounded object-cover cursor-pointer border-2 border-transparent hover:border-green-500 transition-all" onclick="document.getElementById('mainImage').src = this.src">
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>

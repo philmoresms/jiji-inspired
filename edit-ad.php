@@ -5,8 +5,23 @@ require_once __DIR__ . '/inc/functions.php';
 require_once __DIR__ . '/inc/user_auth.php';
 require_user();
 
+if (!isset($_GET['id'])) {
+    redirect('profile.php');
+}
+
+$ad_id = (int)$_GET['id'];
+$user_id = $_SESSION['user_id'];
+
+// Verify ownership
+$stmt = $pdo->prepare("SELECT * FROM ads WHERE id = ? AND user_id = ?");
+$stmt->execute([$ad_id, $user_id]);
+$ad = $stmt->fetch();
+
+if (!$ad) {
+    redirect('profile.php', 'Ad not found or access denied.');
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $user_id = $_SESSION['user_id'];
     $title = $_POST['title'];
     $cat_id = (int)$_POST['cat_id'];
     $state_id = (int)$_POST['state_id'];
@@ -15,12 +30,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = $_POST['description'];
     $video_url = $_POST['video_url'] ?? null;
 
-    $stmt = $pdo->prepare("INSERT INTO ads (user_id, cat_id, state_id, lga_id, title, price, description, status, video_url) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)");
-    $stmt->execute([$user_id, $cat_id, $state_id, $lga_id, $title, $price, $description, $video_url]);
-    $ad_id = $pdo->lastInsertId();
+    // Update ad and reset status to pending
+    $stmt = $pdo->prepare("UPDATE ads SET cat_id = ?, state_id = ?, lga_id = ?, title = ?, price = ?, description = ?, video_url = ?, status = 'pending', decline_reason = NULL WHERE id = ?");
+    $stmt->execute([$cat_id, $state_id, $lga_id, $title, $price, $description, $video_url, $ad_id]);
 
-    // Process Images
+    // Handle new images if any
     if (!empty($_FILES['images']['name'][0])) {
+        // Option: Delete old images or just add new ones.
+        // For Jiji clone, we add new ones up to limit or clear existing ones.
+        // Let's clear existing ones for a clean re-submission if new ones are provided.
+        $pdo->prepare("DELETE FROM ad_images WHERE ad_id = ?")->execute([$ad_id]);
+
         foreach ($_FILES['images']['tmp_name'] as $key => $tmp_name) {
             $filename = process_image_upload($tmp_name, __DIR__ . '/uploads/ads', 800);
             if ($filename) {
@@ -31,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    redirect('profile.php', 'Ad posted successfully! It will be live after moderation.');
+    redirect('profile.php', 'Ad updated and re-submitted for moderation.');
 }
 
 $categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll();
@@ -41,23 +61,29 @@ include __DIR__ . '/templates/header.php';
 ?>
 
 <div class="container mx-auto px-4 py-10 flex justify-center">
-    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
-        <h1 class="text-2xl font-bold mb-8 text-green-600 border-b pb-4"><i class="fas fa-plus-circle mr-2"></i> Post Your Ad</h1>
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl border-t-8 border-yellow-500">
+        <h1 class="text-2xl font-bold mb-4 text-gray-800"><i class="fas fa-edit mr-2"></i> Edit & Re-submit Ad</h1>
+
+        <?php if ($ad['status'] == 'declined'): ?>
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded">
+                <p class="text-red-700 font-bold mb-1">Rejection Reason:</p>
+                <p class="text-red-600 text-sm italic"><?php echo h($ad['decline_reason']); ?></p>
+            </div>
+        <?php endif; ?>
 
         <form method="POST" enctype="multipart/form-data" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-gray-700 font-bold mb-2 text-sm">Category</label>
                     <select name="cat_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required>
-                        <option value="">Select Category</option>
                         <?php foreach ($categories as $cat): ?>
-                            <option value="<?php echo $cat['id']; ?>"><?php echo h($cat['name']); ?></option>
+                            <option value="<?php echo $cat['id']; ?>" <?php echo $ad['cat_id'] == $cat['id'] ? 'selected' : ''; ?>><?php echo h($cat['name']); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div>
                     <label class="block text-gray-700 font-bold mb-2 text-sm">Title</label>
-                    <input type="text" name="title" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="What are you selling?" required>
+                    <input type="text" name="title" value="<?php echo h($ad['title']); ?>" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required>
                 </div>
             </div>
 
@@ -65,67 +91,58 @@ include __DIR__ . '/templates/header.php';
                 <div>
                     <label class="block text-gray-700 font-bold mb-2 text-sm">State</label>
                     <select name="state_id" id="state_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required onchange="loadLGAs(this.value)">
-                        <option value="">Select State</option>
                         <?php foreach ($states as $state): ?>
-                            <option value="<?php echo $state['id']; ?>"><?php echo h($state['name']); ?></option>
+                            <option value="<?php echo $state['id']; ?>" <?php echo $ad['state_id'] == $state['id'] ? 'selected' : ''; ?>><?php echo h($state['name']); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div>
                     <label class="block text-gray-700 font-bold mb-2 text-sm">LGA (City)</label>
                     <select name="lga_id" id="lga_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required>
-                        <option value="">Select LGA</option>
+                        <!-- Will be populated by JS -->
                     </select>
                 </div>
             </div>
 
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2 text-sm">Price (₦)</label>
-                <input type="number" name="price" step="0.01" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="10000" required>
+                <input type="number" name="price" step="0.01" value="<?php echo (float)$ad['price']; ?>" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required>
             </div>
 
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2 text-sm">Description</label>
-                <textarea name="description" rows="5" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="Provide details about the item..." required></textarea>
+                <textarea name="description" rows="5" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required><?php echo h($ad['description']); ?></textarea>
             </div>
 
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2 text-sm">Video Link (YouTube/TikTok)</label>
-                <input type="url" name="video_url" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="https://youtube.com/watch?v=...">
+                <input type="url" name="video_url" value="<?php echo h($ad['video_url']); ?>" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none">
             </div>
 
             <div id="dropZone" class="mb-4 p-8 border-4 border-dashed border-gray-200 rounded-2xl bg-gray-50 hover:bg-white transition cursor-pointer relative group">
-                <label class="block text-gray-700 font-bold mb-4 text-sm text-center">Upload Ad Photos (Maximum 5)</label>
-                <input type="file" name="images[]" id="fileInput" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
+                <label class="block text-gray-700 font-bold mb-4 text-sm text-center">Update Photos (Optional - replacing all current photos)</label>
+                <input type="file" name="images[]" id="fileInput" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                 <div class="text-center">
-                    <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-100 transition">
-                        <i class="fas fa-cloud-upload-alt text-3xl text-green-500"></i>
+                    <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-camera-retro text-3xl text-green-500"></i>
                     </div>
-                    <p class="text-sm font-bold text-gray-600 mb-1">Drag & drop images here</p>
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">or click to browse from device</p>
+                    <p class="text-sm font-bold text-gray-600 mb-1">Drag or click to replace photos</p>
                 </div>
             </div>
 
-            <div id="imagePreviewContainer" class="grid grid-cols-5 gap-4 mb-6 hidden">
-                <!-- Previews will appear here -->
-            </div>
+            <div id="imagePreviewContainer" class="grid grid-cols-5 gap-4 mb-6 hidden"></div>
 
             <div class="pt-6">
-                <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:bg-green-700 transition shadow-lg text-lg uppercase">Post Ad</button>
+                <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:bg-green-700 transition shadow-lg text-lg uppercase">Update Ad</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-function loadLGAs(stateId) {
+function loadLGAs(stateId, selectedLgaId = null) {
     const lgaSelect = document.getElementById('lga_id');
     lgaSelect.innerHTML = '<option value="">Loading...</option>';
-
-    if (!stateId) {
-        lgaSelect.innerHTML = '<option value="">Select LGA</option>';
-        return;
-    }
 
     fetch('api/lgas.php?state_id=' + stateId)
         .then(response => response.json())
@@ -135,64 +152,48 @@ function loadLGAs(stateId) {
                 const option = document.createElement('option');
                 option.value = lga.id;
                 option.textContent = lga.name;
+                if(selectedLgaId && lga.id == selectedLgaId) option.selected = true;
                 lgaSelect.appendChild(option);
             });
         });
 }
 
-// Image Preview & Drag and Drop Logic
+// Initial LGA load
+loadLGAs(<?php echo $ad['state_id']; ?>, <?php echo $ad['lga_id']; ?>);
+
+// Image logic (re-used from post-ad)
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const previewContainer = document.getElementById('imagePreviewContainer');
-let allFiles = new DataTransfer(); // To keep track of multiple selections
+let allFiles = new DataTransfer();
 
-['dragover', 'dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, e => {
-        e.preventDefault();
-        e.stopPropagation();
-    });
+['dragover', 'dragleave', 'drop'].forEach(ev => {
+    dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); });
 });
 
-dropZone.addEventListener('dragover', () => {
-    dropZone.classList.replace('border-gray-200', 'border-green-400');
-    dropZone.classList.add('bg-green-50');
-});
-
-dropZone.addEventListener('dragleave', () => {
-    dropZone.classList.replace('border-green-400', 'border-gray-200');
-    dropZone.classList.remove('bg-green-50');
-});
+dropZone.addEventListener('dragover', () => dropZone.classList.add('bg-green-50', 'border-green-400'));
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('bg-green-50', 'border-green-400'));
 
 dropZone.addEventListener('drop', (e) => {
-    dropZone.classList.replace('border-green-400', 'border-gray-200');
-    dropZone.classList.remove('bg-green-50');
-
+    dropZone.classList.remove('bg-green-50', 'border-green-400');
     const files = e.dataTransfer.files;
-    if (files.length > 0) {
-        addFiles(files);
-    }
+    if (files.length > 0) addFiles(files);
 });
 
-fileInput.addEventListener('change', () => {
-    addFiles(fileInput.files);
-});
+fileInput.addEventListener('change', () => addFiles(fileInput.files));
 
 function addFiles(files) {
     for (let i = 0; i < files.length; i++) {
-        if (allFiles.items.length < 5) {
-            allFiles.items.add(files[i]);
-        }
+        if (allFiles.items.length < 5) allFiles.items.add(files[i]);
     }
-    fileInput.files = allFiles.files; // Update the real input
+    fileInput.files = allFiles.files;
     renderPreviews();
 }
 
 function removeFile(index) {
     const newDT = new DataTransfer();
     for (let i = 0; i < allFiles.files.length; i++) {
-        if (i !== index) {
-            newDT.items.add(allFiles.files[i]);
-        }
+        if (i !== index) newDT.items.add(allFiles.files[i]);
     }
     allFiles = newDT;
     fileInput.files = allFiles.files;
@@ -201,29 +202,18 @@ function removeFile(index) {
 
 function renderPreviews() {
     previewContainer.innerHTML = '';
-
-    if (allFiles.files.length === 0) {
-        previewContainer.classList.add('hidden');
-        return;
-    }
-
+    if (allFiles.files.length === 0) { previewContainer.classList.add('hidden'); return; }
     previewContainer.classList.remove('hidden');
-
     Array.from(allFiles.files).forEach((file, i) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-            const previewDiv = document.createElement('div');
-            previewDiv.className = 'relative group aspect-square rounded-xl overflow-hidden border-2 border-gray-100 shadow-sm transition transform hover:scale-95';
-            previewDiv.innerHTML = `
-                <img src="${e.target.result}" class="w-full h-full object-cover">
+            const div = document.createElement('div');
+            div.className = 'relative group aspect-square rounded-xl overflow-hidden border-2 border-gray-100 shadow-sm';
+            div.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                    <button type="button" onclick="removeFile(${i})" class="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-600 shadow-lg">
-                        <i class="fas fa-trash-alt text-xs"></i>
-                    </button>
-                </div>
-                <div class="absolute bottom-1 right-1 bg-green-600 text-white text-[8px] px-1 rounded font-bold">PHOTO ${i + 1}</div>
-            `;
-            previewContainer.appendChild(previewDiv);
+                    <button type="button" onclick="removeFile(${i})" class="bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center hover:bg-red-600"><i class="fas fa-trash-alt text-[10px]"></i></button>
+                </div>`;
+            previewContainer.appendChild(div);
         };
         reader.readAsDataURL(file);
     });

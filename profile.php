@@ -60,7 +60,7 @@ include __DIR__ . '/templates/header.php';
             <?php foreach ($user_ads as $ad): ?>
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 group">
                 <div class="relative h-48">
-                    <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
+                    <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
                     <span class="absolute top-4 left-4 text-[10px] font-bold px-3 py-1 rounded-full uppercase shadow-md <?php
                         echo $ad['status'] == 'active' ? 'bg-green-500 text-white' : ($ad['status'] == 'pending' ? 'bg-yellow-400 text-white' : 'bg-red-500 text-white');
                     ?>">
@@ -77,6 +77,9 @@ include __DIR__ . '/templates/header.php';
                     <div class="flex gap-2">
                         <?php if (!$ad['is_featured'] && $ad['status'] == 'active'): ?>
                             <a href="boost.php?ad_id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-green-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-green-700 transition uppercase shadow-md tracking-wider">Boost Ad</a>
+                        <?php endif; ?>
+                        <?php if ($ad['status'] == 'declined'): ?>
+                            <a href="edit-ad.php?id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-yellow-500 text-white py-2 rounded-lg text-xs font-bold hover:bg-yellow-600 transition uppercase shadow-md tracking-wider">Modify</a>
                         <?php endif; ?>
                         <a href="ad.php?id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-gray-100 text-gray-600 py-2 rounded-lg text-xs font-bold hover:bg-gray-200 transition uppercase tracking-wider border border-gray-200">View</a>
                     </div>

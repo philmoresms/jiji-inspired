@@ -40,7 +40,7 @@ include __DIR__ . '/templates/header.php';
         <?php foreach ($ads as $ad): ?>
         <a href="ad.php?id=<?php echo $ad['id']; ?>" class="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all border border-gray-100 group">
             <div class="relative h-48 overflow-hidden">
-                <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                 <?php if ($ad['is_featured']): ?>
                     <span class="absolute top-4 left-4 bg-yellow-400 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase shadow-md"><i class="fas fa-rocket"></i> BOOSTED</span>
                 <?php endif; ?>

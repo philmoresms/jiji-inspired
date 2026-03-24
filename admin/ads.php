@@ -13,7 +13,7 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
         $stmt->execute([$id]);
         redirect('ads.php', 'Ad approved successfully.');
     } elseif ($action == 'decline') {
-        $reason = $_GET['reason'] ?? 'Ad does not meet guidelines.';
+        $reason = $_POST['reason'] ?? 'Ad does not meet guidelines.';
         $stmt = $pdo->prepare("UPDATE ads SET status = 'declined', decline_reason = ? WHERE id = ?");
         $stmt->execute([$reason, $id]);
         redirect('ads.php', 'Ad declined.');
@@ -69,7 +69,7 @@ include __DIR__ . '/../templates/admin_header.php';
                     <td class="p-4 space-x-2">
                         <?php if ($ad['status'] == 'pending'): ?>
                             <a href="ads.php?action=approve&id=<?php echo $ad['id']; ?>" class="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition">Approve</a>
-                            <a href="ads.php?action=decline&id=<?php echo $ad['id']; ?>" class="bg-yellow-500 text-white px-2 py-1 rounded text-xs hover:bg-yellow-600 transition" onclick="return confirm('Decline this ad?')">Decline</a>
+                            <button onclick="openDeclineModal(<?php echo $ad['id']; ?>)" class="bg-yellow-500 text-white px-2 py-1 rounded text-xs hover:bg-yellow-600 transition">Decline</button>
                         <?php endif; ?>
                         <a href="ads.php?action=delete&id=<?php echo $ad['id']; ?>" class="text-red-500 hover:text-red-700 transition" onclick="return confirm('Permanently delete this ad?')"><i class="fas fa-trash"></i></a>
                     </td>
@@ -79,5 +79,34 @@ include __DIR__ . '/../templates/admin_header.php';
         </table>
     </div>
 </div>
+
+<!-- Decline Modal -->
+<div id="declineModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8">
+        <h3 class="text-xl font-bold text-gray-800 mb-6">Decline Ad Rejection Reason</h3>
+        <form method="POST" id="declineForm">
+            <input type="hidden" name="ad_id" id="modalAdId">
+            <textarea name="reason" rows="5" class="w-full p-4 border rounded-xl focus:border-red-500 outline-none mb-6" placeholder="Tell the seller why their ad was rejected..." required></textarea>
+            <div class="flex gap-4">
+                <button type="button" onclick="closeDeclineModal()" class="flex-1 bg-gray-100 text-gray-600 py-3 rounded-xl font-bold hover:bg-gray-200 transition">Cancel</button>
+                <button type="submit" name="decline_submit" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition shadow-lg uppercase">Confirm Rejection</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openDeclineModal(adId) {
+    document.getElementById('modalAdId').value = adId;
+    document.getElementById('declineForm').action = 'ads.php?action=decline&id=' + adId;
+    document.getElementById('declineModal').classList.remove('hidden');
+    document.getElementById('declineModal').classList.add('flex');
+}
+
+function closeDeclineModal() {
+    document.getElementById('declineModal').classList.add('hidden');
+    document.getElementById('declineModal').classList.remove('flex');
+}
+</script>
 
 <?php include __DIR__ . '/../templates/admin_footer.php'; ?>
