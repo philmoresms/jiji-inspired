@@ -23,17 +23,19 @@ $stmt = $pdo->query("SELECT * FROM categories WHERE parent_id = 0 ORDER BY name 
 $categories = $stmt->fetchAll();
 
 // Fetch featured ads
-$stmt = $pdo->query("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name
+$stmt = $pdo->query("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name
                      FROM ads a
                      JOIN states s ON a.state_id = s.id
+                     JOIN categories c ON a.cat_id = c.id
                      WHERE a.status = 'active' AND a.is_featured = 1
                      ORDER BY a.created_at DESC LIMIT 8");
 $featured_ads = $stmt->fetchAll();
 
 // Fetch regular ads
-$stmt = $pdo->query("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name
+$stmt = $pdo->query("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name
                      FROM ads a
                      JOIN states s ON a.state_id = s.id
+                     JOIN categories c ON a.cat_id = c.id
                      WHERE a.status = 'active' AND a.is_featured = 0
                      ORDER BY a.created_at DESC LIMIT 20");
 $recent_ads = $stmt->fetchAll();

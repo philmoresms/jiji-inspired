@@ -10,9 +10,10 @@ $state_id = (int)($_GET['state_id'] ?? 0);
 $min_price = (float)($_GET['min_price'] ?? 0);
 $max_price = (float)($_GET['max_price'] ?? 10000000);
 
-$query = "SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name
+$query = "SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name
           FROM ads a
           JOIN states s ON a.state_id = s.id
+          JOIN categories c ON a.cat_id = c.id
           WHERE a.status = 'active'";
 
 $params = [];

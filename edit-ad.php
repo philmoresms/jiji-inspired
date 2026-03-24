@@ -22,17 +22,18 @@ if (!$ad) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = $_POST['title'];
-    $cat_id = (int)$_POST['cat_id'];
-    $state_id = (int)$_POST['state_id'];
-    $lga_id = (int)$_POST['lga_id'];
-    $price = (float)$_POST['price'];
-    $description = $_POST['description'];
-    $video_url = $_POST['video_url'] ?? null;
+    try {
+        $title = $_POST['title'];
+        $cat_id = (int)$_POST['cat_id'] ?: null;
+        $state_id = (int)$_POST['state_id'] ?: null;
+        $lga_id = (int)$_POST['lga_id'] ?: null;
+        $price = (float)$_POST['price'];
+        $description = $_POST['description'];
+        $video_url = !empty($_POST['video_url']) ? $_POST['video_url'] : null;
 
-    // Update ad and reset status to pending
-    $stmt = $pdo->prepare("UPDATE ads SET cat_id = ?, state_id = ?, lga_id = ?, title = ?, price = ?, description = ?, video_url = ?, status = 'pending', decline_reason = NULL WHERE id = ?");
-    $stmt->execute([$cat_id, $state_id, $lga_id, $title, $price, $description, $video_url, $ad_id]);
+        // Update ad and reset status to pending
+        $stmt = $pdo->prepare("UPDATE ads SET cat_id = ?, state_id = ?, lga_id = ?, title = ?, price = ?, description = ?, video_url = ?, status = 'pending', decline_reason = NULL WHERE id = ?");
+        $stmt->execute([$cat_id, $state_id, $lga_id, $title, $price, $description, $video_url, $ad_id]);
 
     // Handle new images if any
     if (!empty($_FILES['images']['name'][0])) {
@@ -51,7 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    redirect('profile.php', 'Ad updated and re-submitted for moderation.');
+        redirect('profile.php', 'Ad updated and re-submitted for moderation.');
+    } catch (PDOException $e) {
+        error_log("Edit Ad Error: " . $e->getMessage());
+        $error = "An error occurred while updating your ad.";
+    }
 }
 
 $categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll();
@@ -63,6 +68,10 @@ include __DIR__ . '/templates/header.php';
 <div class="container mx-auto px-4 py-10 flex justify-center">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl border-t-8 border-yellow-500">
         <h1 class="text-2xl font-bold mb-4 text-gray-800"><i class="fas fa-edit mr-2"></i> Edit & Re-submit Ad</h1>
+
+        <?php if (isset($error)): ?>
+            <div class="bg-red-100 text-red-700 p-4 rounded-lg mb-6 font-bold text-sm"><?php echo h($error); ?></div>
+        <?php endif; ?>
 
         <?php if ($ad['status'] == 'declined'): ?>
             <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded">

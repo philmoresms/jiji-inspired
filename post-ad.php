@@ -6,23 +6,24 @@ require_once __DIR__ . '/inc/user_auth.php';
 require_user();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $user_id = $_SESSION['user_id'];
-    $title = $_POST['title'];
-    $cat_id = (int)$_POST['cat_id'];
-    $state_id = (int)$_POST['state_id'];
-    $lga_id = (int)$_POST['lga_id'];
-    $price = (float)$_POST['price'];
-    $description = $_POST['description'];
-    $video_url = $_POST['video_url'] ?? null;
+    try {
+        $user_id = $_SESSION['user_id'];
+        $title = $_POST['title'];
+        $cat_id = (int)$_POST['cat_id'] ?: null;
+        $state_id = (int)$_POST['state_id'] ?: null;
+        $lga_id = (int)$_POST['lga_id'] ?: null;
+        $price = (float)$_POST['price'];
+        $description = $_POST['description'];
+        $video_url = !empty($_POST['video_url']) ? $_POST['video_url'] : null;
 
-    // Get free ad duration
-    $stmt = $pdo->query("SELECT setting_value FROM settings WHERE setting_key = 'free_ad_duration'");
-    $duration = (int)($stmt->fetchColumn() ?: 15);
-    $expires_at = date('Y-m-d H:i:s', strtotime("+$duration days"));
+        // Get free ad duration
+        $stmt = $pdo->query("SELECT setting_value FROM settings WHERE setting_key = 'free_ad_duration'");
+        $duration = (int)($stmt->fetchColumn() ?: 15);
+        $expires_at = date('Y-m-d H:i:s', strtotime("+$duration days"));
 
-    $stmt = $pdo->prepare("INSERT INTO ads (user_id, cat_id, state_id, lga_id, title, price, description, status, video_url, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)");
-    $stmt->execute([$user_id, $cat_id, $state_id, $lga_id, $title, $price, $description, $video_url, $expires_at]);
-    $ad_id = $pdo->lastInsertId();
+        $stmt = $pdo->prepare("INSERT INTO ads (user_id, cat_id, state_id, lga_id, title, price, description, status, video_url, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)");
+        $stmt->execute([$user_id, $cat_id, $state_id, $lga_id, $title, $price, $description, $video_url, $expires_at]);
+        $ad_id = $pdo->lastInsertId();
 
     // Process Images
     if (!empty($_FILES['images']['name'][0])) {
@@ -36,7 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    redirect('profile.php', 'Ad posted successfully! It will be live after moderation.');
+        redirect('profile.php', 'Ad posted successfully! It will be live after moderation.');
+    } catch (PDOException $e) {
+        error_log("Post Ad Error: " . $e->getMessage());
+        $error = "An error occurred while posting your ad. Please ensure all fields are correct.";
+    }
 }
 
 $categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll();
@@ -48,6 +53,10 @@ include __DIR__ . '/templates/header.php';
 <div class="container mx-auto px-4 py-10 flex justify-center">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
         <h1 class="text-2xl font-bold mb-8 text-green-600 border-b pb-4"><i class="fas fa-plus-circle mr-2"></i> Post Your Ad</h1>
+
+        <?php if (isset($error)): ?>
+            <div class="bg-red-100 text-red-700 p-4 rounded-lg mb-6 font-bold text-sm"><?php echo h($error); ?></div>
+        <?php endif; ?>
 
         <form method="POST" enctype="multipart/form-data" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -50,9 +50,10 @@ $page_desc = substr(strip_tags($ad['description']), 0, 160);
 $page_keywords = extract_keywords($ad['title'], $ad['cat_name']);
 
 // Get similar ads (same category, active, not current)
-$stmt = $pdo->prepare("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name
+$stmt = $pdo->prepare("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name
                      FROM ads a
                      JOIN states s ON a.state_id = s.id
+                     JOIN categories c ON a.cat_id = c.id
                      WHERE a.cat_id = ? AND a.status = 'active' AND a.id != ?
                      ORDER BY a.created_at DESC LIMIT 4");
 $stmt->execute([$ad['cat_id'], $id]);

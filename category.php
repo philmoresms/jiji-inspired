@@ -21,9 +21,10 @@ $page_desc = "Browse the best deals in " . $category['name'] . " on " . ($settin
 $page_keywords = extract_keywords($category['name'], "buy sell nigeria");
 
 // Get ads in this category
-$stmt = $pdo->prepare("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name
+$stmt = $pdo->prepare("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name
                      FROM ads a
                      JOIN states s ON a.state_id = s.id
+                     JOIN categories c ON a.cat_id = c.id
                      WHERE a.cat_id = ? AND a.status = 'active'
                      ORDER BY a.is_featured DESC, a.bumped_at DESC");
 $stmt->execute([$cat_id]);
