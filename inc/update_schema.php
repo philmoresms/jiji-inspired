@@ -1,0 +1,42 @@
+<?php
+/**
+ * Jiji-Inspired-1.0 Schema Update Migration
+ */
+
+require_once __DIR__ . '/../config/config.php';
+
+try {
+    // 1. Add video_url to ads if not exists
+    $stmt = $pdo->query("SHOW COLUMNS FROM ads LIKE 'video_url'");
+    if (!$stmt->fetch()) {
+        $pdo->exec("ALTER TABLE ads ADD COLUMN video_url VARCHAR(255) DEFAULT NULL AFTER decline_reason");
+        error_log("Migration: Added video_url column to ads table.");
+    }
+
+    // 2. Add indexes to ads if not exists
+    $indexes = [
+        'cat_id' => 'INDEX (cat_id)',
+        'state_id' => 'INDEX (state_id)',
+        'status' => 'INDEX (status)',
+        'is_featured' => 'INDEX (is_featured)'
+    ];
+
+    foreach ($indexes as $name => $sql) {
+        $stmt = $pdo->query("SHOW INDEX FROM ads WHERE Key_name = '$name'");
+        if (!$stmt->fetch()) {
+            $pdo->exec("ALTER TABLE ads ADD $sql");
+            error_log("Migration: Added $name index to ads table.");
+        }
+    }
+
+    // 3. Add index to lgas if not exists
+    $stmt = $pdo->query("SHOW INDEX FROM lgas WHERE Key_name = 'state_id'");
+    if (!$stmt->fetch()) {
+        $pdo->exec("ALTER TABLE lgas ADD INDEX (state_id)");
+        error_log("Migration: Added state_id index to lgas table.");
+    }
+
+} catch (PDOException $e) {
+    // Migration might fail if already exists or other DB issues
+    error_log("Migration Error: " . $e->getMessage());
+}

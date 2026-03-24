@@ -3,6 +3,9 @@
  * Jiji-Inspired-1.0 Common Functions
  */
 
+// Check if schema needs update (migration logic)
+require_once __DIR__ . '/update_schema.php';
+
 // Initialize project directories
 $required_dirs = [
     __DIR__ . '/../config',
