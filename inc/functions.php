@@ -88,8 +88,8 @@ function process_image_upload($file_tmp, $target_dir, $max_width = 800) {
 
     imagecopyresampled($tmp, $src, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
 
-    // Save as JPG
-    imagejpeg($tmp, $target_file, 85);
+    // Save as JPG with higher compression (70 instead of 85)
+    imagejpeg($tmp, $target_file, 70);
 
     imagedestroy($src);
     imagedestroy($tmp);

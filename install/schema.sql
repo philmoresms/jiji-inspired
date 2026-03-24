@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS lgas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     state_id INT,
     name VARCHAR(100) NOT NULL,
+    INDEX (state_id),
     FOREIGN KEY (state_id) REFERENCES states(id) ON DELETE CASCADE
 );
 
@@ -70,7 +71,12 @@ CREATE TABLE IF NOT EXISTS ads (
     is_featured TINYINT(1) DEFAULT 0,
     views INT DEFAULT 0,
     decline_reason TEXT,
+    video_url VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX (cat_id),
+    INDEX (state_id),
+    INDEX (status),
+    INDEX (is_featured),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (cat_id) REFERENCES categories(id) ON DELETE SET NULL,
     FOREIGN KEY (state_id) REFERENCES states(id) ON DELETE SET NULL,

@@ -13,9 +13,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $lga_id = (int)$_POST['lga_id'];
     $price = (float)$_POST['price'];
     $description = $_POST['description'];
+    $video_url = $_POST['video_url'] ?? null;
 
-    $stmt = $pdo->prepare("INSERT INTO ads (user_id, cat_id, state_id, lga_id, title, price, description, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')");
-    $stmt->execute([$user_id, $cat_id, $state_id, $lga_id, $title, $price, $description]);
+    $stmt = $pdo->prepare("INSERT INTO ads (user_id, cat_id, state_id, lga_id, title, price, description, status, video_url) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)");
+    $stmt->execute([$user_id, $cat_id, $state_id, $lga_id, $title, $price, $description, $video_url]);
     $ad_id = $pdo->lastInsertId();
 
     // Process Images
@@ -86,6 +87,11 @@ include __DIR__ . '/templates/header.php';
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2 text-sm">Description</label>
                 <textarea name="description" rows="5" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="Provide details about the item..." required></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2 text-sm">Video Link (YouTube/TikTok)</label>
+                <input type="url" name="video_url" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="https://youtube.com/watch?v=...">
             </div>
 
             <div class="mb-4 p-6 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 hover:bg-white transition cursor-pointer relative group">

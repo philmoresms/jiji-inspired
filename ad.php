@@ -65,7 +65,25 @@ include __DIR__ . '/templates/header.php';
 
                     <div class="prose max-w-none text-gray-600 leading-relaxed border-t pt-8">
                         <h3 class="text-xl font-bold text-gray-800 mb-4">Description</h3>
-                        <?php echo nl2br(h($ad['description'])); ?>
+                        <p class="mb-8"><?php echo nl2br(h($ad['description'])); ?></p>
+
+                        <?php if ($ad['video_url']): ?>
+                            <div class="mt-8">
+                                <h3 class="text-xl font-bold text-gray-800 mb-4"><i class="fab fa-youtube text-red-600 mr-2"></i> Video Tour</h3>
+                                <div class="relative pb-[56.25%] h-0 rounded-xl overflow-hidden shadow-lg border-4 border-gray-100">
+                                    <?php
+                                    $vurl = $ad['video_url'];
+                                    if (strpos($vurl, 'youtube.com') !== false || strpos($vurl, 'youtu.be') !== false) {
+                                        parse_str(parse_url($vurl, PHP_URL_QUERY), $vparams);
+                                        $vid = $vparams['v'] ?? basename(parse_url($vurl, PHP_URL_PATH));
+                                        echo '<iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/'.$vid.'" frameborder="0" allowfullscreen></iframe>';
+                                    } else {
+                                        echo '<a href="'.h($vurl).'" target="_blank" class="bg-blue-50 text-blue-600 p-4 rounded-lg block font-bold text-center hover:bg-blue-100 transition">View External Video Link</a>';
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
