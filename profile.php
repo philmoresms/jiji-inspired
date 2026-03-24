@@ -1,8 +1,8 @@
 <?php
-session_start();
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../inc/functions.php';
-require_once __DIR__ . '/../inc/user_auth.php';
+if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/config/config.php';
+require_once __DIR__ . '/inc/functions.php';
+require_once __DIR__ . '/inc/user_auth.php';
 require_user();
 
 $user_id = $_SESSION['user_id'];
@@ -21,7 +21,7 @@ $stmt = $pdo->prepare("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id
 $stmt->execute([$user_id]);
 $user_ads = $stmt->fetchAll();
 
-include __DIR__ . '/../templates/header.php';
+include __DIR__ . '/templates/header.php';
 ?>
 
 <div class="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
@@ -98,4 +98,4 @@ include __DIR__ . '/../templates/header.php';
     </div>
 </div>
 
-<?php include __DIR__ . '/../templates/footer.php'; ?>
+<?php include __DIR__ . '/templates/footer.php'; ?>

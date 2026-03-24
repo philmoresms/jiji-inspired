@@ -3,6 +3,19 @@
  * Jiji-Inspired-1.0 Common Functions
  */
 
+// Initialize project directories
+$required_dirs = [
+    __DIR__ . '/../config',
+    __DIR__ . '/../uploads',
+    __DIR__ . '/../uploads/ads',
+    __DIR__ . '/../uploads/proofs'
+];
+foreach ($required_dirs as $dir) {
+    if (!is_dir($dir)) {
+        mkdir($dir, 0755, true);
+    }
+}
+
 /**
  * Sanitize output for XSS prevention
  */

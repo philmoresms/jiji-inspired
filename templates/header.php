@@ -3,6 +3,15 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../inc/functions.php';
 require_once __DIR__ . '/../inc/user_auth.php';
+
+// Fetch global settings for site name, etc.
+if (isset($pdo)) {
+    $stmt = $pdo->query("SELECT setting_key, setting_value FROM settings");
+    $settings = [];
+    while ($row = $stmt->fetch()) {
+        $settings[$row['setting_key']] = $row['setting_value'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

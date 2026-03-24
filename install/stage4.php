@@ -4,7 +4,7 @@
  * Stage 4: Congratulations & Instructions
  */
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) session_start();
 
 if (!isset($_SESSION['install_stage']) || $_SESSION['install_stage'] < 4) {
     header('Location: stage3.php');

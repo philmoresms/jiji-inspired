@@ -1,8 +1,8 @@
 <?php
-session_start();
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../inc/functions.php';
-require_once __DIR__ . '/../inc/user_auth.php';
+if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/config/config.php';
+require_once __DIR__ . '/inc/functions.php';
+require_once __DIR__ . '/inc/user_auth.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Basic settings update
@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('profile.php', 'Profile updated.');
 }
 
-include __DIR__ . '/../templates/header.php';
+include __DIR__ . '/templates/header.php';
 ?>
 
 <div class="container mx-auto px-4 py-10 flex justify-center">
@@ -42,4 +42,4 @@ include __DIR__ . '/../templates/header.php';
     </div>
 </div>
 
-<?php include __DIR__ . '/../templates/footer.php'; ?>
+<?php include __DIR__ . '/templates/footer.php'; ?>

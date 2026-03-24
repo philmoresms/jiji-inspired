@@ -1,8 +1,8 @@
 <?php
-session_start();
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../inc/functions.php';
-require_once __DIR__ . '/../inc/user_auth.php';
+if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/config/config.php';
+require_once __DIR__ . '/inc/functions.php';
+require_once __DIR__ . '/inc/user_auth.php';
 
 if (!isset($_GET['id'])) {
     redirect('index.php');
@@ -31,7 +31,7 @@ $stmt = $pdo->prepare("SELECT image_path, is_main FROM ad_images WHERE ad_id = ?
 $stmt->execute([$id]);
 $images = $stmt->fetchAll();
 
-include __DIR__ . '/../templates/header.php';
+include __DIR__ . '/templates/header.php';
 ?>
 
 <div class="container mx-auto px-4 py-8">
@@ -117,4 +117,4 @@ include __DIR__ . '/../templates/header.php';
     </div>
 </div>
 
-<?php include __DIR__ . '/../templates/footer.php'; ?>
+<?php include __DIR__ . '/templates/footer.php'; ?>

@@ -3,7 +3,7 @@
  * Jiji-Inspired-1.0 Admin Login
  */
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../inc/functions.php';
 require_once __DIR__ . '/../inc/security.php';
@@ -33,8 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             log_login_attempt($username, 1, 1);
             $_SESSION['admin_id'] = $admin['id'];
             $_SESSION['admin_user'] = $admin['username'];
-
-            // Whitelist IP if successful logins >= 5 (Optional logic implementation)
 
             header('Location: index.php');
             exit;

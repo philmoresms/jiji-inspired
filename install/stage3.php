@@ -4,7 +4,7 @@
  * Stage 3: Admin Account Creation & Seeding
  */
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) session_start();
 require_once '../inc/functions.php';
 require_once 'seeder.php';
 

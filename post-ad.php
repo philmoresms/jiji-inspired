@@ -1,8 +1,8 @@
 <?php
-session_start();
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../inc/functions.php';
-require_once __DIR__ . '/../inc/user_auth.php';
+if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/config/config.php';
+require_once __DIR__ . '/inc/functions.php';
+require_once __DIR__ . '/inc/user_auth.php';
 require_user();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll();
 $states = $pdo->query("SELECT * FROM states ORDER BY name ASC")->fetchAll();
 
-include __DIR__ . '/../templates/header.php';
+include __DIR__ . '/templates/header.php';
 ?>
 
 <div class="container mx-auto px-4 py-10 flex justify-center">
@@ -128,4 +128,4 @@ function loadLGAs(stateId) {
 }
 </script>
 
-<?php include __DIR__ . '/../templates/footer.php'; ?>
+<?php include __DIR__ . '/templates/footer.php'; ?>

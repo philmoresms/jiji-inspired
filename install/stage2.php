@@ -4,7 +4,7 @@
  * Stage 2: Database Configuration & Schema Installation
  */
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) session_start();
 
 if (!isset($_SESSION['install_stage']) || $_SESSION['install_stage'] < 2) {
     header('Location: index.php');

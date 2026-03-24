@@ -4,7 +4,7 @@
  * Stage 1: System Requirements Check
  */
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) session_start();
 
 // Current PHP version
 $php_version = PHP_VERSION;
