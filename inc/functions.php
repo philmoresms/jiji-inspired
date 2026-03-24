@@ -99,3 +99,14 @@ function process_image_upload($file_tmp, $target_dir, $max_width = 800) {
 
     return $filename;
 }
+
+/**
+ * Generate SEO friendly Ad URL
+ */
+function generate_ad_url($ad) {
+    $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $ad['title'])));
+    $state = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $ad['state_name'])));
+    $cat = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $ad['cat_name'])));
+
+    return "/$state/$cat/$slug-{$ad['id']}";
+}

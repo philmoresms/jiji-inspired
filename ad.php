@@ -157,10 +157,24 @@ include __DIR__ . '/templates/header.php';
                             <i class="fas fa-comment-dots mr-2"></i> START CHAT
                         </a>
                     <?php elseif (!is_user_logged_in()): ?>
-                        <a href="login.php" class="w-full bg-white text-green-600 border-2 border-green-600 py-4 rounded-xl font-bold hover:bg-green-600 hover:text-white transition flex items-center justify-center">
+                        <a href="/login" class="w-full bg-white text-green-600 border-2 border-green-600 py-4 rounded-xl font-bold hover:bg-green-600 hover:text-white transition flex items-center justify-center">
                              LOGIN TO CHAT
                         </a>
                     <?php endif; ?>
+                </div>
+
+                <div class="mt-8 border-t pt-8">
+                    <p class="text-xs font-bold text-gray-400 uppercase mb-4 tracking-widest text-center">Share this ad</p>
+                    <div class="flex justify-center gap-4">
+                        <?php
+                        $share_url = urlencode("http://" . $_SERVER['HTTP_HOST'] . generate_ad_url($ad));
+                        $share_text = urlencode("Check out this " . $ad['title'] . " on Jiji Clone!");
+                        ?>
+                        <a href="https://wa.me/?text=<?php echo $share_text . '%20' . $share_url; ?>" target="_blank" class="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 transition shadow-sm"><i class="fab fa-whatsapp text-xl"></i></a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo $share_url; ?>" target="_blank" class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition shadow-sm"><i class="fab fa-facebook-f text-lg"></i></a>
+                        <a href="https://twitter.com/intent/tweet?text=<?php echo $share_text; ?>&url=<?php echo $share_url; ?>" target="_blank" class="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition shadow-sm"><i class="fab fa-x-twitter text-lg"></i></a>
+                        <a href="https://t.me/share/url?url=<?php echo $share_url; ?>&text=<?php echo $share_text; ?>" target="_blank" class="w-10 h-10 bg-blue-400 text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition shadow-sm"><i class="fab fa-telegram-plane text-lg"></i></a>
+                    </div>
                 </div>
 
                 <div class="mt-8 p-4 bg-yellow-50 rounded-xl border border-yellow-100 text-center">
@@ -181,7 +195,7 @@ include __DIR__ . '/templates/header.php';
         <h2 class="text-2xl font-bold text-gray-800 mb-10 uppercase tracking-widest border-l-8 border-green-600 pl-6">Similar Ads You May Like</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
             <?php foreach ($similar_ads as $s_ad): ?>
-            <a href="ad.php?id=<?php echo $s_ad['id']; ?>" class="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all group border border-gray-100">
+            <a href="<?php echo generate_ad_url($s_ad); ?>" class="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all group border border-gray-100">
                 <div class="relative h-48 overflow-hidden">
                     <img src="<?php echo $s_ad['image'] ? 'uploads/ads/'.$s_ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                     <?php if ($s_ad['is_featured']): ?>

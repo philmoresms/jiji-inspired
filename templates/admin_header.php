@@ -14,7 +14,7 @@
             <div class="p-6 font-bold text-2xl border-b border-green-700">Jiji Admin</div>
             <nav class="p-4">
                 <ul class="space-y-2">
-                    <li><a href="index.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a></li>
+                    <li><a href="/" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a></li>
                     <li><a href="ads.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-ad mr-2"></i> Ad Moderation</a></li>
                     <li><a href="users.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-users mr-2"></i> User Management</a></li>
                     <li><a href="categories.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-list mr-2"></i> Categories</a></li>
@@ -22,7 +22,7 @@
                     <li><a href="security.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-shield-alt mr-2"></i> Security & Firewall</a></li>
                     <li><a href="payments.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-receipt mr-2"></i> Revenue & Payments</a></li>
                     <li><a href="settings.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-cog mr-2"></i> Global Settings</a></li>
-                    <li><a href="logout.php" class="block p-2 hover:bg-red-700 rounded transition text-red-200 mt-8"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a></li>
+                    <li><a href="/logout" class="block p-2 hover:bg-red-700 rounded transition text-red-200 mt-8"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a></li>
                 </ul>
             </nav>
         </aside>

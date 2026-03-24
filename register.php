@@ -75,7 +75,7 @@ include __DIR__ . '/templates/header.php';
         </form>
 
         <div class="mt-6 text-center text-gray-600 font-bold text-sm">
-            Already have an account? <a href="login.php" class="text-green-600 hover:underline">Sign In</a>
+            Already have an account? <a href="/login" class="text-green-600 hover:underline">Sign In</a>
         </div>
     </div>
 </div>

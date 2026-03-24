@@ -42,9 +42,9 @@ include __DIR__ . '/templates/header.php';
             </div>
 
             <div class="mt-10 pt-8 border-t space-y-4 font-bold text-sm text-gray-600">
-                <a href="profile.php" class="block p-3 rounded-xl bg-green-50 text-green-700 transition flex items-center"><i class="fas fa-th-large mr-3"></i> MY ADS</a>
-                <a href="support.php" class="block p-3 rounded-xl hover:bg-green-50 transition flex items-center"><i class="fas fa-headset mr-3"></i> SUPPORT CHAT</a>
-                <a href="logout.php" class="block p-3 rounded-xl hover:bg-red-50 text-red-400 transition flex items-center mt-6"><i class="fas fa-sign-out-alt mr-3"></i> LOGOUT</a>
+                <a href="/profile" class="block p-3 rounded-xl bg-green-50 text-green-700 transition flex items-center"><i class="fas fa-th-large mr-3"></i> MY ADS</a>
+                <a href="/support" class="block p-3 rounded-xl hover:bg-green-50 transition flex items-center"><i class="fas fa-headset mr-3"></i> SUPPORT CHAT</a>
+                <a href="/logout" class="block p-3 rounded-xl hover:bg-red-50 text-red-400 transition flex items-center mt-6"><i class="fas fa-sign-out-alt mr-3"></i> LOGOUT</a>
             </div>
         </div>
     </div>
@@ -53,7 +53,7 @@ include __DIR__ . '/templates/header.php';
     <div class="md:w-3/4">
         <div class="flex justify-between items-center mb-10">
             <h1 class="text-3xl font-bold text-gray-800 uppercase border-l-8 border-green-600 pl-4">My Marketplace</h1>
-            <a href="post-ad.php" class="bg-yellow-500 text-white px-8 py-3 rounded-xl font-bold hover:bg-yellow-600 transition shadow-lg flex items-center"><i class="fas fa-plus mr-2"></i> SELL SOMETHING</a>
+            <a href="/post-ad" class="bg-yellow-500 text-white px-8 py-3 rounded-xl font-bold hover:bg-yellow-600 transition shadow-lg flex items-center"><i class="fas fa-plus mr-2"></i> SELL SOMETHING</a>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -83,7 +83,7 @@ include __DIR__ . '/templates/header.php';
                         <?php else: ?>
                             <a href="api/republish.php?id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-blue-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition uppercase shadow-md tracking-wider">Republish</a>
                         <?php endif; ?>
-                        <a href="ad.php?id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-gray-100 text-gray-600 py-2 rounded-lg text-xs font-bold hover:bg-gray-200 transition uppercase tracking-wider border border-gray-200">View</a>
+                        <a href="<?php echo generate_ad_url($ad); ?>" class="flex-1 text-center bg-gray-100 text-gray-600 py-2 rounded-lg text-xs font-bold hover:bg-gray-200 transition uppercase tracking-wider border border-gray-200">View</a>
                     </div>
                 </div>
             </div>
@@ -96,7 +96,7 @@ include __DIR__ . '/templates/header.php';
                 </div>
                 <h2 class="text-xl font-bold text-gray-400 mb-2">You haven't posted any ads yet</h2>
                 <p class="text-gray-300 font-bold mb-8">Start selling today and reach millions of buyers!</p>
-                <a href="post-ad.php" class="bg-green-600 text-white px-10 py-4 rounded-xl font-bold hover:bg-green-700 transition uppercase shadow-lg tracking-widest inline-block">POST YOUR FIRST AD</a>
+                <a href="/post-ad" class="bg-green-600 text-white px-10 py-4 rounded-xl font-bold hover:bg-green-700 transition uppercase shadow-lg tracking-widest inline-block">POST YOUR FIRST AD</a>
             </div>
             <?php endif; ?>
         </div>

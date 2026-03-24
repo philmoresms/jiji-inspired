@@ -26,7 +26,7 @@ if (isset($pdo)) {
 <body class="bg-gray-100 min-h-screen">
     <nav class="bg-white shadow-sm border-b sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <a href="index.php" class="text-2xl font-bold text-green-600">Jiji Clone</a>
+            <a href="/" class="text-2xl font-bold text-green-600">Jiji Clone</a>
 
             <div class="flex-1 max-w-xl mx-8 hidden md:block">
                 <form action="search.php" method="GET" class="relative">
@@ -37,11 +37,11 @@ if (isset($pdo)) {
 
             <div class="flex items-center space-x-4">
                 <?php if (is_user_logged_in()): ?>
-                    <a href="profile.php" class="text-gray-600 hover:text-green-600 font-bold"><i class="fas fa-user mr-1"></i> Profile</a>
-                    <a href="post-ad.php" class="bg-yellow-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-yellow-600 transition">SELL</a>
+                    <a href="/profile" class="text-gray-600 hover:text-green-600 font-bold"><i class="fas fa-user mr-1"></i> Profile</a>
+                    <a href="/post-ad" class="bg-yellow-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-yellow-600 transition">SELL</a>
                 <?php else: ?>
-                    <a href="login.php" class="text-gray-600 hover:text-green-600 font-bold">Sign In</a>
-                    <a href="register.php" class="text-green-600 font-bold border-2 border-green-600 px-4 py-1 rounded-lg hover:bg-green-600 hover:text-white transition">Registration</a>
+                    <a href="/login" class="text-gray-600 hover:text-green-600 font-bold">Sign In</a>
+                    <a href="/register" class="text-green-600 font-bold border-2 border-green-600 px-4 py-1 rounded-lg hover:bg-green-600 hover:text-white transition">Registration</a>
                 <?php endif; ?>
             </div>
         </div>

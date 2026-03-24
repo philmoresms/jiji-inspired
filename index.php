@@ -49,7 +49,7 @@ include __DIR__ . '/templates/header.php';
             <ul class="space-y-2">
                 <?php foreach ($categories as $cat): ?>
                 <li>
-                    <a href="category.php?slug=<?php echo $cat['slug']; ?>" class="flex items-center p-2 rounded hover:bg-green-50 transition group">
+                    <a href="/category/<?php echo $cat['slug']; ?>" class="flex items-center p-2 rounded hover:bg-green-50 transition group">
                         <i class="fas <?php echo h($cat['icon_class']); ?> w-6 text-gray-500 group-hover:text-green-600"></i>
                         <span class="text-sm font-bold text-gray-700 group-hover:text-green-600"><?php echo h($cat['name']); ?></span>
                     </a>
@@ -66,7 +66,7 @@ include __DIR__ . '/templates/header.php';
                     <h2 class="text-3xl font-bold mb-2">Sell Faster, Buy Smarter.</h2>
                     <p class="text-green-100 font-bold">Nigeria's #1 Classifieds Platform</p>
                 </div>
-                <a href="post-ad.php" class="mt-4 md:mt-0 bg-yellow-500 text-white px-8 py-3 rounded-full font-bold hover:bg-yellow-600 transition shadow-lg">POST AD FOR FREE</a>
+                <a href="/post-ad" class="mt-4 md:mt-0 bg-yellow-500 text-white px-8 py-3 rounded-full font-bold hover:bg-yellow-600 transition shadow-lg">POST AD FOR FREE</a>
             </div>
 
             <!-- Featured Ads -->
@@ -78,7 +78,7 @@ include __DIR__ . '/templates/header.php';
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <?php foreach ($featured_ads as $ad): ?>
-                    <a href="ad.php?id=<?php echo $ad['id']; ?>" class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition">
+                    <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition">
                         <div class="relative h-40">
                             <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
                             <span class="absolute top-2 left-2 bg-yellow-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Featured</span>
@@ -102,7 +102,7 @@ include __DIR__ . '/templates/header.php';
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     <?php foreach ($recent_ads as $ad): ?>
-                    <a href="ad.php?id=<?php echo $ad['id']; ?>" class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition">
+                    <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition">
                         <div class="h-40">
                             <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
                         </div>

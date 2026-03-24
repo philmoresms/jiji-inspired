@@ -73,7 +73,7 @@ include __DIR__ . '/templates/header.php';
         </div>
 
         <div class="mt-6 text-center text-gray-600 font-bold text-sm">
-            Don't have an account? <a href="register.php" class="text-green-600 hover:underline">Register Now</a>
+            Don't have an account? <a href="/register" class="text-green-600 hover:underline">Register Now</a>
         </div>
     </div>
 </div>

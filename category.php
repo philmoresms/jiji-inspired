@@ -38,7 +38,7 @@ include __DIR__ . '/templates/header.php';
 
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         <?php foreach ($ads as $ad): ?>
-        <a href="ad.php?id=<?php echo $ad['id']; ?>" class="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all border border-gray-100 group">
+        <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all border border-gray-100 group">
             <div class="relative h-48 overflow-hidden">
                 <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                 <?php if ($ad['is_featured']): ?>
