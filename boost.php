@@ -22,18 +22,19 @@ if (isset($_GET['ad_id'])) {
 }
 
 // Get settings
-$stmt = $pdo->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('paystack_public_key', 'flutterwave_public_key')");
+$stmt = $pdo->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('paystack_public_key', 'flutterwave_public_key', 'boost_price')");
 $settings = [];
 while ($row = $stmt->fetch()) {
     $settings[$row['setting_key']] = $row['setting_value'];
 }
+$boost_price = (float)($settings['boost_price'] ?? 2000);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bank_transfer'])) {
-    $filename = process_image_upload($_FILES['proof']['tmp_name'], __DIR__ . '/../uploads/proofs', 800);
+    $filename = process_image_upload($_FILES['proof']['tmp_name'], __DIR__ . '/uploads/proofs', 800);
     if ($filename) {
         $stmt = $pdo->prepare("INSERT INTO payments (user_id, ad_id, amount, method, reference, status, proof_image) VALUES (?, ?, ?, 'bank_transfer', ?, 'pending', ?)");
         $reference = 'BT-'.time().'-'.rand(100, 999);
-        $stmt->execute([$user_id, $ad_id, 2000, $reference, $filename]);
+        $stmt->execute([$user_id, $ad_id, $boost_price, $reference, $filename]);
         redirect('profile.php', 'Payment proof submitted! Your ad will be boosted after manual verification.');
     }
 }
@@ -64,7 +65,7 @@ include __DIR__ . '/templates/header.php';
                     <p>Bank: Access Bank</p>
                     <p>Account: 0123456789</p>
                     <p>Name: Jiji Clone Nigeria</p>
-                    <p class="mt-2 font-bold">Amount: ₦2,000</p>
+                    <p class="mt-2 font-bold">Amount: ₦<?php echo number_format($boost_price, 2); ?></p>
                 </div>
                 <form method="POST" enctype="multipart/form-data" class="space-y-4">
                     <input type="hidden" name="bank_transfer" value="1">
@@ -87,7 +88,7 @@ function payWithPaystack() {
     const handler = PaystackPop.setup({
         key: '<?php echo $settings['paystack_public_key'] ?? ''; ?>',
         email: 'user@example.com',
-        amount: 200000, // In kobo
+        amount: <?php echo ($boost_price * 100); ?>, // In kobo
         currency: 'NGN',
         callback: function(response) {
             window.location.href = 'api/payment_verify.php?method=paystack&ref=' + response.reference + '&ad_id=<?php echo $ad_id; ?>';
@@ -100,7 +101,7 @@ function payWithFlutterwave() {
     FlutterwaveCheckout({
         public_key: '<?php echo $settings['flutterwave_public_key'] ?? ''; ?>',
         tx_ref: 'FLW-' + Date.now(),
-        amount: 2000,
+        amount: <?php echo $boost_price; ?>,
         currency: 'NGN',
         payment_options: 'card, banktransfer, ussd',
         callback: function (data) {

@@ -134,11 +134,16 @@ include __DIR__ . '/templates/header.php';
                     </div>
                     <div>
                         <h4 class="font-bold text-lg text-gray-800"><?php echo h($ad['seller_name']); ?></h4>
-                        <?php if ($ad['is_verified']): ?>
-                            <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-200"><i class="fas fa-check-circle"></i> VERIFIED SELLER</span>
-                        <?php else: ?>
-                            <span class="text-xs font-bold text-gray-400">Regular Seller</span>
-                        <?php endif; ?>
+                        <div class="flex flex-col gap-1 mt-1">
+                            <?php if ($ad['is_featured']): ?>
+                                <span class="text-[10px] font-bold text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full border border-yellow-200 w-fit uppercase"><i class="fas fa-crown mr-1"></i> PREMIUM AD</span>
+                            <?php endif; ?>
+                            <?php if ($ad['is_verified']): ?>
+                                <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-200 w-fit uppercase"><i class="fas fa-check-circle mr-1"></i> VERIFIED SELLER</span>
+                            <?php else: ?>
+                                <span class="text-[10px] font-bold text-gray-400 uppercase">Regular Seller</span>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
 

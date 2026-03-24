@@ -71,8 +71,15 @@ include __DIR__ . '/../templates/admin_header.php';
 
             <!-- Payment Settings -->
             <div>
-                <h3 class="font-bold text-lg mb-4 text-green-700">Payment Gateway (API Keys)</h3>
+                <h3 class="font-bold text-lg mb-4 text-green-700">Ad Boosting & Payments</h3>
                 <div class="space-y-4">
+                    <div class="p-4 bg-green-50 rounded border border-green-200 mb-4">
+                        <label class="block text-sm font-bold text-green-800 mb-2">Boost Ad Price (₦)</label>
+                        <input type="number" name="s[boost_price]" value="<?php echo h($settings['boost_price'] ?? '2000'); ?>" class="w-full p-2 border rounded font-bold text-green-700" step="0.01">
+                        <p class="text-[10px] text-green-600 mt-1 uppercase font-bold tracking-widest">Amount users pay to feature their ads</p>
+                    </div>
+
+                    <h4 class="font-bold text-sm text-gray-600 mb-2 uppercase tracking-widest">API Gateway Keys</h4>
                     <div class="p-4 bg-yellow-50 rounded border border-yellow-200 mb-4">
                         <p class="text-sm text-yellow-800 font-bold">Paystack Configuration</p>
                         <div class="mt-2 space-y-3">
