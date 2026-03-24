@@ -144,6 +144,7 @@ function loadLGAs(stateId) {
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const previewContainer = document.getElementById('imagePreviewContainer');
+let allFiles = new DataTransfer(); // To keep track of multiple selections
 
 ['dragover', 'dragleave', 'drop'].forEach(eventName => {
     dropZone.addEventListener(eventName, e => {
@@ -168,35 +169,64 @@ dropZone.addEventListener('drop', (e) => {
 
     const files = e.dataTransfer.files;
     if (files.length > 0) {
-        fileInput.files = files; // Assign files to input
-        handlePreviews(files);
+        addFiles(files);
     }
 });
 
 fileInput.addEventListener('change', () => {
-    handlePreviews(fileInput.files);
+    addFiles(fileInput.files);
 });
 
-function handlePreviews(files) {
+function addFiles(files) {
+    for (let i = 0; i < files.length; i++) {
+        if (allFiles.items.length < 5) {
+            allFiles.items.add(files[i]);
+        }
+    }
+    fileInput.files = allFiles.files; // Update the real input
+    renderPreviews();
+}
+
+function removeFile(index) {
+    const newDT = new DataTransfer();
+    for (let i = 0; i < allFiles.files.length; i++) {
+        if (i !== index) {
+            newDT.items.add(allFiles.files[i]);
+        }
+    }
+    allFiles = newDT;
+    fileInput.files = allFiles.files;
+    renderPreviews();
+}
+
+function renderPreviews() {
     previewContainer.innerHTML = '';
+
+    if (allFiles.files.length === 0) {
+        previewContainer.classList.add('hidden');
+        return;
+    }
+
     previewContainer.classList.remove('hidden');
 
-    const maxFiles = Math.min(files.length, 5);
-    for (let i = 0; i < maxFiles; i++) {
+    Array.from(allFiles.files).forEach((file, i) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             const previewDiv = document.createElement('div');
-            previewDiv.className = 'relative group aspect-square rounded-lg overflow-hidden border-2 border-gray-100 shadow-sm';
+            previewDiv.className = 'relative group aspect-square rounded-xl overflow-hidden border-2 border-gray-100 shadow-sm transition transform hover:scale-95';
             previewDiv.innerHTML = `
                 <img src="${e.target.result}" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                    <span class="text-white text-[10px] font-bold">IMAGE ${i + 1}</span>
+                    <button type="button" onclick="removeFile(${i})" class="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-600 shadow-lg">
+                        <i class="fas fa-trash-alt text-xs"></i>
+                    </button>
                 </div>
+                <div class="absolute bottom-1 right-1 bg-green-600 text-white text-[8px] px-1 rounded font-bold">PHOTO ${i + 1}</div>
             `;
             previewContainer.appendChild(previewDiv);
         };
-        reader.readAsDataURL(files[i]);
-    }
+        reader.readAsDataURL(file);
+    });
 }
 </script>
 
