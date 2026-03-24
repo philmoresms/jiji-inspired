@@ -33,6 +33,11 @@ include __DIR__ . '/templates/header.php';
 ?>
 
 <div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb / Back Navigation -->
+    <div class="mb-6">
+        <a href="/" class="text-sm font-bold text-gray-400 hover:text-green-600 transition"><i class="fas fa-arrow-left mr-1"></i> Back to Home</a>
+    </div>
+
     <div class="bg-green-600 rounded-2xl p-10 text-white mb-12 flex flex-col md:flex-row items-center justify-between shadow-xl">
         <div class="mb-6 md:mb-0">
             <h1 class="text-4xl font-bold mb-4 uppercase tracking-widest border-l-8 border-yellow-400 pl-6"><?php echo h($category['name']); ?></h1>

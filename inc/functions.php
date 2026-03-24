@@ -108,6 +108,10 @@ function generate_ad_url($ad) {
     $state = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $ad['state_name'])));
     $cat = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $ad['cat_name'])));
 
+    // Ensure we don't have empty segments
+    $state = $state ?: 'nigeria';
+    $cat = $cat ?: 'others';
+
     return "/$state/$cat/$slug-{$ad['id']}";
 }
 

@@ -51,7 +51,7 @@ include __DIR__ . '/templates/header.php';
 <div class="container mx-auto px-4 py-8">
     <div class="flex flex-col md:flex-row gap-8">
         <!-- Search Filters Sidebar -->
-        <aside class="md:w-1/4 bg-white p-6 rounded-2xl shadow-sm h-fit sticky top-24">
+        <aside class="w-full md:w-1/4 bg-white p-6 rounded-2xl shadow-sm h-fit sticky top-24">
             <h3 class="font-bold text-gray-800 border-b pb-4 mb-6 uppercase tracking-wider">Refine Search</h3>
             <form action="search.php" method="GET" class="space-y-6">
                 <div>
