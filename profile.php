@@ -78,8 +78,8 @@ include __DIR__ . '/templates/header.php';
                         <?php if (!$ad['is_featured'] && $ad['status'] == 'active'): ?>
                             <a href="boost.php?ad_id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-green-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-green-700 transition uppercase shadow-md tracking-wider">Boost Ad</a>
                         <?php endif; ?>
-                        <?php if ($ad['status'] == 'declined'): ?>
-                            <a href="edit-ad.php?id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-yellow-500 text-white py-2 rounded-lg text-xs font-bold hover:bg-yellow-600 transition uppercase shadow-md tracking-wider">Modify</a>
+                        <?php if ($ad['status'] != 'sold'): ?>
+                            <a href="edit-ad.php?id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-yellow-500 text-white py-2 rounded-lg text-xs font-bold hover:bg-yellow-600 transition uppercase shadow-md tracking-wider">Edit</a>
                         <?php endif; ?>
                         <a href="ad.php?id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-gray-100 text-gray-600 py-2 rounded-lg text-xs font-bold hover:bg-gray-200 transition uppercase tracking-wider border border-gray-200">View</a>
                     </div>
