@@ -44,6 +44,15 @@ $stmt = $pdo->prepare("SELECT image_path, is_main FROM ad_images WHERE ad_id = ?
 $stmt->execute([$id]);
 $images = $stmt->fetchAll();
 
+// Get similar ads (same category, active, not current)
+$stmt = $pdo->prepare("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name
+                     FROM ads a
+                     JOIN states s ON a.state_id = s.id
+                     WHERE a.cat_id = ? AND a.status = 'active' AND a.id != ?
+                     ORDER BY a.created_at DESC LIMIT 4");
+$stmt->execute([$ad['cat_id'], $id]);
+$similar_ads = $stmt->fetchAll();
+
 include __DIR__ . '/templates/header.php';
 ?>
 
@@ -67,10 +76,10 @@ include __DIR__ . '/templates/header.php';
         <div class="lg:w-2/3">
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-8">
                 <!-- Gallery -->
-                <div class="relative h-96 bg-black flex items-center justify-center group">
+                <div class="relative h-96 bg-black flex items-center justify-center group cursor-zoom-in" onclick="openLightbox()">
                     <img id="mainImage" src="uploads/ads/<?php echo $images[0]['image_path'] ?? 'default.jpg'; ?>" class="max-h-full max-w-full object-contain">
                     <?php if (count($images) > 1): ?>
-                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto p-2 bg-black/40 rounded-lg backdrop-blur-sm max-w-[90%]">
+                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto p-2 bg-black/40 rounded-lg backdrop-blur-sm max-w-[90%]" onclick="event.stopPropagation()">
                             <?php foreach ($images as $img): ?>
                                 <img src="uploads/ads/<?php echo $img['image_path']; ?>" class="w-12 h-12 rounded object-cover cursor-pointer border-2 border-transparent hover:border-green-500 transition-all" onclick="document.getElementById('mainImage').src = this.src">
                             <?php endforeach; ?>
@@ -160,6 +169,61 @@ include __DIR__ . '/templates/header.php';
             </div>
         </div>
     </div>
+
+    <!-- Similar Ads Section -->
+    <?php if ($similar_ads): ?>
+    <div class="mt-20 border-t pt-16">
+        <h2 class="text-2xl font-bold text-gray-800 mb-10 uppercase tracking-widest border-l-8 border-green-600 pl-6">Similar Ads You May Like</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <?php foreach ($similar_ads as $s_ad): ?>
+            <a href="ad.php?id=<?php echo $s_ad['id']; ?>" class="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all group border border-gray-100">
+                <div class="relative h-48 overflow-hidden">
+                    <img src="<?php echo $s_ad['image'] ? 'uploads/ads/'.$s_ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <?php if ($s_ad['is_featured']): ?>
+                        <span class="absolute top-4 left-4 bg-yellow-400 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase shadow-md"><i class="fas fa-rocket"></i> BOOSTED</span>
+                    <?php endif; ?>
+                </div>
+                <div class="p-4">
+                    <h4 class="text-sm font-bold text-gray-800 line-clamp-2 h-10 mb-3 group-hover:text-green-600 transition"><?php echo h($s_ad['title']); ?></h4>
+                    <p class="text-green-600 font-extrabold text-lg mb-4">₦<?php echo number_format($s_ad['price']); ?></p>
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest"><i class="fas fa-map-marker-alt mr-1 text-green-500"></i> <?php echo h($s_ad['state_name']); ?></p>
+                </div>
+            </a>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
+
+<!-- Lightbox Modal -->
+<div id="lightbox" class="fixed inset-0 bg-black/95 hidden items-center justify-center z-[100] p-4 group" onclick="closeLightbox()">
+    <button class="absolute top-6 right-6 text-white text-4xl hover:text-green-500 transition">&times;</button>
+    <img id="lightboxImg" src="" class="max-h-full max-w-full object-contain shadow-2xl transition-transform duration-300" onclick="event.stopPropagation()">
+</div>
+
+<script>
+function openLightbox() {
+    const mainImg = document.getElementById('mainImage');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+
+    lightboxImg.src = mainImg.src;
+    lightbox.classList.remove('hidden');
+    lightbox.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.add('hidden');
+    lightbox.classList.remove('flex');
+    document.body.style.overflow = 'auto';
+}
+
+// Close on escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+});
+</script>
 
 <?php include __DIR__ . '/templates/footer.php'; ?>
