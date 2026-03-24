@@ -94,13 +94,20 @@ include __DIR__ . '/templates/header.php';
                 <input type="url" name="video_url" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="https://youtube.com/watch?v=...">
             </div>
 
-            <div class="mb-4 p-6 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 hover:bg-white transition cursor-pointer relative group">
-                <label class="block text-gray-700 font-bold mb-2 text-sm text-center">Add Images (Maximum 5)</label>
-                <input type="file" name="images[]" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
+            <div id="dropZone" class="mb-4 p-8 border-4 border-dashed border-gray-200 rounded-2xl bg-gray-50 hover:bg-white transition cursor-pointer relative group">
+                <label class="block text-gray-700 font-bold mb-4 text-sm text-center">Upload Ad Photos (Maximum 5)</label>
+                <input type="file" name="images[]" id="fileInput" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
                 <div class="text-center">
-                    <i class="fas fa-camera text-3xl text-gray-300 group-hover:text-green-500 mb-2"></i>
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Drag & drop or click to upload</p>
+                    <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-100 transition">
+                        <i class="fas fa-cloud-upload-alt text-3xl text-green-500"></i>
+                    </div>
+                    <p class="text-sm font-bold text-gray-600 mb-1">Drag & drop images here</p>
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">or click to browse from device</p>
                 </div>
+            </div>
+
+            <div id="imagePreviewContainer" class="grid grid-cols-5 gap-4 mb-6 hidden">
+                <!-- Previews will appear here -->
             </div>
 
             <div class="pt-6">
@@ -131,6 +138,65 @@ function loadLGAs(stateId) {
                 lgaSelect.appendChild(option);
             });
         });
+}
+
+// Image Preview & Drag and Drop Logic
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const previewContainer = document.getElementById('imagePreviewContainer');
+
+['dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, e => {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+});
+
+dropZone.addEventListener('dragover', () => {
+    dropZone.classList.replace('border-gray-200', 'border-green-400');
+    dropZone.classList.add('bg-green-50');
+});
+
+dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.replace('border-green-400', 'border-gray-200');
+    dropZone.classList.remove('bg-green-50');
+});
+
+dropZone.addEventListener('drop', (e) => {
+    dropZone.classList.replace('border-green-400', 'border-gray-200');
+    dropZone.classList.remove('bg-green-50');
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        fileInput.files = files; // Assign files to input
+        handlePreviews(files);
+    }
+});
+
+fileInput.addEventListener('change', () => {
+    handlePreviews(fileInput.files);
+});
+
+function handlePreviews(files) {
+    previewContainer.innerHTML = '';
+    previewContainer.classList.remove('hidden');
+
+    const maxFiles = Math.min(files.length, 5);
+    for (let i = 0; i < maxFiles; i++) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'relative group aspect-square rounded-lg overflow-hidden border-2 border-gray-100 shadow-sm';
+            previewDiv.innerHTML = `
+                <img src="${e.target.result}" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                    <span class="text-white text-[10px] font-bold">IMAGE ${i + 1}</span>
+                </div>
+            `;
+            previewContainer.appendChild(previewDiv);
+        };
+        reader.readAsDataURL(files[i]);
+    }
 }
 </script>
 
