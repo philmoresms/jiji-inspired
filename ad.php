@@ -83,11 +83,11 @@ include __DIR__ . '/templates/header.php';
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-8">
                 <!-- Gallery -->
                 <div class="relative h-96 bg-black flex items-center justify-center group cursor-zoom-in" onclick="openLightbox()">
-                    <img id="mainImage" src="uploads/ads/<?php echo $images[0]['image_path'] ?? 'default.jpg'; ?>" class="max-h-full max-w-full object-contain">
+                    <img id="mainImage" src="/uploads/ads/<?php echo $images[0]['image_path'] ?? 'default.jpg'; ?>" class="max-h-full max-w-full object-contain">
                     <?php if (count($images) > 1): ?>
                         <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto p-2 bg-black/40 rounded-lg backdrop-blur-sm max-w-[90%]" onclick="event.stopPropagation()">
                             <?php foreach ($images as $img): ?>
-                                <img src="uploads/ads/<?php echo $img['image_path']; ?>" class="w-12 h-12 rounded object-cover cursor-pointer border-2 border-transparent hover:border-green-500 transition-all" onclick="document.getElementById('mainImage').src = this.src">
+                                <img src="/uploads/ads/<?php echo $img['image_path']; ?>" class="w-12 h-12 rounded object-cover cursor-pointer border-2 border-transparent hover:border-green-500 transition-all" onclick="document.getElementById('mainImage').src = this.src">
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
