@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../../config/config.php';
-require_once __DIR__ . '/../../inc/functions.php';
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../inc/functions.php';
 
 if (isset($_GET['ref']) && isset($_GET['ad_id']) && isset($_GET['method'])) {
     $ref = $_GET['ref'];

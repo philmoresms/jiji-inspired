@@ -3,7 +3,10 @@
  * Jiji-Inspired-1.0 Schema Update Migration
  */
 
+if (defined('MIGRATION_DONE')) return;
 require_once __DIR__ . '/../config/config.php';
+
+if (!isset($pdo)) return;
 
 try {
     // 1. Add video_url to ads if not exists
@@ -52,6 +55,7 @@ try {
         error_log("Migration: Added reject_reason column to payments table.");
     }
 
+    define('MIGRATION_DONE', true);
 } catch (PDOException $e) {
     // Migration might fail if already exists or other DB issues
     error_log("Migration Error: " . $e->getMessage());

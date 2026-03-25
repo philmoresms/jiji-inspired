@@ -4,7 +4,9 @@
  */
 
 // Check if schema needs update (migration logic)
-require_once __DIR__ . '/update_schema.php';
+if (file_exists(__DIR__ . '/../config/config.php')) {
+    require_once __DIR__ . '/update_schema.php';
+}
 
 // Initialize project directories
 $required_dirs = [
