@@ -44,6 +44,21 @@ $stmt = $pdo->prepare("SELECT image_path, is_main FROM ad_images WHERE ad_id = ?
 $stmt->execute([$id]);
 $images = $stmt->fetchAll();
 
+// Prepare media array for JS
+$media_list = [];
+foreach ($images as $img) {
+    $media_list[] = ['type' => 'image', 'url' => '/uploads/ads/' . $img['image_path']];
+}
+if ($ad['video_url']) {
+    $vurl = $ad['video_url'];
+    $vid = '';
+    if (strpos($vurl, 'youtube.com') !== false || strpos($vurl, 'youtu.be') !== false) {
+        parse_str(parse_url($vurl, PHP_URL_QUERY), $vparams);
+        $vid = $vparams['v'] ?? basename(parse_url($vurl, PHP_URL_PATH));
+        $media_list[] = ['type' => 'video', 'url' => 'https://www.youtube.com/embed/' . $vid];
+    }
+}
+
 // SEO Meta Data
 $page_title = $ad['title'] . " - " . ($settings['site_name'] ?? 'Jiji Inspired');
 $page_desc = substr(strip_tags($ad['description']), 0, 160);
@@ -82,13 +97,22 @@ include __DIR__ . '/templates/header.php';
         <div class="lg:w-2/3">
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-8">
                 <!-- Gallery -->
-                <div class="relative h-96 bg-black flex items-center justify-center group cursor-zoom-in" onclick="openLightbox()">
+                <div class="relative h-96 bg-black flex items-center justify-center group cursor-zoom-in" onclick="openLightbox(0)">
                     <img id="mainImage" src="/uploads/ads/<?php echo $images[0]['image_path'] ?? 'default.jpg'; ?>" class="max-h-full max-w-full object-contain">
-                    <?php if (count($images) > 1): ?>
+                    <div class="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover:opacity-100 transition">
+                        <button onclick="event.stopPropagation(); changeMainImage(-1)" class="bg-black/50 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-green-600 transition"><i class="fas fa-chevron-left"></i></button>
+                        <button onclick="event.stopPropagation(); changeMainImage(1)" class="bg-black/50 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-green-600 transition"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <?php if (count($images) > 1 || $ad['video_url']): ?>
                         <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto p-2 bg-black/40 rounded-lg backdrop-blur-sm max-w-[90%]" onclick="event.stopPropagation()">
-                            <?php foreach ($images as $img): ?>
-                                <img src="/uploads/ads/<?php echo $img['image_path']; ?>" class="w-12 h-12 rounded object-cover cursor-pointer border-2 border-transparent hover:border-green-500 transition-all" onclick="document.getElementById('mainImage').src = this.src">
+                            <?php foreach ($images as $index => $img): ?>
+                                <img src="/uploads/ads/<?php echo $img['image_path']; ?>" class="w-12 h-12 rounded object-cover cursor-pointer border-2 border-transparent hover:border-green-500 transition-all" onclick="setMainImage(<?php echo $index; ?>)">
                             <?php endforeach; ?>
+                            <?php if ($ad['video_url']): ?>
+                                <div class="w-12 h-12 rounded bg-red-600 flex items-center justify-center cursor-pointer hover:bg-red-700 transition" onclick="openLightbox(<?php echo count($images); ?>)">
+                                    <i class="fas fa-play text-white text-xs"></i>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -222,17 +246,46 @@ include __DIR__ . '/templates/header.php';
 
 <!-- Lightbox Modal -->
 <div id="lightbox" class="fixed inset-0 bg-black/95 hidden items-center justify-center z-[100] p-4 group" onclick="closeLightbox()">
-    <button class="absolute top-6 right-6 text-white text-4xl hover:text-green-500 transition">&times;</button>
-    <img id="lightboxImg" src="" class="max-h-full max-w-full object-contain shadow-2xl transition-transform duration-300" onclick="event.stopPropagation()">
+    <button class="absolute top-6 right-6 text-white text-4xl hover:text-green-500 transition z-[110]">&times;</button>
+
+    <button onclick="event.stopPropagation(); navigateMedia(-1)" class="absolute left-6 top-1/2 -translate-y-1/2 text-white text-5xl hover:text-green-500 transition hidden md:block z-[110]"><i class="fas fa-chevron-left"></i></button>
+    <button onclick="event.stopPropagation(); navigateMedia(1)" class="absolute right-6 top-1/2 -translate-y-1/2 text-white text-5xl hover:text-green-500 transition hidden md:block z-[110]"><i class="fas fa-chevron-right"></i></button>
+
+    <div class="w-full max-w-5xl h-full flex items-center justify-center" onclick="event.stopPropagation()">
+        <img id="lightboxImg" src="" class="max-h-full max-w-full object-contain shadow-2xl hidden transition-opacity duration-300">
+        <div id="lightboxVideo" class="w-full aspect-video hidden">
+            <iframe id="lightboxIframe" class="w-full h-full" src="" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white font-bold bg-black/50 px-4 py-2 rounded-full text-sm">
+        <span id="mediaCounter">1 / 1</span>
+    </div>
 </div>
 
 <script>
-function openLightbox() {
-    const mainImg = document.getElementById('mainImage');
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightboxImg');
+const media = <?php echo json_encode($media_list); ?>;
+let currentIndex = 0;
 
-    lightboxImg.src = mainImg.src;
+function setMainImage(index) {
+    currentIndex = index;
+    const mainImg = document.getElementById('mainImage');
+    mainImg.src = media[index].url;
+}
+
+function changeMainImage(dir) {
+    currentIndex = (currentIndex + dir + media.length) % media.length;
+    if (media[currentIndex].type === 'image') {
+        document.getElementById('mainImage').src = media[currentIndex].url;
+    } else {
+        openLightbox(currentIndex);
+    }
+}
+
+function openLightbox(index = currentIndex) {
+    currentIndex = index;
+    const lightbox = document.getElementById('lightbox');
+    updateLightboxContent();
     lightbox.classList.remove('hidden');
     lightbox.classList.add('flex');
     document.body.style.overflow = 'hidden';
@@ -240,14 +293,46 @@ function openLightbox() {
 
 function closeLightbox() {
     const lightbox = document.getElementById('lightbox');
+    document.getElementById('lightboxIframe').src = ''; // Stop video
     lightbox.classList.add('hidden');
     lightbox.classList.remove('flex');
     document.body.style.overflow = 'auto';
 }
 
-// Close on escape key
+function navigateMedia(dir) {
+    currentIndex = (currentIndex + dir + media.length) % media.length;
+    updateLightboxContent();
+}
+
+function updateLightboxContent() {
+    const img = document.getElementById('lightboxImg');
+    const video = document.getElementById('lightboxVideo');
+    const iframe = document.getElementById('lightboxIframe');
+    const counter = document.getElementById('mediaCounter');
+
+    img.classList.add('hidden');
+    video.classList.add('hidden');
+    iframe.src = '';
+
+    const current = media[currentIndex];
+    if (current.type === 'image') {
+        img.src = current.url;
+        img.classList.remove('hidden');
+    } else {
+        iframe.src = current.url;
+        video.classList.remove('hidden');
+    }
+
+    counter.textContent = `${currentIndex + 1} / ${media.length}`;
+}
+
+// Keyboard navigation
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeLightbox();
+    if (document.getElementById('lightbox').classList.contains('flex')) {
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') navigateMedia(-1);
+        if (e.key === 'ArrowRight') navigateMedia(1);
+    }
 });
 </script>
 
