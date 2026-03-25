@@ -44,15 +44,15 @@ include __DIR__ . '/templates/header.php';
 ?>
 
 <div class="container mx-auto px-4 py-8">
-    <!-- Categories Navigation (Mobile Friendly) -->
-    <div class="md:hidden overflow-x-auto pb-4 mb-6 scrollbar-hide">
-        <div class="flex gap-4 min-w-max">
+    <!-- Categories Navigation (Modern Mobile Design) -->
+    <div class="md:hidden overflow-x-auto pb-8 mb-4 scrollbar-hide snap-x snap-mandatory">
+        <div class="flex gap-3 px-2">
             <?php foreach ($categories as $cat): ?>
-            <a href="/category/<?php echo $cat['slug']; ?>" class="flex flex-col items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100 min-w-[100px] hover:border-green-500 transition">
-                <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 mb-2">
-                    <i class="fas <?php echo h($cat['icon_class']); ?> text-lg"></i>
+            <a href="/category/<?php echo $cat['slug']; ?>" class="flex flex-col items-center snap-center">
+                <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-green-600 mb-2 border border-gray-50 active:scale-95 transition-transform duration-200">
+                    <i class="fas <?php echo h($cat['icon_class']); ?> text-2xl"></i>
                 </div>
-                <span class="text-[10px] font-bold text-gray-700 text-center line-clamp-1"><?php echo h($cat['name']); ?></span>
+                <span class="text-[9px] font-extrabold text-gray-500 uppercase tracking-tighter text-center w-16 leading-tight"><?php echo h($cat['name']); ?></span>
             </a>
             <?php endforeach; ?>
         </div>
