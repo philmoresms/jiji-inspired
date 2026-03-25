@@ -20,7 +20,8 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
 
         redirect('payments.php', 'Payment approved and ad boosted.');
     } elseif ($action == 'decline') {
-        $pdo->prepare("UPDATE payments SET status = 'failed' WHERE id = ?")->execute([$id]);
+        $reason = $_POST['reason'] ?? 'Payment proof is invalid.';
+        $pdo->prepare("UPDATE payments SET status = 'failed', reject_reason = ? WHERE id = ?")->execute([$reason, $id]);
         redirect('payments.php', 'Payment declined.');
     }
 }
@@ -71,7 +72,7 @@ include __DIR__ . '/../templates/admin_header.php';
                     <td class="p-4 space-x-2">
                         <?php if ($payment['status'] == 'pending' && $payment['method'] == 'bank_transfer'): ?>
                             <a href="payments.php?action=approve&id=<?php echo $payment['id']; ?>" class="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition shadow-sm font-bold">Approve</a>
-                            <a href="payments.php?action=decline&id=<?php echo $payment['id']; ?>" class="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition shadow-sm font-bold" onclick="return confirm('Decline this payment?')">Decline</a>
+                            <button onclick="openPaymentDeclineModal(<?php echo $payment['id']; ?>)" class="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition shadow-sm font-bold">Decline</button>
                         <?php endif; ?>
                     </td>
                 </tr>
@@ -80,5 +81,32 @@ include __DIR__ . '/../templates/admin_header.php';
         </table>
     </div>
 </div>
+
+<!-- Payment Decline Modal -->
+<div id="paymentDeclineModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8">
+        <h3 class="text-xl font-bold text-gray-800 mb-6">Decline Payment Reason</h3>
+        <form method="POST" id="paymentDeclineForm">
+            <textarea name="reason" rows="5" class="w-full p-4 border rounded-xl focus:border-red-500 outline-none mb-6" placeholder="Why is this payment being rejected?" required></textarea>
+            <div class="flex gap-4">
+                <button type="button" onclick="closePaymentDeclineModal()" class="flex-1 bg-gray-100 text-gray-600 py-3 rounded-xl font-bold hover:bg-gray-200 transition">Cancel</button>
+                <button type="submit" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition shadow-lg uppercase">Confirm Rejection</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openPaymentDeclineModal(paymentId) {
+    document.getElementById('paymentDeclineForm').action = 'payments.php?action=decline&id=' + paymentId;
+    document.getElementById('paymentDeclineModal').classList.remove('hidden');
+    document.getElementById('paymentDeclineModal').classList.add('flex');
+}
+
+function closePaymentDeclineModal() {
+    document.getElementById('paymentDeclineModal').classList.add('hidden');
+    document.getElementById('paymentDeclineModal').classList.remove('flex');
+}
+</script>
 
 <?php include __DIR__ . '/../templates/admin_footer.php'; ?>

@@ -45,6 +45,13 @@ try {
         error_log("Migration: Added lifecycle columns to ads table.");
     }
 
+    // 5. Add reject_reason to payments
+    $stmt = $pdo->query("SHOW COLUMNS FROM payments LIKE 'reject_reason'");
+    if (!$stmt->fetch()) {
+        $pdo->exec("ALTER TABLE payments ADD COLUMN reject_reason TEXT DEFAULT NULL AFTER proof_image");
+        error_log("Migration: Added reject_reason column to payments table.");
+    }
+
 } catch (PDOException $e) {
     // Migration might fail if already exists or other DB issues
     error_log("Migration Error: " . $e->getMessage());

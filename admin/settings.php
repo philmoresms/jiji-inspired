@@ -105,6 +105,24 @@ include __DIR__ . '/../templates/admin_header.php';
                         </div>
                     </div>
 
+                    <div class="p-4 bg-blue-50 rounded border border-blue-200 mb-4">
+                        <h4 class="font-bold text-blue-800 text-sm mb-3 uppercase tracking-widest">Bank Transfer Details</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-blue-600 mb-1">Bank Name</label>
+                                <input type="text" name="s[bank_name]" value="<?php echo h($settings['bank_name'] ?? ''); ?>" class="w-full p-2 border rounded text-sm" placeholder="e.g. Access Bank">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-blue-600 mb-1">Account Number</label>
+                                <input type="text" name="s[account_number]" value="<?php echo h($settings['account_number'] ?? ''); ?>" class="w-full p-2 border rounded text-sm" placeholder="0123456789">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-blue-600 mb-1">Account Name</label>
+                                <input type="text" name="s[account_name]" value="<?php echo h($settings['account_name'] ?? ''); ?>" class="w-full p-2 border rounded text-sm" placeholder="Jiji Clone Ventures">
+                            </div>
+                        </div>
+                    </div>
+
                     <h4 class="font-bold text-sm text-gray-600 mb-2 uppercase tracking-widest">API Gateway Keys</h4>
                     <div class="p-4 bg-yellow-50 rounded border border-yellow-200 mb-4">
                         <p class="text-sm text-yellow-800 font-bold">Paystack Configuration</p>

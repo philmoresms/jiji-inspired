@@ -13,7 +13,9 @@ $stmt->execute([$user_id]);
 $user = $stmt->fetch();
 
 // Get user ads
-$stmt = $pdo->prepare("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name
+$stmt = $pdo->prepare("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name,
+                     (SELECT status FROM payments WHERE ad_id = a.id ORDER BY created_at DESC LIMIT 1) as last_payment_status,
+                     (SELECT reject_reason FROM payments WHERE ad_id = a.id ORDER BY created_at DESC LIMIT 1) as last_payment_reject_reason
                      FROM ads a
                      JOIN states s ON a.state_id = s.id
                      JOIN categories c ON a.cat_id = c.id
@@ -75,9 +77,19 @@ include __DIR__ . '/templates/header.php';
                     <h4 class="font-bold text-gray-800 mb-3 truncate group-hover:text-green-600 transition"><?php echo h($ad['title']); ?></h4>
                     <p class="text-green-600 font-extrabold text-lg mb-4">₦<?php echo number_format($ad['price']); ?></p>
 
-                    <div class="flex gap-2">
+                    <div class="flex flex-col gap-2">
+                        <?php if ($ad['last_payment_status'] == 'failed'): ?>
+                            <div class="bg-red-50 p-2 rounded border border-red-100 mb-1">
+                                <p class="text-[9px] text-red-600 font-bold uppercase">Boost Payment Rejected</p>
+                                <p class="text-[8px] text-red-500 italic"><?php echo h($ad['last_payment_reject_reason']); ?></p>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="flex gap-2">
                         <?php if (!$ad['is_featured'] && $ad['status'] == 'active'): ?>
-                            <a href="boost.php?ad_id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-green-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-green-700 transition uppercase shadow-md tracking-wider">Boost Ad</a>
+                            <a href="boost.php?ad_id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-green-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-green-700 transition uppercase shadow-md tracking-wider">
+                                <?php echo ($ad['last_payment_status'] == 'failed') ? 'Retry Boost' : 'Boost Ad'; ?>
+                            </a>
                         <?php endif; ?>
                         <?php if ($ad['status'] != 'sold' && $ad['status'] != 'expired'): ?>
                             <a href="edit-ad.php?id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-yellow-500 text-white py-2 rounded-lg text-xs font-bold hover:bg-yellow-600 transition uppercase shadow-md tracking-wider">Edit</a>

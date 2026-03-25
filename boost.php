@@ -22,7 +22,7 @@ if (isset($_GET['ad_id'])) {
 }
 
 // Get settings
-$stmt = $pdo->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('paystack_public_key', 'flutterwave_public_key', 'boost_price')");
+$stmt = $pdo->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('paystack_public_key', 'flutterwave_public_key', 'boost_price', 'bank_name', 'account_number', 'account_name')");
 $settings = [];
 while ($row = $stmt->fetch()) {
     $settings[$row['setting_key']] = $row['setting_value'];
@@ -62,9 +62,9 @@ include __DIR__ . '/templates/header.php';
             <div class="bg-gray-50 p-6 rounded-xl border-2 border-blue-100">
                 <h2 class="font-bold text-lg mb-4 text-gray-800"><i class="fas fa-university mr-2 text-blue-600"></i> Bank Transfer</h2>
                 <div class="bg-white p-4 rounded-lg mb-4 text-sm font-mono text-blue-900 border border-blue-100">
-                    <p>Bank: Access Bank</p>
-                    <p>Account: 0123456789</p>
-                    <p>Name: Jiji Clone Nigeria</p>
+                    <p>Bank: <?php echo h($settings['bank_name'] ?? 'N/A'); ?></p>
+                    <p>Account: <?php echo h($settings['account_number'] ?? 'N/A'); ?></p>
+                    <p>Name: <?php echo h($settings['account_name'] ?? 'N/A'); ?></p>
                     <p class="mt-2 font-bold">Amount: ₦<?php echo number_format($boost_price, 2); ?></p>
                 </div>
                 <form method="POST" enctype="multipart/form-data" class="space-y-4">
