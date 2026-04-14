@@ -5,19 +5,26 @@
             <p class="text-sm text-gray-400">The safest and best classifieds platform in Nigeria.</p>
         </div>
         <div>
+            <h4 class="font-bold text-lg mb-4 text-green-500">Company</h4>
+            <ul class="space-y-2 text-sm text-gray-400">
+                <li><a href="/blog" class="hover:text-white transition">Marketplace Blog</a></li>
+                <li><a href="/contact" class="hover:text-white transition">Contact Us</a></li>
+            </ul>
+        </div>
+        <div>
             <h4 class="font-bold text-lg mb-4 text-green-500">Links</h4>
             <ul class="space-y-2 text-sm text-gray-400">
-                <li><a href="terms.php" class="hover:text-white transition">Terms & Conditions</a></li>
-                <li><a href="privacy.php" class="hover:text-white transition">Privacy Policy</a></li>
-                <li><a href="billing.php" class="hover:text-white transition">Billing Policy</a></li>
+                <li><a href="/p/terms" class="hover:text-white transition">Terms & Conditions</a></li>
+                <li><a href="/p/privacy" class="hover:text-white transition">Privacy Policy</a></li>
+                <li><a href="/p/billing" class="hover:text-white transition">Billing Policy</a></li>
             </ul>
         </div>
         <div>
             <h4 class="font-bold text-lg mb-4 text-green-500">Support</h4>
             <ul class="space-y-2 text-sm text-gray-400">
                 <li><a href="contact.php" class="hover:text-white transition">Contact Us</a></li>
-                <li><a href="faq.php" class="hover:text-white transition">FAQ</a></li>
-                <li><a href="safety.php" class="hover:text-white transition">Safety Tips</a></li>
+                <li><a href="/p/faq" class="hover:text-white transition">FAQ</a></li>
+                <li><a href="/p/safety" class="hover:text-white transition">Safety Tips</a></li>
             </ul>
         </div>
         <div>

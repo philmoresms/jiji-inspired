@@ -13,7 +13,8 @@ $required_dirs = [
     __DIR__ . '/../config',
     __DIR__ . '/../uploads',
     __DIR__ . '/../uploads/ads',
-    __DIR__ . '/../uploads/proofs'
+    __DIR__ . '/../uploads/proofs',
+    __DIR__ . '/../uploads/blog'
 ];
 foreach ($required_dirs as $dir) {
     if (!is_dir($dir)) {

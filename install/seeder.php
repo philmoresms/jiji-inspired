@@ -160,4 +160,17 @@ function seed_database($pdo) {
     foreach ($countries as $country) {
         $country_stmt->execute($country);
     }
+
+    // 4. Seed Default CMS Pages
+    $default_pages = [
+        ['Terms & Conditions', 'terms', 'Acceptable use policy...', 'Jiji Clone terms and conditions', 'terms, conditions, rules'],
+        ['Privacy Policy', 'privacy', 'Your data is safe...', 'Our privacy policy', 'privacy, data, safety'],
+        ['Billing Policy', 'billing', 'Refunds and payments...', 'Billing and refund policy', 'billing, refund, payment'],
+        ['Safety Tips', 'safety', 'Meet in public...', 'Stay safe while buying and selling', 'safety, tips, security'],
+        ['FAQ', 'faq', 'Frequently asked questions...', 'Jiji Clone Help Center', 'faq, help, questions']
+    ];
+    $page_stmt = $pdo->prepare("INSERT INTO pages (title, slug, content, meta_desc, meta_keys) VALUES (?, ?, ?, ?, ?)");
+    foreach ($default_pages as $page) {
+        $page_stmt->execute($page);
+    }
 }

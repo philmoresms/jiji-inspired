@@ -17,6 +17,8 @@
                     <li><a href="/" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a></li>
                     <li><a href="ads.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-ad mr-2"></i> Ad Moderation</a></li>
                     <li><a href="users.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-users mr-2"></i> User Management</a></li>
+                    <li><a href="pages.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-file-alt mr-2"></i> CMS Pages</a></li>
+                    <li><a href="blog.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-newspaper mr-2"></i> Blog Posts</a></li>
                     <li><a href="categories.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-list mr-2"></i> Categories</a></li>
                     <li><a href="locations.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-map-marker-alt mr-2"></i> Locations</a></li>
                     <li><a href="security.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-shield-alt mr-2"></i> Security & Firewall</a></li>

@@ -141,6 +141,30 @@ CREATE TABLE IF NOT EXISTS ip_security (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- CMS Pages
+CREATE TABLE IF NOT EXISTS pages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(150) NOT NULL,
+    slug VARCHAR(100) UNIQUE NOT NULL,
+    content LONGTEXT,
+    meta_desc TEXT,
+    meta_keys TEXT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Blog Posts
+CREATE TABLE IF NOT EXISTS blog_posts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    slug VARCHAR(150) UNIQUE NOT NULL,
+    summary TEXT,
+    content LONGTEXT,
+    image VARCHAR(255) DEFAULT NULL,
+    meta_desc TEXT,
+    meta_keys TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Settings Table (Global configuration)
 CREATE TABLE IF NOT EXISTS settings (
     setting_key VARCHAR(100) PRIMARY KEY,
