@@ -10,10 +10,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name)));
         $icon = $_POST['icon'];
         $is_top = isset($_POST['is_top']) ? 1 : 0;
+        $sort_order = (int)($_POST['sort_order'] ?? 0);
         $parent_id = (int)($_POST['parent_id'] ?? 0);
 
-        $stmt = $pdo->prepare("INSERT INTO categories (name, slug, icon_class, is_top, parent_id) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$name, $slug, $icon, $is_top, $parent_id]);
+        $stmt = $pdo->prepare("INSERT INTO categories (name, slug, icon_class, is_top, sort_order, parent_id) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$name, $slug, $icon, $is_top, $sort_order, $parent_id]);
         redirect('categories.php', 'Category added.');
     }
     if (isset($_POST['delete_cat'])) {
@@ -35,9 +36,10 @@ include __DIR__ . '/../templates/admin_header.php';
     <h2 class="text-2xl font-bold mb-6 text-gray-800">Manage Product Categories</h2>
 
     <form method="POST" class="mb-8 space-y-4 bg-gray-50 p-6 rounded-xl border">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <input type="text" name="name" placeholder="Category Name" class="p-2 border rounded" required>
             <input type="text" name="icon" placeholder="Icon (e.g. fa-car)" class="p-2 border rounded">
+            <input type="number" name="sort_order" placeholder="Sort Order" class="p-2 border rounded">
             <select name="parent_id" class="p-2 border rounded">
                 <option value="0">Main Category (No Parent)</option>
                 <?php

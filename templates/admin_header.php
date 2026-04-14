@@ -33,6 +33,16 @@
                 <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
                 <div class="flex items-center space-x-4">
                     <span class="text-gray-600">Welcome, <strong><?php echo h($_SESSION['admin_user']); ?></strong></span>
-                    <i class="fas fa-crown text-green-500"></i> <!-- King icon for whitelisted/trusted IP -->
+                    <?php
+                    $my_ip = get_client_ip();
+                    $stmt_ip = $pdo->prepare("SELECT status FROM ip_security WHERE ip_address = ?");
+                    $stmt_ip->execute([$my_ip]);
+                    if ($stmt_ip->fetchColumn() === 'whitelisted'):
+                    ?>
+                        <div class="flex items-center gap-1 bg-green-50 px-3 py-1 rounded-full border border-green-200">
+                            <i class="fas fa-crown text-green-500 text-xs"></i>
+                            <span class="text-[9px] font-black text-green-600 uppercase tracking-tighter">Trusted IP</span>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </header>
