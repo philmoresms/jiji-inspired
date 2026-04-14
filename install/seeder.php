@@ -19,9 +19,76 @@ function seed_database($pdo) {
         ['Services', 'services', 'fa-concierge-bell'],
     ];
 
-    $stmt = $pdo->prepare("INSERT INTO categories (name, slug, icon_class) VALUES (?, ?, ?)");
-    foreach ($categories as $cat) {
-        $stmt->execute($cat);
+    $stmt = $pdo->prepare("INSERT INTO categories (name, slug, icon_class, is_top, sort_order) VALUES (?, ?, ?, ?, ?)");
+
+    // Full Jiji-Inspired Category Tree
+    $categories_data = [
+        'Vehicles' => [
+            'icon' => 'fa-car', 'is_top' => 1, 'order' => 1,
+            'subs' => ['Cars', 'Vehicle Parts', 'Buses & Microbuses', 'Motorcycles', 'Trucks', 'Watercraft']
+        ],
+        'Property' => [
+            'icon' => 'fa-home', 'is_top' => 1, 'order' => 2,
+            'subs' => ['Houses & Apartments for Rent', 'Houses & Apartments for Sale', 'Land', 'Commercial Property']
+        ],
+        'Mobile Phones & Tablets' => [
+            'icon' => 'fa-mobile-alt', 'is_top' => 1, 'order' => 3,
+            'subs' => ['Mobile Phones', 'Tablets', 'Accessories', 'Smart Watches']
+        ],
+        'Electronics' => [
+            'icon' => 'fa-tv', 'is_top' => 0, 'order' => 4,
+            'subs' => ['Laptops & Computers', 'TV & Video Equipment', 'Audio Equipment', 'Cameras', 'Video Games']
+        ],
+        'Home, Furniture & Appliances' => [
+            'icon' => 'fa-couch', 'is_top' => 0, 'order' => 5,
+            'subs' => ['Kitchen Appliances', 'Furniture', 'Home Decor', 'Garden & Outdoor']
+        ],
+        'Health & Beauty' => [
+            'icon' => 'fa-heartbeat', 'is_top' => 0, 'order' => 6,
+            'subs' => ['Skin Care', 'Hair Care', 'Makeup', 'Vitamins & Supplements']
+        ],
+        'Fashion' => [
+            'icon' => 'fa-tshirt', 'is_top' => 0, 'order' => 7,
+            'subs' => ['Clothing', 'Shoes', 'Bags', 'Jewelry', 'Watches']
+        ],
+        'Sports, Arts & Outdoors' => [
+            'icon' => 'fa-running', 'is_top' => 0, 'order' => 8,
+            'subs' => ['Sports Equipment', 'Musical Instruments', 'Books & Games', 'Art']
+        ],
+        'Jobs' => [
+            'icon' => 'fa-briefcase', 'is_top' => 0, 'order' => 9,
+            'subs' => ['Teaching', 'Marketing', 'Health Care', 'I.T.', 'Construction']
+        ],
+        'Services' => [
+            'icon' => 'fa-concierge-bell', 'is_top' => 0, 'order' => 10,
+            'subs' => ['Automotive', 'Building', 'Cleaning', 'Legal', 'Events']
+        ],
+        'Babies & Kids' => [
+            'icon' => 'fa-baby', 'is_top' => 0, 'order' => 11,
+            'subs' => ['Baby Clothes', 'Toys', 'Prams & Strollers']
+        ],
+        'Animals & Pets' => [
+            'icon' => 'fa-dog', 'is_top' => 0, 'order' => 12,
+            'subs' => ['Dogs', 'Cats', 'Birds', 'Pet Accessories']
+        ],
+        'Agriculture' => [
+            'icon' => 'fa-tractor', 'is_top' => 0, 'order' => 13,
+            'subs' => ['Livestock', 'Poultry', 'Farm Tools', 'Seeds']
+        ]
+    ];
+
+    $stmt = $pdo->prepare("INSERT INTO categories (name, slug, icon_class, is_top, sort_order) VALUES (?, ?, ?, ?, ?)");
+    $sub_stmt = $pdo->prepare("INSERT INTO categories (name, slug, parent_id) VALUES (?, ?, ?)");
+
+    foreach ($categories_data as $name => $data) {
+        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name)));
+        $stmt->execute([$name, $slug, $data['icon'], $data['is_top'], $data['order']]);
+        $parent_id = $pdo->lastInsertId();
+
+        foreach ($data['subs'] as $sub_name) {
+            $sub_slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $sub_name)));
+            $sub_stmt->execute([$sub_name, $sub_slug, $parent_id]);
+        }
     }
 
     // 2. Seed Nigerian States & LGAs

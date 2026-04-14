@@ -55,6 +55,20 @@ try {
         error_log("Migration: Added reject_reason column to payments table.");
     }
 
+    // 6. Add is_top and sort_order to categories
+    $stmt = $pdo->query("SHOW COLUMNS FROM categories LIKE 'is_top'");
+    if (!$stmt->fetch()) {
+        $pdo->exec("ALTER TABLE categories ADD COLUMN is_top TINYINT(1) DEFAULT 0, ADD COLUMN sort_order INT DEFAULT 0");
+        error_log("Migration: Added is_top and sort_order to categories.");
+    }
+
+    // 7. Add OTP columns to users
+    $stmt = $pdo->query("SHOW COLUMNS FROM users LIKE 'otp'");
+    if (!$stmt->fetch()) {
+        $pdo->exec("ALTER TABLE users ADD COLUMN otp VARCHAR(6) DEFAULT NULL, ADD COLUMN otp_expires_at TIMESTAMP NULL DEFAULT NULL");
+        error_log("Migration: Added OTP columns to users.");
+    }
+
     define('MIGRATION_DONE', true);
 } catch (PDOException $e) {
     // Migration might fail if already exists or other DB issues

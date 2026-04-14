@@ -98,6 +98,12 @@ include __DIR__ . '/templates/header.php';
 
         <!-- Search Results (Right) -->
         <div class="md:w-3/4">
+            <!-- Mobile Filters Summary (Compact View) -->
+            <div class="md:hidden flex gap-2 mb-4 overflow-x-auto scrollbar-hide py-2">
+                <?php if ($q): ?><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap">"<?php echo h($q); ?>"</span><?php endif; ?>
+                <?php if ($cat_id): ?><span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap">Category ID: <?php echo $cat_id; ?></span><?php endif; ?>
+                <?php if ($state_id): ?><span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap">Location ID: <?php echo $state_id; ?></span><?php endif; ?>
+            </div>
             <h2 class="text-2xl font-bold text-gray-800 mb-8 border-l-8 border-green-600 pl-4 uppercase">
                 <?php echo $q ? "Search Results for \"".h($q)."\"" : "Marketplace Browser"; ?>
                 <span class="text-sm text-gray-400 ml-2 font-bold">(<?php echo count($ads); ?> found)</span>

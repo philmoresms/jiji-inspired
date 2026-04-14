@@ -15,6 +15,11 @@ if (!$category) {
 
 $cat_id = $category['id'];
 
+// Get subcategories
+$stmt = $pdo->prepare("SELECT c.*, (SELECT COUNT(*) FROM ads WHERE cat_id = c.id AND status = 'active') as ad_count FROM categories c WHERE parent_id = ? ORDER BY name ASC");
+$stmt->execute([$cat_id]);
+$subcategories = $stmt->fetchAll();
+
 // SEO Meta Data
 $page_title = $category['name'] . " - " . ($settings['site_name'] ?? 'Jiji Inspired');
 $page_desc = "Browse the best deals in " . $category['name'] . " on " . ($settings['site_name'] ?? 'Jiji Clone');
@@ -44,8 +49,22 @@ include __DIR__ . '/templates/header.php';
             <h1 class="text-4xl font-bold mb-4 uppercase tracking-widest border-l-8 border-yellow-400 pl-6"><?php echo h($category['name']); ?></h1>
             <p class="text-green-100 font-bold text-lg opacity-80">Find the best deals in <?php echo h($category['name']); ?> across Nigeria.</p>
         </div>
-        <a href="post-ad.php?cat_id=<?php echo $cat_id; ?>" class="bg-yellow-500 text-white px-10 py-4 rounded-full font-bold hover:bg-yellow-600 transition shadow-lg text-lg uppercase tracking-widest">SELL IN <?php echo h($category['name']); ?></a>
+        <a href="/post-ad?cat_id=<?php echo $cat_id; ?>" class="bg-yellow-500 text-white px-10 py-4 rounded-full font-bold hover:bg-yellow-600 transition shadow-lg text-lg uppercase tracking-widest">SELL IN <?php echo h($category['name']); ?></a>
     </div>
+
+    <!-- Subcategories Scroller (Mobile) / Grid (Desktop) -->
+    <?php if ($subcategories): ?>
+    <div class="mb-10">
+        <h3 class="font-bold text-gray-800 mb-4 uppercase text-xs tracking-widest">Browse Subcategories</h3>
+        <div class="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
+            <?php foreach ($subcategories as $sub): ?>
+            <a href="/category/<?php echo $sub['slug']; ?>" class="bg-white px-6 py-3 rounded-full shadow-sm border border-gray-100 whitespace-nowrap hover:border-green-500 hover:text-green-600 transition text-sm font-bold text-gray-600">
+                <?php echo h($sub['name']); ?> <span class="ml-1 text-[10px] opacity-50"><?php echo $sub['ad_count']; ?></span>
+            </a>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         <?php foreach ($ads as $ad): ?>

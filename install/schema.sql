@@ -29,7 +29,9 @@ CREATE TABLE IF NOT EXISTS categories (
     name VARCHAR(50) NOT NULL,
     parent_id INT DEFAULT 0,
     icon_class VARCHAR(50),
-    slug VARCHAR(50) UNIQUE
+    slug VARCHAR(50) UNIQUE,
+    is_top TINYINT(1) DEFAULT 0,
+    sort_order INT DEFAULT 0
 );
 
 -- Users
@@ -44,6 +46,8 @@ CREATE TABLE IF NOT EXISTS users (
     login_notif TINYINT(1) DEFAULT 1,
     social_id VARCHAR(255) DEFAULT NULL,
     social_provider VARCHAR(50) DEFAULT NULL,
+    otp VARCHAR(6) DEFAULT NULL,
+    otp_expires_at TIMESTAMP NULL DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

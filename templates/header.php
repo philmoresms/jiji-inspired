@@ -12,6 +12,11 @@ if (isset($pdo)) {
         $settings[$row['setting_key']] = $row['setting_value'];
     }
 }
+
+// Global IP Blacklist/Country Check
+if (isset($pdo)) {
+    require_once __DIR__ . '/../inc/security.php';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -35,10 +40,22 @@ if (isset($pdo)) {
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <a href="/" class="text-2xl font-bold text-green-600"><?php echo h($settings['site_name'] ?? 'Jiji Clone'); ?></a>
 
-            <div class="flex-1 max-w-xl mx-8 hidden md:block">
-                <form action="search.php" method="GET" class="relative">
-                    <input type="text" name="q" placeholder="I am looking for..." class="w-full p-2 pl-4 pr-10 border-2 border-green-500 rounded-lg focus:outline-none">
-                    <button type="submit" class="absolute right-2 top-2 text-green-600"><i class="fas fa-search"></i></button>
+            <div class="flex-1 max-w-2xl mx-8 hidden md:block">
+                <form action="/search" method="GET" class="flex items-center bg-gray-100 rounded-xl overflow-hidden border-2 border-transparent focus-within:border-green-500 focus-within:bg-white transition-all shadow-sm">
+                    <div class="flex items-center px-4 border-r border-gray-200 gap-2">
+                        <i class="fas fa-map-marker-alt text-green-600 text-sm"></i>
+                        <select name="state_id" class="bg-transparent text-xs font-bold text-gray-600 outline-none py-3 cursor-pointer">
+                            <option value="">All Nigeria</option>
+                            <?php
+                            $h_states = $pdo->query("SELECT id, name FROM states ORDER BY name ASC")->fetchAll();
+                            foreach ($h_states as $hs) echo "<option value='{$hs['id']}'>".h($hs['name'])."</option>";
+                            ?>
+                        </select>
+                    </div>
+                    <input type="text" name="q" placeholder="Search for anything..." class="flex-1 bg-transparent p-3 text-sm font-bold text-gray-700 outline-none" required>
+                    <button type="submit" class="bg-green-600 text-white px-6 py-3 hover:bg-green-700 transition">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </form>
             </div>
 
