@@ -1,4 +1,4 @@
-<footer class="bg-gray-800 text-white mt-20 py-10">
+<footer class="bg-gray-800 text-white mt-auto py-10">
     <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
             <h4 class="font-bold text-lg mb-4 text-green-500">Jiji Inspired</h4>
