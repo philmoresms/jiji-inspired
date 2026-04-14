@@ -21,6 +21,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->prepare("DELETE FROM categories WHERE id = ?")->execute([$id]);
         redirect('categories.php', 'Category deleted.');
     }
+    if (isset($_GET['toggle_top'])) {
+        $id = (int)$_GET['toggle_top'];
+        $pdo->prepare("UPDATE categories SET is_top = 1 - is_top WHERE id = ?")->execute([$id]);
+        redirect('categories.php', 'Top display status updated.');
+    }
 }
 
 include __DIR__ . '/../templates/admin_header.php';
@@ -59,10 +64,15 @@ include __DIR__ . '/../templates/admin_header.php';
                 <i class="fas <?php echo h($cat['icon_class']); ?> text-green-600 w-8 text-center"></i>
                 <span class="font-bold text-gray-700"><?php echo h($cat['name']); ?></span>
             </div>
-            <form method="POST" class="inline" onsubmit="return confirm('Delete this category?')">
-                <input type="hidden" name="cat_id" value="<?php echo $cat['id']; ?>">
-                <button type="submit" name="delete_cat" class="text-red-400 hover:text-red-600 transition"><i class="fas fa-trash"></i></button>
-            </form>
+            <div class="flex items-center gap-2">
+                <a href="categories.php?toggle_top=<?php echo $cat['id']; ?>" class="text-xs font-bold <?php echo $cat['is_top'] ? 'text-yellow-500' : 'text-gray-300'; ?> hover:text-yellow-600 transition" title="Toggle Top Grid Display">
+                    <i class="fas fa-star"></i>
+                </a>
+                <form method="POST" class="inline" onsubmit="return confirm('Delete this category?')">
+                    <input type="hidden" name="cat_id" value="<?php echo $cat['id']; ?>">
+                    <button type="submit" name="delete_cat" class="text-red-400 hover:text-red-600 transition"><i class="fas fa-trash"></i></button>
+                </form>
+            </div>
         </div>
         <?php endforeach; ?>
     </div>

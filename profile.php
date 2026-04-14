@@ -54,6 +54,37 @@ include __DIR__ . '/templates/header.php';
 
     <!-- Main Profile Content -->
     <div class="md:w-3/4">
+        <!-- Seller Hub Quick Access -->
+        <div class="mb-10">
+            <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[3px] mb-6">Seller Hub</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <a href="/post-ad" class="bg-gradient-to-br from-green-600 to-green-700 p-4 rounded-3xl shadow-lg border border-green-500 flex flex-col items-center text-white hover:scale-105 transition transform">
+                    <div class="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center mb-2">
+                        <i class="fas fa-plus text-lg"></i>
+                    </div>
+                    <span class="text-[10px] font-black uppercase tracking-widest">New Ad</span>
+                </a>
+                <a href="/support" class="bg-white p-4 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center hover:border-blue-400 transition group">
+                    <div class="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center mb-2 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
+                        <i class="fas fa-comments text-lg"></i>
+                    </div>
+                    <span class="text-[10px] font-black text-gray-800 uppercase tracking-widest">Messages</span>
+                </a>
+                <a href="/profile_edit" class="bg-white p-4 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center hover:border-yellow-400 transition group">
+                    <div class="w-10 h-10 rounded-2xl bg-yellow-50 flex items-center justify-center mb-2 text-yellow-600 group-hover:bg-yellow-400 group-hover:text-white transition">
+                        <i class="fas fa-user-edit text-lg"></i>
+                    </div>
+                    <span class="text-[10px] font-black text-gray-800 uppercase tracking-widest">Edit Profile</span>
+                </a>
+                <a href="/logout" class="bg-white p-4 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center hover:border-red-400 transition group">
+                    <div class="w-10 h-10 rounded-2xl bg-red-50 flex items-center justify-center mb-2 text-red-600 group-hover:bg-red-600 group-hover:text-white transition">
+                        <i class="fas fa-power-off text-lg"></i>
+                    </div>
+                    <span class="text-[10px] font-black text-gray-800 uppercase tracking-widest">Logout</span>
+                </a>
+            </div>
+        </div>
+
         <div class="flex justify-between items-center mb-10">
             <h1 class="text-3xl font-bold text-gray-800 uppercase border-l-8 border-green-600 pl-4">My Marketplace</h1>
             <a href="/post-ad" class="bg-yellow-500 text-white px-8 py-3 rounded-xl font-bold hover:bg-yellow-600 transition shadow-lg flex items-center"><i class="fas fa-plus mr-2"></i> SELL SOMETHING</a>

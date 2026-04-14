@@ -13,6 +13,49 @@ $user_count = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
 $total_revenue = $pdo->query("SELECT SUM(amount) FROM payments WHERE status = 'successful'")->fetchColumn() ?: 0;
 ?>
 
+<!-- Quick Actions Section -->
+<div class="mb-10">
+    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[3px] mb-6">Quick Admin Actions</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <a href="ads.php" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-lg hover:border-yellow-400 transition group">
+            <div class="w-12 h-12 rounded-xl bg-yellow-50 flex items-center justify-center text-yellow-600 group-hover:bg-yellow-400 group-hover:text-white transition">
+                <i class="fas fa-tasks text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs font-black text-gray-800 uppercase">Moderation</p>
+                <p class="text-[10px] text-gray-400 font-bold"><?php echo $pending_ad_count; ?> Pending</p>
+            </div>
+        </a>
+        <a href="categories.php" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-lg hover:border-green-400 transition group">
+            <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition">
+                <i class="fas fa-list-alt text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs font-black text-gray-800 uppercase">Categories</p>
+                <p class="text-[10px] text-gray-400 font-bold">Manage structure</p>
+            </div>
+        </a>
+        <a href="payments.php" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-lg hover:border-blue-400 transition group">
+            <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
+                <i class="fas fa-credit-card text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs font-black text-gray-800 uppercase">Payments</p>
+                <p class="text-[10px] text-gray-400 font-bold">Review receipts</p>
+            </div>
+        </a>
+        <a href="security.php" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-lg hover:border-red-400 transition group">
+            <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-red-600 group-hover:bg-red-600 group-hover:text-white transition">
+                <i class="fas fa-user-shield text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs font-black text-gray-800 uppercase">Security</p>
+                <p class="text-[10px] text-gray-400 font-bold">Firewall rules</p>
+            </div>
+        </a>
+    </div>
+</div>
+
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500">
         <h2 class="text-gray-500 font-bold uppercase text-xs mb-1">Total Ads</h2>
