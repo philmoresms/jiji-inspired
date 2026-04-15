@@ -225,7 +225,14 @@ include __DIR__ . '/templates/header.php';
                 </div>
 
                 <div class="space-y-4">
-                    <button onclick="this.innerHTML='<i class=\'fas fa-phone mr-2\'></i> <?php echo h($ad['seller_phone']); ?>'" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:bg-green-700 transition shadow-lg text-lg flex items-center justify-center">
+                    <?php
+                    $phone = $ad['seller_phone'];
+                    $tel_phone = $phone;
+                    if (strpos($phone, '0') === 0) {
+                        $tel_phone = '234' . substr($phone, 1);
+                    }
+                    ?>
+                    <button id="showContactBtn" onclick="this.innerHTML='<a href=\'tel:<?php echo h($tel_phone); ?>\' class=\'text-white w-full flex items-center justify-center\'><i class=\'fas fa-phone mr-2\'></i> <?php echo h($phone); ?></a>'; this.onclick=null;" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:bg-green-700 transition shadow-lg text-lg flex items-center justify-center">
                         <i class="fas fa-phone-alt mr-2"></i> SHOW CONTACT
                     </button>
 

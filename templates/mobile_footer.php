@@ -28,12 +28,12 @@
             <span class="text-[9px] font-black text-yellow-600 uppercase mt-1">Sell</span>
         </a>
 
-        <a href="/messages" class="flex flex-col items-center gap-1 text-gray-400">
+        <a href="/chat" class="flex flex-col items-center gap-1 <?php echo (strpos($_SERVER['PHP_SELF'], '/chat.php') !== false) ? 'text-green-600' : 'text-gray-400'; ?>">
             <i class="fas fa-comments text-lg"></i>
             <span class="text-[9px] font-black uppercase">Chats</span>
         </a>
 
-        <a href="/profile" class="flex flex-col items-center gap-1 <?php echo $_SERVER['PHP_SELF'] == '/profile.php' ? 'text-green-600' : 'text-gray-400'; ?>">
+        <a href="/profile" class="flex flex-col items-center gap-1 <?php echo (strpos($_SERVER['PHP_SELF'], '/profile.php') !== false) ? 'text-green-600' : 'text-gray-400'; ?>">
             <i class="fas fa-user text-lg"></i>
             <span class="text-[9px] font-black uppercase">Profile</span>
         </a>

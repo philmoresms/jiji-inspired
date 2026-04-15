@@ -8,6 +8,7 @@ function get_category_filters($cat_name) {
 
     $filters = [];
 
+    // Vehicles / Cars
     if (strpos($cat_name, 'VEHICLES') !== false || strpos($cat_name, 'CARS') !== false) {
         $filters = [
             'make' => [
@@ -70,9 +71,40 @@ function get_category_filters($cat_name) {
                 'label' => 'Fuel Type',
                 'type' => 'select',
                 'options' => ['Petrol', 'Diesel', 'Hybrid', 'Mild Hybrid', 'Electric', 'CNG', 'Plug-in Hybrid']
+            ],
+            'exchange' => [
+                'label' => 'Exchange Possible',
+                'type' => 'select',
+                'options' => ['Yes', 'No']
             ]
         ];
-    } elseif (strpos($cat_name, 'PROPERTY') !== false) {
+    }
+    // Electronics
+    elseif (strpos($cat_name, 'ELECTRONICS') !== false || strpos($cat_name, 'LAPTOPS') !== false || strpos($cat_name, 'TV') !== false) {
+        $filters = [
+            'condition' => [
+                'label' => 'Condition',
+                'type' => 'select',
+                'options' => ['Brand New', 'Foreign Used', 'Local Used']
+            ],
+            'brand' => [
+                'label' => 'Brand',
+                'type' => 'select',
+                'options' => ['Dell', 'HP', 'Lenovo', 'Apple', 'Sony', 'LG', 'Samsung', 'Acer', 'Asus', 'Toshiba', 'Panasonic', 'Hisense', 'TCL']
+            ],
+            'screen_size' => [
+                'label' => 'Screen Size (inches)',
+                'type' => 'number'
+            ],
+            'storage' => [
+                'label' => 'Storage',
+                'type' => 'select',
+                'options' => ['128GB SSD', '256GB SSD', '512GB SSD', '1TB SSD', '500GB HDD', '1TB HDD']
+            ]
+        ];
+    }
+    // Property
+    elseif (strpos($cat_name, 'PROPERTY') !== false || strpos($cat_name, 'HOUSES') !== false || strpos($cat_name, 'LAND') !== false) {
         $filters = [
             'property_type' => [
                 'label' => 'Property Type',
@@ -92,9 +124,21 @@ function get_category_filters($cat_name) {
             'size' => [
                 'label' => 'Size (sqm)',
                 'type' => 'number'
+            ],
+            'verified_seller' => [
+                'label' => 'Verified Sellers Only',
+                'type' => 'select',
+                'options' => ['Yes', 'No']
+            ],
+            'trusted_agent' => [
+                'label' => 'Trusted Real Estate Agent',
+                'type' => 'select',
+                'options' => ['Yes', 'No']
             ]
         ];
-    } elseif (strpos($cat_name, 'PHONES') !== false) {
+    }
+    // Phones
+    elseif (strpos($cat_name, 'PHONES') !== false || strpos($cat_name, 'TABLETS') !== false) {
         $filters = [
             'brand' => [
                 'label' => 'Brand',
@@ -115,39 +159,6 @@ function get_category_filters($cat_name) {
                 'label' => 'Network',
                 'type' => 'select',
                 'options' => ['2G', '3G', '4G', '5G']
-            ],
-            'battery_health' => [
-                'label' => 'Battery Health (%)',
-                'type' => 'number'
-            ]
-        ];
-    } elseif (strpos($cat_name, 'JOBS') !== false || strpos($cat_name, 'SEEKING WORK') !== false) {
-        $filters = [
-            'job_type' => [
-                'label' => 'Job Type',
-                'type' => 'select',
-                'options' => ['Full-time', 'Part-time', 'Contract', 'Internship', 'Freelance']
-            ],
-            'experience' => [
-                'label' => 'Experience Level',
-                'type' => 'select',
-                'options' => ['Entry-level', 'Mid-level', 'Senior']
-            ],
-            'salary' => [
-                'label' => 'Expected Salary (Monthly)',
-                'type' => 'number'
-            ]
-        ];
-    } elseif (strpos($cat_name, 'ELECTRONICS') !== false) {
-        $filters = [
-            'condition' => [
-                'label' => 'Condition',
-                'type' => 'select',
-                'options' => ['Brand New', 'Foreign Used', 'Local Used']
-            ],
-            'screen_size' => [
-                'label' => 'Screen Size (inches)',
-                'type' => 'number'
             ]
         ];
     }

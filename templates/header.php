@@ -51,7 +51,7 @@ if (isset($pdo)) {
             </a>
 
             <div class="flex-1 max-w-2xl mx-8 hidden md:block">
-                <form action="/search" method="GET" class="flex items-center bg-gray-100 rounded-xl overflow-hidden border-2 border-transparent focus-within:border-green-500 focus-within:bg-white transition-all shadow-sm">
+                <form action="/search.php" method="GET" class="flex items-center bg-gray-100 rounded-xl overflow-hidden border-2 border-transparent focus-within:border-green-500 focus-within:bg-white transition-all shadow-sm">
                     <div class="flex items-center px-4 border-r border-gray-200 gap-2">
                         <i class="fas fa-map-marker-alt text-green-600 text-sm"></i>
                         <select name="state_id" class="bg-transparent text-xs font-bold text-gray-600 outline-none py-3 cursor-pointer">

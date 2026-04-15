@@ -58,7 +58,7 @@ if ($max_price) {
 if ($extra) {
     foreach ($extra as $key => $value) {
         if (!empty($value)) {
-            $query .= " AND JSON_EXTRACT(a.ad_data, '$.\"$key\"') = ?";
+            $query .= " AND JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"$key\"')) = ?";
             $params[] = $value;
         }
     }

@@ -18,6 +18,7 @@ $type = $_GET['type'] ?? 'all';
 $state_id = (int)($_GET['state_id'] ?? 0);
 $min_price = (float)($_GET['min_price'] ?? 0);
 $max_price = (float)($_GET['max_price'] ?? 0);
+$extra = $_GET['extra'] ?? [];
 
 // Get main categories for sidebar
 $stmt = $pdo->query("SELECT c.*,
@@ -75,6 +76,15 @@ if ($min_price) {
 if ($max_price) {
     $query .= " AND a.price <= ?";
     $params[] = $max_price;
+}
+
+if ($extra) {
+    foreach ($extra as $key => $value) {
+        if (!empty($value)) {
+            $query .= " AND JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"$key\"')) = ?";
+            $params[] = $value;
+        }
+    }
 }
 
 $query .= " ORDER BY a.is_featured DESC, a.bumped_at DESC";
@@ -144,9 +154,13 @@ include __DIR__ . '/templates/header.php';
                         </div>
                     </div>
 
+                    <div id="dynamic_filters" class="space-y-4 pt-4 border-t border-gray-50">
+                        <!-- Filters here -->
+                    </div>
+
                     <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition shadow-lg shadow-green-100">Apply Filters</button>
 
-                    <?php if ($state_id || $min_price || $max_price): ?>
+                    <?php if ($state_id || $min_price || $max_price || $extra): ?>
                         <a href="/category/<?php echo $slug; ?>" class="block text-center text-[10px] font-black text-red-400 uppercase tracking-widest mt-4 hover:text-red-600 transition">Clear All Filters</a>
                     <?php endif; ?>
                 </form>
@@ -217,5 +231,46 @@ include __DIR__ . '/templates/header.php';
         </div>
     </div>
 </div>
+
+<script>
+function loadFilters(catId) {
+    const filterContainer = document.getElementById('dynamic_filters');
+    if (!catId) {
+        filterContainer.innerHTML = '';
+        return;
+    }
+
+    fetch('api/filters.php?cat_id=' + catId)
+        .then(response => response.json())
+        .then(filters => {
+            let html = '';
+            const currentExtra = <?php echo json_encode($extra); ?>;
+            for (let key in filters) {
+                const f = filters[key];
+                html += '<div>';
+                html += `<label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">${f.label}</label>`;
+
+                const val = currentExtra[key] || '';
+
+                if (f.type === 'select') {
+                    html += `<select name="extra[${key}]" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700">`;
+                    html += '<option value="">All</option>';
+                    f.options.forEach(opt => {
+                        const sel = (val == opt) ? 'selected' : '';
+                        html += `<option value="${opt}" ${sel}>${opt}</option>`;
+                    });
+                    html += '</select>';
+                } else if (f.type === 'number') {
+                    html += `<input type="number" name="extra[${key}]" value="${val}" placeholder="Value" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700">`;
+                }
+
+                html += '</div>';
+            }
+            filterContainer.innerHTML = html;
+        });
+}
+
+document.addEventListener('DOMContentLoaded', () => loadFilters(<?php echo $cat_id; ?>));
+</script>
 
 <?php include __DIR__ . '/templates/footer.php'; ?>

@@ -15,25 +15,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (isset($_POST['add_cat'])) {
-        $name = $_POST['name'];
-        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name)));
-        $icon = $_POST['icon'];
-        $is_top = isset($_POST['is_top']) ? 1 : 0;
-        $sort_order = (int)($_POST['sort_order'] ?? 0);
         $parent_id = (int)($_POST['parent_id'] ?? 0);
+        $names_raw = $_POST['name'];
 
-        if ($is_top) {
-            $top_count = $pdo->query("SELECT COUNT(*) FROM categories WHERE is_top = 1")->fetchColumn();
-            if ($top_count >= 4) {
-                $error = "Maximum of 4 categories can be shown in the top grid. Please unstar another category first.";
-                $is_top = 0;
+        if ($parent_id > 0) {
+            // Bulk subcategories
+            $names = explode("\n", str_replace("\r", "", $names_raw));
+            $count = 0;
+            foreach ($names as $name) {
+                $name = trim($name);
+                if (empty($name)) continue;
+
+                $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name)));
+                // Check if slug already exists to avoid duplicates (optional but good)
+                $stmt = $pdo->prepare("INSERT INTO categories (name, slug, icon_class, is_top, sort_order, parent_id) VALUES (?, ?, '', 0, 0, ?)");
+                $stmt->execute([$name, $slug, $parent_id]);
+                $count++;
             }
-        }
+            $success = "$count subcategories added.";
+        } else {
+            // Single main category
+            $name = trim($names_raw);
+            $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name)));
+            $icon = $_POST['icon'];
+            $is_top = isset($_POST['is_top']) ? 1 : 0;
+            $sort_order = (int)($_POST['sort_order'] ?? 0);
 
-        if (!$error) {
-            $stmt = $pdo->prepare("INSERT INTO categories (name, slug, icon_class, is_top, sort_order, parent_id) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$name, $slug, $icon, $is_top, $sort_order, $parent_id]);
-            $success = "Category added.";
+            if ($is_top) {
+                $top_count = $pdo->query("SELECT COUNT(*) FROM categories WHERE is_top = 1")->fetchColumn();
+                if ($top_count >= 4) {
+                    $error = "Maximum of 4 categories can be shown in the top grid. Please unstar another category first.";
+                    $is_top = 0;
+                }
+            }
+
+            if (!$error) {
+                $stmt = $pdo->prepare("INSERT INTO categories (name, slug, icon_class, is_top, sort_order, parent_id) VALUES (?, ?, ?, ?, ?, 0)");
+                $stmt->execute([$name, $slug, $icon, $is_top, $sort_order]);
+                $success = "Main category added.";
+            }
         }
     }
 
@@ -198,8 +218,8 @@ include __DIR__ . '/../templates/admin_header.php';
             <input type="hidden" name="cat_id" id="form_id">
             <input type="hidden" name="parent_id" id="form_parent">
             <div>
-                <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-2">Name</label>
-                <input type="text" name="name" id="form_name" class="w-full p-4 bg-gray-50 border-none rounded-2xl font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition" required>
+                <label id="nameLabel" class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-2">Name</label>
+                <textarea name="name" id="form_name" class="w-full p-4 bg-gray-50 border-none rounded-2xl font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition" required rows="1"></textarea>
             </div>
             <div id="iconAndOrder" class="grid grid-cols-2 gap-4">
                 <div>
@@ -315,17 +335,23 @@ function editMainCat(id) {
 function openAddModal(parentId) {
     resetForm();
     document.getElementById('form_parent').value = parentId;
-    document.getElementById('modalTitle').innerHTML = parentId == 0 ? 'New <span class="text-green-600">Main Category</span>' : 'New <span class="text-green-600">Subcategory</span>';
+    document.getElementById('modalTitle').innerHTML = parentId == 0 ? 'New <span class="text-green-600">Main Category</span>' : 'New <span class="text-green-600">Subcategories</span>';
     document.getElementById('submitBtn').name = 'add_cat';
-    document.getElementById('submitBtn').innerText = 'Create Category';
+    document.getElementById('submitBtn').innerText = parentId == 0 ? 'Create Category' : 'Create Subcategories';
 
     if (parentId > 0) {
         document.getElementById('iconAndOrder').classList.add('hidden');
         document.getElementById('parentDisplayBox').classList.remove('hidden');
         document.getElementById('parentNameDisplay').innerText = mainCatSelector.options[mainCatSelector.selectedIndex].text;
+        document.getElementById('form_name').rows = 5;
+        document.getElementById('form_name').placeholder = "Enter subcategories, one per line...";
+        document.getElementById('nameLabel').innerText = "Subcategory Names (One per line)";
     } else {
         document.getElementById('iconAndOrder').classList.remove('hidden');
         document.getElementById('parentDisplayBox').classList.add('hidden');
+        document.getElementById('form_name').rows = 1;
+        document.getElementById('form_name').placeholder = "";
+        document.getElementById('nameLabel').innerText = "Name";
     }
 
     showModal();
@@ -343,6 +369,9 @@ function openEditModal(cat) {
     document.getElementById('submitBtn').name = 'edit_cat';
     document.getElementById('submitBtn').innerText = 'Update Category';
     document.getElementById('submitBtn').className = "w-full bg-blue-600 text-white p-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition shadow-xl shadow-blue-100";
+
+    document.getElementById('form_name').rows = 1;
+    document.getElementById('nameLabel').innerText = "Name";
 
     if (cat.parent_id > 0) {
         document.getElementById('iconAndOrder').classList.add('hidden');
@@ -362,6 +391,7 @@ function resetForm() {
     document.getElementById('form_name').value = '';
     document.getElementById('form_icon').value = '';
     document.getElementById('form_order').value = '0';
+    document.getElementById('form_name').rows = 1;
     document.getElementById('submitBtn').className = "w-full bg-green-600 text-white p-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition shadow-xl shadow-green-100";
 }
 

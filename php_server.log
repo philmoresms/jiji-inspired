@@ -1,0 +1,13 @@
+[Wed Apr 15 20:04:41 2026] PHP 8.3.6 Development Server (http://localhost:8000) started
+[Wed Apr 15 20:05:41 2026] [::1]:57174 Accepted
+[Wed Apr 15 20:05:41 2026] [::1]:57174 [302]: GET /
+[Wed Apr 15 20:05:41 2026] [::1]:57174 Closing
+[Wed Apr 15 20:05:41 2026] [::1]:57186 Accepted
+[Wed Apr 15 20:05:41 2026] [::1]:57186 [200]: GET /install/index.php
+[Wed Apr 15 20:05:41 2026] [::1]:57186 Closing
+[Wed Apr 15 20:05:43 2026] [::1]:57202 Accepted
+[Wed Apr 15 20:05:43 2026] [::1]:57202 [302]: GET /
+[Wed Apr 15 20:05:43 2026] [::1]:57202 Closing
+[Wed Apr 15 20:05:43 2026] [::1]:57210 Accepted
+[Wed Apr 15 20:05:43 2026] [::1]:57210 [200]: GET /install/index.php
+[Wed Apr 15 20:05:43 2026] [::1]:57210 Closing

@@ -55,6 +55,43 @@ include __DIR__ . '/templates/header.php';
 ?>
 
 <div class="container mx-auto px-4 py-8">
+    <!-- Jiji-Style Search Bar (Mobile/Desktop) -->
+    <div class="mb-8">
+        <form action="/search.php" method="GET" class="flex flex-col md:flex-row items-stretch bg-white rounded-2xl md:rounded-full overflow-hidden shadow-xl border-2 border-green-50 focus-within:border-green-500 transition-all">
+            <div class="flex flex-1 items-center px-6 border-b md:border-b-0 md:border-r border-gray-100 gap-3">
+                <i class="fas fa-search text-gray-400"></i>
+                <input type="text" name="q" placeholder="What are you looking for?" class="w-full py-4 md:py-5 text-sm font-bold text-gray-700 outline-none" required>
+            </div>
+
+            <div class="flex flex-1 items-center px-6 border-b md:border-b-0 md:border-r border-gray-100 gap-3">
+                <i class="fas fa-list text-green-600"></i>
+                <select name="cat_id" class="w-full py-4 md:py-5 bg-transparent text-sm font-bold text-gray-700 outline-none cursor-pointer appearance-none">
+                    <option value="">All Categories</option>
+                    <?php foreach ($categories as $scat): ?>
+                        <option value="<?php echo $scat['id']; ?>"><?php echo h($scat['name']); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <i class="fas fa-chevron-down text-[10px] text-gray-300"></i>
+            </div>
+
+            <div class="flex flex-1 items-center px-6 gap-3">
+                <i class="fas fa-map-marker-alt text-red-500"></i>
+                <select name="state_id" class="w-full py-4 md:py-5 bg-transparent text-sm font-bold text-gray-700 outline-none cursor-pointer appearance-none">
+                    <option value="">All Nigeria</option>
+                    <?php
+                    $stmt_states = $pdo->query("SELECT id, name FROM states ORDER BY name ASC");
+                    while($s = $stmt_states->fetch()) echo "<option value='{$s['id']}'>".h($s['name'])."</option>";
+                    ?>
+                </select>
+                <i class="fas fa-chevron-down text-[10px] text-gray-300"></i>
+            </div>
+
+            <button type="submit" class="bg-green-600 text-white px-10 py-4 md:py-2 font-black text-xs uppercase tracking-widest hover:bg-green-700 transition">
+                Search
+            </button>
+        </form>
+    </div>
+
     <!-- Categories Top Grid (Admin Managed Mobile) -->
     <?php if ($top_grid_categories): ?>
     <div class="md:hidden grid grid-cols-4 gap-2 mb-8 px-2">
@@ -69,19 +106,6 @@ include __DIR__ . '/templates/header.php';
     </div>
     <?php endif; ?>
 
-    <!-- Categories Navigation (Modern Mobile Scroller) -->
-    <div class="md:hidden overflow-x-auto pb-8 mb-4 scrollbar-hide snap-x snap-mandatory">
-        <div class="flex gap-3 px-2">
-            <?php foreach ($categories as $cat): ?>
-            <button onclick="showMobileSubs(<?php echo $cat['id']; ?>, '<?php echo h($cat['name']); ?>')" class="flex flex-col items-center snap-center outline-none">
-                <div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-green-600 mb-2 border border-gray-50 active:scale-95 transition-transform duration-200">
-                    <i class="fas <?php echo h($cat['icon_class']); ?> text-xl"></i>
-                </div>
-                <span class="text-[9px] font-extrabold text-gray-500 uppercase tracking-tighter text-center w-16 leading-tight"><?php echo h($cat['name']); ?></span>
-            </button>
-            <?php endforeach; ?>
-        </div>
-    </div>
 
     <!-- Mobile Subcategories Modal -->
     <div id="mobileSubsModal" class="fixed inset-0 bg-black/60 z-[100] hidden items-end justify-center backdrop-blur-sm" onclick="closeMobileSubs()">
@@ -287,7 +311,7 @@ include __DIR__ . '/templates/header.php';
                                     <i class="fas fa-th-large opacity-50 group-hover:rotate-12 transition-transform"></i>
                                 </button>
                                 <?php foreach ($categories as $fcat): ?>
-                                    <button onclick="selectMainTrending(<?php echo $fcat['id']; ?>, '<?php echo addslashes($fcat['name']); ?>', '<?php echo $fcat['icon_class']; ?>')" class="trending-filter-btn w-full text-left px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider text-gray-500 hover:bg-green-50 hover:text-green-600 transition-all duration-300 flex items-center justify-between group" data-cat="<?php echo $fcat['id']; ?>">
+                                    <button onclick="handleCategoryClick(<?php echo $fcat['id']; ?>, '<?php echo addslashes($fcat['name']); ?>', '<?php echo $fcat['icon_class']; ?>')" class="trending-filter-btn w-full text-left px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider text-gray-500 hover:bg-green-50 hover:text-green-600 transition-all duration-300 flex items-center justify-between group" data-cat="<?php echo $fcat['id']; ?>">
                                         <span class="truncate pr-1"><?php echo h($fcat['name']); ?></span>
                                         <i class="fas <?php echo h($fcat['icon_class']); ?> opacity-20 group-hover:opacity-100 transition-opacity"></i>
                                     </button>
@@ -378,6 +402,14 @@ function closeMobileSubs() {
     modal.classList.add('hidden');
     modal.classList.remove('flex');
     document.body.style.overflow = 'auto';
+}
+
+function handleCategoryClick(catId, name, icon) {
+    if (window.innerWidth < 768) {
+        showMobileSubs(catId, name);
+    } else {
+        selectMainTrending(catId, name, icon);
+    }
 }
 
 function selectMainTrending(catId, name, icon) {
