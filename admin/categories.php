@@ -27,7 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (empty($name)) continue;
 
                 $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name)));
-                // Check if slug already exists to avoid duplicates (optional but good)
+
+                // Avoid duplicate slugs by appending a random string if necessary
+                $check = $pdo->prepare("SELECT id FROM categories WHERE slug = ?");
+                $check->execute([$slug]);
+                if ($check->fetch()) {
+                    $slug .= '-' . bin2hex(random_bytes(2));
+                }
+
                 $stmt = $pdo->prepare("INSERT INTO categories (name, slug, icon_class, is_top, sort_order, parent_id) VALUES (?, ?, '', 0, 0, ?)");
                 $stmt->execute([$name, $slug, $parent_id]);
                 $count++;

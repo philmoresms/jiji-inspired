@@ -16,6 +16,8 @@ if (isset($pdo)) {
 // Global IP Blacklist/Country Check
 if (isset($pdo)) {
     require_once __DIR__ . '/../inc/security.php';
+    require_once __DIR__ . '/../inc/update_schema.php';
+    require_once __DIR__ . '/../inc/update_schema_v3.php';
 }
 ?>
 <!DOCTYPE html>

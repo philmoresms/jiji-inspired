@@ -161,7 +161,7 @@ include __DIR__ . '/templates/header.php';
                         <?php endif; ?>
 
                         <?php
-                        $extra_data = json_decode($ad['ad_data'], true);
+                        $extra_data = !empty($ad['ad_data']) ? json_decode($ad['ad_data'], true) : null;
                         if ($extra_data):
                         ?>
                             <div class="mb-8">
