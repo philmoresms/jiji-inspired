@@ -20,6 +20,18 @@ $query = "SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND i
 
 $params = [];
 
+// Fetch categories for sidebar
+$stmt = $pdo->query("SELECT c.*,
+    (SELECT COUNT(*) FROM ads a
+     JOIN users u ON a.user_id = u.id
+     WHERE (a.cat_id = c.id OR a.cat_id IN (SELECT id FROM categories WHERE parent_id = c.id))
+     AND a.status = 'active' AND u.is_suspended = 0) as ad_count
+    FROM categories c WHERE parent_id = 0 ORDER BY sort_order ASC, name ASC");
+$main_categories = $stmt->fetchAll();
+
+// Get States for filter
+$states = $pdo->query("SELECT * FROM states ORDER BY name ASC")->fetchAll();
+
 if ($q) {
     $query .= " AND (a.title LIKE ? OR a.description LIKE ?)";
     $params[] = "%$q%";
@@ -58,102 +70,120 @@ include __DIR__ . '/templates/header.php';
 
 <div class="container mx-auto px-4 py-8">
     <div class="flex flex-col md:flex-row gap-8">
-        <!-- Search Filters Sidebar -->
-        <aside class="w-full md:w-1/4 bg-white p-6 rounded-2xl shadow-sm h-fit sticky top-24">
-            <h3 class="font-bold text-gray-800 border-b pb-4 mb-6 uppercase tracking-wider">Refine Search</h3>
-            <form action="search.php" method="GET" class="space-y-6">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Keyword</label>
-                    <input type="text" name="q" value="<?php echo h($q); ?>" class="w-full p-2 border rounded focus:border-green-500 outline-none font-bold text-gray-700" placeholder="Search keywords...">
+        <!-- Sidebar Navigation & Filters (Jiji Style) -->
+        <aside class="hidden md:block w-72 flex-shrink-0">
+            <!-- Category Navigation -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+                <div class="p-4 bg-gray-50 border-b border-gray-100">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">All Categories</span>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Category</label>
-                    <select name="cat_id" class="w-full p-2 border rounded focus:border-green-500 outline-none font-bold text-gray-700">
-                        <option value="">All Categories</option>
-                        <?php
-                        $cats = $pdo->query("SELECT id, name FROM categories ORDER BY name ASC")->fetchAll();
-                        foreach ($cats as $cat) {
-                            $sel = ($cat_id == $cat['id']) ? 'selected' : '';
-                            echo "<option value='{$cat['id']}' $sel>{$cat['name']}</option>";
-                        }
-                        ?>
-                    </select>
+                <div class="py-2">
+                    <?php foreach ($main_categories as $mcat): ?>
+                        <div class="px-2">
+                            <a href="search.php?q=<?php echo h($q); ?>&cat_id=<?php echo $mcat['id']; ?>&state_id=<?php echo $state_id; ?>&type=<?php echo $type; ?>" class="flex items-center justify-between p-3 rounded-lg hover:bg-green-50 transition-all <?php echo $mcat['id'] == $cat_id ? 'bg-green-50 text-green-600' : 'text-gray-700'; ?>">
+                                <div class="flex items-center gap-3">
+                                    <i class="fas <?php echo h($mcat['icon_class']); ?> text-sm opacity-50 <?php echo $mcat['id'] == $cat_id ? 'text-green-600 opacity-100' : ''; ?>"></i>
+                                    <span class="text-sm font-bold"><?php echo h($mcat['name']); ?></span>
+                                </div>
+                                <span class="text-[10px] font-bold opacity-50"><?php echo number_format($mcat['ad_count']); ?></span>
+                            </a>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Location</label>
-                    <select name="state_id" class="w-full p-2 border rounded focus:border-green-500 outline-none font-bold text-gray-700">
-                        <option value="">All States</option>
-                        <?php
-                        $states = $pdo->query("SELECT id, name FROM states ORDER BY name ASC")->fetchAll();
-                        foreach ($states as $state) {
-                            $sel = ($state_id == $state['id']) ? 'selected' : '';
-                            echo "<option value='{$state['id']}' $sel>{$state['name']}</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Listing Type</label>
-                    <div class="flex flex-col gap-2">
-                        <label class="flex items-center gap-2 cursor-pointer text-sm font-bold text-gray-700">
-                            <input type="radio" name="type" value="all" <?php echo $type == 'all' ? 'checked' : ''; ?> class="accent-green-600"> All
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer text-sm font-bold text-gray-700">
-                            <input type="radio" name="type" value="sale" <?php echo $type == 'sale' ? 'checked' : ''; ?> class="accent-green-600"> Buy/Sell
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer text-sm font-bold text-gray-700">
-                            <input type="radio" name="type" value="swap" <?php echo $type == 'swap' ? 'checked' : ''; ?> class="accent-green-600"> Swap/Exchange
-                        </label>
+            </div>
+
+            <!-- Filters -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
+                <h3 class="text-xs font-black text-gray-800 uppercase tracking-widest mb-6 pb-2 border-b">Refine Results</h3>
+                <form action="search.php" method="GET" class="space-y-6">
+                    <input type="hidden" name="q" value="<?php echo h($q); ?>">
+                    <input type="hidden" name="cat_id" value="<?php echo h($cat_id); ?>">
+
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Location</label>
+                        <select name="state_id" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                            <option value="">All Nigeria</option>
+                            <?php foreach ($states as $s): ?>
+                                <option value="<?php echo $s['id']; ?>" <?php echo $state_id == $s['id'] ? 'selected' : ''; ?>><?php echo h($s['name']); ?></option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Price Range (₦)</label>
-                    <div class="flex gap-2">
-                        <input type="number" name="min_price" value="<?php echo $min_price ?: ''; ?>" placeholder="Min" class="w-1/2 p-2 border rounded focus:border-green-500 outline-none font-bold text-gray-700 text-sm">
-                        <input type="number" name="max_price" value="<?php echo $max_price ?: ''; ?>" placeholder="Max" class="w-1/2 p-2 border rounded focus:border-green-500 outline-none font-bold text-gray-700 text-sm">
+
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Listing Type</label>
+                        <select name="type" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                            <option value="all" <?php echo $type == 'all' ? 'selected' : ''; ?>>All Types</option>
+                            <option value="sale" <?php echo $type == 'sale' ? 'selected' : ''; ?>>For Sale</option>
+                            <option value="swap" <?php echo $type == 'swap' ? 'selected' : ''; ?>>For Swap</option>
+                        </select>
                     </div>
-                </div>
-                <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition uppercase shadow-md">Apply Filters</button>
-            </form>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Price Range (₦)</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" name="min_price" value="<?php echo $min_price ?: ''; ?>" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                            <input type="number" name="max_price" value="<?php echo $max_price ?: ''; ?>" placeholder="Max" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition shadow-lg shadow-green-100">Apply Filters</button>
+
+                    <?php if ($cat_id || $state_id || $min_price || $max_price || $q): ?>
+                        <a href="search.php" class="block text-center text-[10px] font-black text-red-400 uppercase tracking-widest mt-4 hover:text-red-600 transition">Clear All Filters</a>
+                    <?php endif; ?>
+                </form>
+            </div>
         </aside>
 
         <!-- Search Results (Right) -->
-        <div class="md:w-3/4">
-            <!-- Mobile Filters Summary (Compact View) -->
-            <div class="md:hidden flex gap-2 mb-4 overflow-x-auto scrollbar-hide py-2">
-                <?php if ($q): ?><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap">"<?php echo h($q); ?>"</span><?php endif; ?>
-                <?php if ($cat_id): ?><span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap">Category ID: <?php echo $cat_id; ?></span><?php endif; ?>
-                <?php if ($state_id): ?><span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap">Location ID: <?php echo $state_id; ?></span><?php endif; ?>
+        <div class="flex-1">
+            <div class="bg-white rounded-3xl p-8 mb-8 shadow-sm border border-gray-50">
+                <h2 class="text-2xl font-black text-gray-800 uppercase tracking-tighter">
+                    <?php echo $q ? "Search Results for \"".h($q)."\"" : "Marketplace Browser"; ?>
+                    <span class="text-xs text-gray-400 ml-4 font-black bg-gray-100 px-3 py-1 rounded-full"><?php echo count($ads); ?> Listings Found</span>
+                </h2>
             </div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-8 border-l-8 border-green-600 pl-4 uppercase">
-                <?php echo $q ? "Search Results for \"".h($q)."\"" : "Marketplace Browser"; ?>
-                <span class="text-sm text-gray-400 ml-2 font-bold">(<?php echo count($ads); ?> found)</span>
-            </h2>
 
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <?php foreach ($ads as $ad): ?>
-                <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all group border border-gray-100">
+                <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-3xl shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 group">
                     <div class="relative h-48 overflow-hidden">
-                        <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                        <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
                         <?php if ($ad['is_featured']): ?>
-                            <span class="absolute top-4 left-4 bg-yellow-400 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase shadow-md"><i class="fas fa-rocket"></i> BOOSTED</span>
+                            <div class="absolute top-4 left-4 bg-yellow-400 text-yellow-900 text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-yellow-300">Premium</div>
                         <?php endif; ?>
+                        <?php if ($ad['listing_type'] !== 'for_sale'): ?>
+                            <div class="absolute top-4 right-4 bg-blue-600 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-blue-500"><i class="fas fa-sync-alt mr-1"></i> Swap</div>
+                        <?php endif; ?>
+                        <div class="absolute bottom-4 left-4">
+                            <span class="bg-black/50 backdrop-blur-md text-white text-[9px] font-black px-3 py-1 rounded-full uppercase"><?php echo h($ad['cat_name']); ?></span>
+                        </div>
                     </div>
-                    <div class="p-4">
-                        <h4 class="text-sm font-bold text-gray-800 line-clamp-2 h-10 mb-3 group-hover:text-green-600 transition"><?php echo h($ad['title']); ?></h4>
-                        <p class="text-green-600 font-extrabold text-lg mb-4">₦<?php echo number_format($ad['price']); ?></p>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider"><i class="fas fa-map-marker-alt mr-1 text-green-500"></i> <?php echo h($ad['state_name']); ?></p>
+                    <div class="p-5">
+                        <h4 class="text-sm font-black text-gray-800 line-clamp-2 h-10 mb-4 group-hover:text-green-600 transition"><?php echo h($ad['title']); ?></h4>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p class="text-green-600 font-black text-xl">₦<?php echo number_format($ad['price']); ?></p>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-map-marker-alt text-green-500 mr-1"></i> <?php echo h($ad['state_name']); ?></p>
+                            </div>
+                            <div class="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-red-50 group-hover:text-red-500 transition-colors duration-300">
+                                <i class="far fa-heart text-sm"></i>
+                            </div>
+                        </div>
                     </div>
                 </a>
                 <?php endforeach; ?>
             </div>
 
             <?php if (empty($ads)): ?>
-            <div class="bg-white p-20 rounded-2xl text-center border-2 border-dashed border-gray-100">
-                <i class="fas fa-search-minus text-5xl text-gray-100 mb-6"></i>
-                <h3 class="text-xl font-bold text-gray-400">No matching items found</h3>
-                <p class="text-gray-300 font-bold">Try adjusting your filters or search keywords.</p>
-            </div>
+                <div class="bg-white p-20 rounded-[3rem] text-center border-2 border-dashed border-gray-100">
+                    <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-8">
+                        <i class="fas fa-search-minus text-gray-200 text-4xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-black text-gray-800 mb-2 tracking-tighter">No matching results</h2>
+                    <p class="text-gray-400 font-bold">We couldn't find anything matching your search. Try different keywords or filters.</p>
+                    <a href="search.php" class="bg-green-600 text-white px-10 py-5 rounded-2xl font-black hover:bg-green-700 transition uppercase shadow-2xl inline-block mt-10 tracking-widest text-xs">VIEW ALL LISTINGS</a>
+                </div>
             <?php endif; ?>
         </div>
     </div>

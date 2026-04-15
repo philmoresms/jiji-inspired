@@ -18,8 +18,13 @@ require_once ROOT_PATH . '/inc/functions.php';
 require_once ROOT_PATH . '/inc/security.php';
 require_once ROOT_PATH . '/inc/user_auth.php';
 
-// Fetch categories for sidebar
-$stmt = $pdo->query("SELECT c.*, (SELECT COUNT(*) FROM ads a JOIN users u ON a.user_id = u.id WHERE a.cat_id = c.id AND a.status = 'active' AND u.is_suspended = 0) as ad_count FROM categories c WHERE parent_id = 0 ORDER BY sort_order ASC, name ASC");
+// Fetch categories for sidebar (Total ads including subcategories)
+$stmt = $pdo->query("SELECT c.*,
+    (SELECT COUNT(*) FROM ads a
+     JOIN users u ON a.user_id = u.id
+     WHERE (a.cat_id = c.id OR a.cat_id IN (SELECT id FROM categories WHERE parent_id = c.id))
+     AND a.status = 'active' AND u.is_suspended = 0) as ad_count
+    FROM categories c WHERE parent_id = 0 ORDER BY sort_order ASC, name ASC");
 $categories = $stmt->fetchAll();
 
 // Fetch Top Grid categories for mobile
@@ -79,38 +84,38 @@ include __DIR__ . '/templates/header.php';
     </div>
 
     <div class="flex flex-col md:flex-row gap-8">
-        <!-- Sidebar Categories (Desktop Only - Jiji Style) -->
-        <aside class="hidden md:block w-72 bg-white rounded-2xl shadow-sm overflow-hidden h-fit sticky top-24 border border-gray-100">
-            <div class="bg-gray-50 p-4 border-b border-gray-100">
-                <h3 class="font-black text-gray-800 uppercase text-[10px] tracking-[2px]">Marketplace</h3>
-            </div>
-            <div class="p-2">
+        <!-- Sidebar Categories (Desktop Only - Jiji Perfect Style) -->
+        <aside class="hidden md:block w-72 bg-white shadow-sm overflow-visible h-fit sticky top-24 border-r border-gray-100 z-50">
+            <div class="py-2">
                 <?php foreach ($categories as $cat): ?>
-                <div class="group relative">
-                    <a href="/category/<?php echo $cat['slug']; ?>" class="flex items-center justify-between p-3 rounded-xl hover:bg-green-600 hover:text-white transition-all duration-200">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-green-500/20 transition">
-                                <i class="fas <?php echo h($cat['icon_class']); ?> text-sm text-gray-500 group-hover:text-white"></i>
+                <div class="group relative px-2">
+                    <a href="/category/<?php echo $cat['slug']; ?>" class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-all duration-150">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 flex items-center justify-center">
+                                <i class="fas <?php echo h($cat['icon_class']); ?> text-xl text-gray-400 group-hover:text-green-600 transition"></i>
                             </div>
-                            <span class="text-sm font-bold tracking-tight"><?php echo h($cat['name']); ?></span>
+                            <div class="flex flex-col">
+                                <span class="text-[14px] font-bold text-gray-700 group-hover:text-green-600 transition tracking-tight"><?php echo h($cat['name']); ?></span>
+                                <span class="text-[11px] text-gray-400 font-medium"><?php echo number_format($cat['ad_count']); ?> ads</span>
+                            </div>
                         </div>
-                        <i class="fas fa-chevron-right text-[10px] opacity-30 group-hover:opacity-100"></i>
+                        <i class="fas fa-chevron-right text-[10px] text-gray-300 group-hover:text-green-600 transition"></i>
                     </a>
 
-                    <!-- Submenu on Hover (Tiki style enhancement) -->
+                    <!-- Full-Width Jiji Submenu on Hover -->
                     <?php
-                    $stmt_sub = $pdo->prepare("SELECT * FROM categories WHERE parent_id = ? LIMIT 10");
+                    $stmt_sub = $pdo->prepare("SELECT c.*, (SELECT COUNT(*) FROM ads a JOIN users u ON a.user_id = u.id WHERE a.cat_id = c.id AND a.status = 'active' AND u.is_suspended = 0) as sub_ad_count FROM categories c WHERE parent_id = ? ORDER BY name ASC");
                     $stmt_sub->execute([$cat['id']]);
                     $subs = $stmt_sub->fetchAll();
                     if ($subs):
                     ?>
-                    <div class="hidden group-hover:block absolute left-full top-0 ml-2 w-64 bg-white shadow-2xl rounded-2xl border border-gray-100 p-4 z-[60]">
-                        <h4 class="font-black text-[10px] text-green-600 uppercase mb-3 tracking-widest"><?php echo h($cat['name']); ?> Sub-Categories</h4>
-                        <div class="grid gap-2">
+                    <div class="hidden group-hover:block absolute left-full top-0 ml-0 w-[500px] bg-white shadow-[15px_0_30px_rgba(0,0,0,0.1)] border border-l-0 border-gray-100 min-h-full p-8 z-[60] rounded-r-2xl">
+                        <h4 class="font-black text-[12px] text-gray-800 uppercase mb-6 tracking-widest border-b pb-4"><?php echo h($cat['name']); ?></h4>
+                        <div class="grid grid-cols-2 gap-x-8 gap-y-4">
                             <?php foreach ($subs as $sub): ?>
-                            <a href="/category/<?php echo $sub['slug']; ?>" class="text-xs font-bold text-gray-500 hover:text-green-600 flex items-center justify-between p-2 rounded-lg hover:bg-green-50 transition">
-                                <?php echo h($sub['name']); ?>
-                                <i class="fas fa-plus text-[8px] opacity-0 group-hover:opacity-100"></i>
+                            <a href="/category/<?php echo $sub['slug']; ?>" class="flex flex-col group/sub">
+                                <span class="text-[13px] font-bold text-gray-600 group-hover/sub:text-green-600 transition"><?php echo h($sub['name']); ?></span>
+                                <span class="text-[10px] text-gray-400"><?php echo number_format($sub['sub_ad_count']); ?> ads</span>
                             </a>
                             <?php endforeach; ?>
                         </div>
@@ -132,7 +137,7 @@ include __DIR__ . '/templates/header.php';
                     <div class="text-center md:text-left">
                         <span class="inline-block bg-yellow-500 text-green-900 text-[10px] font-black px-3 py-1 rounded-full uppercase mb-4 tracking-widest shadow-sm">Verified Marketplace</span>
                         <h2 class="text-4xl md:text-5xl font-black mb-4 leading-tight">Everything is possible <br class="hidden md:block">with <span class="text-yellow-400"><?php echo h($settings['site_name'] ?? 'Jiji Clone'); ?></span></h2>
-                        <p class="text-green-50 font-bold opacity-90 max-w-md">Nigeria's most premium classifieds platform for buying and selling anything.</p>
+                        <p class="text-green-50 font-bold opacity-90 max-w-md">Nigeria's most premium classifieds platform for buying, selling and swapping anything.</p>
                     </div>
                     <div class="flex flex-col gap-4 w-full md:w-auto">
                         <a href="/post-ad" class="bg-yellow-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-yellow-400 transition transform hover:-translate-y-1 shadow-2xl flex items-center justify-center gap-3">
@@ -160,6 +165,9 @@ include __DIR__ . '/templates/header.php';
                         <div class="relative h-40">
                             <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
                             <span class="absolute top-2 left-2 bg-yellow-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Featured</span>
+                            <?php if ($ad['listing_type'] !== 'for_sale'): ?>
+                                <span class="absolute top-2 right-2 bg-blue-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase shadow-sm"><i class="fas fa-sync-alt mr-1"></i> Swap</span>
+                            <?php endif; ?>
                         </div>
                         <div class="p-3">
                             <h4 class="text-sm font-bold text-gray-800 line-clamp-2 h-10 mb-2"><?php echo h($ad['title']); ?></h4>
@@ -182,6 +190,17 @@ include __DIR__ . '/templates/header.php';
                 <div class="flex flex-col lg:flex-row gap-10">
                     <!-- Left Sidebar Category Filter (Modern List View) -->
                     <aside class="w-full lg:w-64 flex-shrink-0">
+                        <!-- Swap Highlight (Tiki Differentiator) -->
+                        <div class="bg-blue-600 rounded-3xl p-6 shadow-xl mb-6 text-white relative overflow-hidden group cursor-pointer" onclick="filterTrending(0, 'swap')">
+                            <div class="absolute -right-4 -top-4 w-20 h-20 bg-white/10 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+                            <h4 class="text-[10px] font-black uppercase tracking-widest mb-2 opacity-80">Swap/Barter</h4>
+                            <p class="text-lg font-black leading-tight mb-4">Exchange Items <br>No Cash Needed</p>
+                            <div class="flex items-center gap-2 text-[10px] font-bold bg-white/20 w-fit px-3 py-1 rounded-full">
+                                <span>Browse Swaps</span>
+                                <i class="fas fa-sync-alt animate-spin-slow"></i>
+                            </div>
+                        </div>
+
                         <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 sticky top-24">
                             <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-[3px] mb-6 px-2">Filter by Category</h4>
                             <div class="space-y-1">
@@ -203,14 +222,24 @@ include __DIR__ . '/templates/header.php';
                     <div class="flex-1">
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8" id="trendingContainer">
                     <?php foreach ($recent_ads as $ad): ?>
-                    <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition">
-                        <div class="h-40">
-                            <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
+                    <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 group">
+                        <div class="h-64 overflow-hidden relative">
+                            <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                            <?php if ($ad['listing_type'] !== 'for_sale'): ?>
+                                <div class="absolute top-4 right-4 bg-blue-600 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-blue-500"><i class="fas fa-sync-alt mr-1"></i> Swap</div>
+                            <?php endif; ?>
                         </div>
-                        <div class="p-3">
-                            <h4 class="text-sm font-bold text-gray-800 line-clamp-2 h-10 mb-2"><?php echo h($ad['title']); ?></h4>
-                            <p class="text-green-600 font-bold mb-2">₦<?php echo number_format($ad['price']); ?></p>
-                            <p class="text-[10px] text-gray-400 font-bold"><i class="fas fa-map-marker-alt"></i> <?php echo h($ad['state_name']); ?></p>
+                        <div class="p-6">
+                            <h4 class="text-sm font-black text-gray-800 line-clamp-2 h-10 mb-4 group-hover:text-green-600 transition"><?php echo h($ad['title']); ?></h4>
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <p class="text-green-600 font-black text-xl">₦<?php echo number_format($ad['price']); ?></p>
+                                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-map-marker-alt text-green-500 mr-1"></i> <?php echo h($ad['state_name']); ?></p>
+                                </div>
+                                <div class="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-red-50 group-hover:text-red-500 transition-colors duration-300">
+                                    <i class="far fa-heart text-sm"></i>
+                                </div>
+                            </div>
                         </div>
                     </a>
                     <?php endforeach; ?>
@@ -223,10 +252,10 @@ include __DIR__ . '/templates/header.php';
 </div>
 
 <script>
-function filterTrending(catId) {
+function filterTrending(catId, type = 'all') {
     // Update buttons (List View Style)
     document.querySelectorAll('.trending-filter-btn').forEach(btn => {
-        if(btn.dataset.cat == catId) {
+        if(btn.dataset.cat == catId && type !== 'swap') {
             btn.classList.add('bg-green-600', 'text-white', 'shadow-xl');
             btn.classList.remove('text-gray-500', 'hover:bg-green-50');
         } else {
@@ -239,11 +268,11 @@ function filterTrending(catId) {
     const container = document.getElementById('trendingContainer');
     container.innerHTML = '<div class="col-span-full py-20 text-center"><i class="fas fa-spinner fa-spin text-3xl text-green-500"></i></div>';
 
-    fetch(`api/trending.php?cat_id=${catId}`)
+    fetch(`api/trending.php?cat_id=${catId}&type=${type}`)
         .then(res => res.json())
         .then(data => {
             if(data.length === 0) {
-                container.innerHTML = '<div class="col-span-full py-20 text-center font-bold text-gray-400 uppercase tracking-widest text-sm">No products found in this category</div>';
+                container.innerHTML = '<div class="col-span-full py-20 text-center font-bold text-gray-400 uppercase tracking-widest text-sm">No products found for this selection</div>';
                 return;
             }
             container.innerHTML = data.map(ad => `
@@ -251,6 +280,7 @@ function filterTrending(catId) {
                     <div class="h-64 overflow-hidden relative">
                         <img src="${ad.image ? 'uploads/ads/'+ad.image : 'https://placehold.co/400x300?text=No+Image'}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
                         ${ad.is_featured == 1 ? '<div class="absolute top-4 left-4 bg-yellow-400 text-yellow-900 text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-yellow-300">Premium</div>' : ''}
+                        ${ad.listing_type !== 'for_sale' ? '<div class="absolute top-4 right-4 bg-blue-600 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-blue-500"><i class="fas fa-sync-alt mr-1"></i> Swap</div>' : ''}
                     </div>
                     <div class="p-6">
                         <h4 class="text-sm font-black text-gray-800 line-clamp-2 h-10 mb-4 group-hover:text-green-600 transition">${ad.title}</h4>

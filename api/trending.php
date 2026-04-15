@@ -5,6 +5,7 @@ require_once __DIR__ . '/../inc/functions.php';
 header('Content-Type: application/json');
 
 $cat_id = (int)($_GET['cat_id'] ?? 0);
+$type = $_GET['type'] ?? 'all';
 
 $query = "SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name
          FROM ads a
@@ -15,6 +16,10 @@ $query = "SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND i
 
 if ($cat_id > 0) {
     $query .= " AND a.cat_id = $cat_id";
+}
+
+if ($type === 'swap') {
+    $query .= " AND (a.listing_type = 'for_swap' OR a.listing_type = 'for_sale_or_swap')";
 }
 
 $query .= " ORDER BY a.bumped_at DESC LIMIT 20";

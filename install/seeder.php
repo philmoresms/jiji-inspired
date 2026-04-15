@@ -5,6 +5,11 @@
  */
 
 function seed_database($pdo) {
+    // 0. Clear existing categories to ensure fresh start
+    $pdo->exec("SET FOREIGN_KEY_CHECKS = 0");
+    $pdo->exec("TRUNCATE TABLE categories");
+    $pdo->exec("SET FOREIGN_KEY_CHECKS = 1");
+
     // 1. Seed COMPLETE Jiji-Standard Categories
     $categories_data = [
         'Vehicles' => [

@@ -38,7 +38,10 @@ if (isset($pdo)) {
 <body class="bg-gray-100 min-h-screen flex flex-col">
     <nav class="bg-white shadow-sm border-b sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <a href="/" class="text-2xl font-bold text-green-600"><?php echo h($settings['site_name'] ?? 'Jiji Clone'); ?></a>
+            <a href="/" class="flex flex-col">
+                <span class="text-2xl font-black text-green-600 leading-none"><?php echo h($settings['site_name'] ?? 'Jiji Clone'); ?></span>
+                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Buy, Sell & Swap</span>
+            </a>
 
             <div class="flex-1 max-w-2xl mx-8 hidden md:block">
                 <form action="/search" method="GET" class="flex items-center bg-gray-100 rounded-xl overflow-hidden border-2 border-transparent focus-within:border-green-500 focus-within:bg-white transition-all shadow-sm">
