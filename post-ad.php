@@ -227,6 +227,7 @@ function loadFilters(catId) {
             let html = '';
             for (let key in filters) {
                 const f = filters[key];
+                if (f.search_only) continue;
                 html += '<div>';
                 html += `<label class="block text-gray-700 font-bold mb-2 text-sm">${f.label}</label>`;
 

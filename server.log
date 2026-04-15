@@ -1,0 +1,19 @@
+[Wed Apr 15 23:29:30 2026] PHP 8.3.6 Development Server (http://localhost:8000) started
+[Wed Apr 15 23:30:36 2026] [::1]:49122 Accepted
+[Wed Apr 15 23:30:36 2026] [::1]:49122 [302]: GET /
+[Wed Apr 15 23:30:36 2026] [::1]:49122 Closing
+[Wed Apr 15 23:30:36 2026] [::1]:49124 Accepted
+[Wed Apr 15 23:30:36 2026] [::1]:49124 [200]: GET /install/index.php
+[Wed Apr 15 23:30:36 2026] [::1]:49124 Closing
+[Wed Apr 15 23:30:38 2026] [::1]:49132 Accepted
+[Wed Apr 15 23:30:38 2026] [::1]:49132 [302]: GET /category/vehicles
+[Wed Apr 15 23:30:38 2026] [::1]:49132 Closing
+[Wed Apr 15 23:30:38 2026] [::1]:49134 Accepted
+[Wed Apr 15 23:30:38 2026] [::1]:49134 [404]: GET /category/install/index.php - No such file or directory
+[Wed Apr 15 23:30:38 2026] [::1]:49134 Closing
+[Wed Apr 15 23:30:40 2026] [::1]:49144 Accepted
+[Wed Apr 15 23:30:40 2026] [::1]:49144 [302]: GET /post-ad
+[Wed Apr 15 23:30:40 2026] [::1]:49144 Closing
+[Wed Apr 15 23:30:40 2026] [::1]:49158 Accepted
+[Wed Apr 15 23:30:40 2026] [::1]:49158 [200]: GET /install/index.php
+[Wed Apr 15 23:30:40 2026] [::1]:49158 Closing

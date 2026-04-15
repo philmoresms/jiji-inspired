@@ -32,9 +32,14 @@ function get_category_filters($cat_name) {
                     'Maserati', 'Mazda', 'Mini', 'Mitsubishi', 'Nissan', 'Opel', 'Peugeot', 'Pontiac', 'Porsche',
                     'Rolls-Royce', 'Subaru', 'Tesla', 'Volkswagen', 'Volvo', 'XPeng', 'Alfa Romeo', 'Aston Martin',
                     'Baic', 'Bugatti', 'Buick', 'Chery', 'Citroen', 'Dacia', 'Daewoo', 'Daihatsu', 'Dongfeng', 'Ferrari',
-                    'Fiat', 'Foton', 'Genesis', 'Great Wall', 'Havall', 'Hummer', 'Innoson', 'JMC', 'Lotus', 'Mahindra',
+                    'Fiat', 'Foton', 'Genesis', 'Great Wall', 'Haval', 'Hummer', 'Innoson', 'JMC', 'Lotus', 'Mahindra',
                     'Maybach', 'McLaren', 'MG', 'Pagani', 'Ram', 'Renault', 'Saab', 'Scion', 'Seat', 'Skoda', 'Smart',
-                    'SsangYong', 'Suzuki', 'Tata', 'Zotye'
+                    'SsangYong', 'Suzuki', 'Tata', 'Zotye', 'Abarth', 'Alpine', 'Baojun', 'Beijing', 'Borgward', 'Brilliance',
+                    'Bristol', 'Caterham', 'Cupra', 'Dadi', 'DFSK', 'Dodge', 'Donkervoort', 'DS', 'Eicher', 'Fisker', 'Force',
+                    'Gonow', 'Gumpert', 'Hafei', 'Haima', 'Higer', 'Holden', 'Huanghai', 'Ineos', 'Invicta', 'Karma', 'KTM',
+                    'Lada', 'Lancia', 'Landwind', 'Lifan', 'Lifan', 'Luxgen', 'Lynk & Co', 'Marussia', 'Maxus', 'Microcar',
+                    'Morgan', 'Nio', 'Noble', 'Oldsmobile', 'Perodua', 'Polestar', 'Proton', 'Qvale', 'Radical', 'Ravon',
+                    'Rimac', 'Rivian', 'Roewe', 'Ruf', 'Saleen', 'Shelby', 'Spyker', 'Tvr', 'Ultima', 'Vauxhall', 'Venturi', 'Wiesmann'
                 ]
             ],
             'year' => [
@@ -89,10 +94,12 @@ function get_category_filters($cat_name) {
                 'label' => 'Engine Size (cc)',
                 'type' => 'select',
                 'options' => [
-                    '660cc', '800cc', '1000cc', '1200cc', '1300cc', '1400cc', '1500cc', '1600cc', '1700cc',
+                    '660cc', '700cc', '800cc', '900cc', '1000cc', '1100cc', '1200cc', '1300cc', '1400cc', '1500cc', '1600cc', '1700cc',
                     '1800cc', '1900cc', '2000cc', '2100cc', '2200cc', '2300cc', '2400cc', '2500cc', '2600cc', '2700cc', '2800cc',
-                    '2900cc', '3000cc', '3200cc', '3500cc', '4000cc', '4500cc', '4800cc', '5000cc', '5500cc', '6000cc', '6200cc',
-                    '6500cc', '7000cc', '7500cc', '8000cc', '8100cc'
+                    '2900cc', '3000cc', '3100cc', '3200cc', '3300cc', '3400cc', '3500cc', '3600cc', '3700cc', '3800cc', '3900cc',
+                    '4000cc', '4100cc', '4200cc', '4300cc', '4400cc', '4500cc', '4600cc', '4700cc', '4800cc', '4900cc', '5000cc',
+                    '5200cc', '5300cc', '5400cc', '5500cc', '5600cc', '5700cc', '5800cc', '5900cc', '6000cc', '6200cc',
+                    '6500cc', '6700cc', '7000cc', '7300cc', '7500cc', '8000cc', '8100cc'
                 ]
             ],
             'powertrain' => [
@@ -162,11 +169,13 @@ function get_category_filters($cat_name) {
             'verified_seller' => [
                 'label' => 'Verified Sellers',
                 'type' => 'select',
+                'search_only' => true,
                 'options' => ['Verified sellers only', 'All sellers']
             ],
             'discount' => [
                 'label' => 'Discount',
                 'type' => 'select',
+                'search_only' => true,
                 'options' => ['With discount', 'Without discount']
             ],
             'transaction_type' => [
@@ -191,6 +200,7 @@ function get_category_filters($cat_name) {
             'trusted_agent' => [
                 'label' => 'Trusted Real Estate Agent',
                 'type' => 'select',
+                'search_only' => true,
                 'options' => ['Yes', 'No']
             ]
         ];

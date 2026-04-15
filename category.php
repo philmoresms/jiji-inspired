@@ -131,26 +131,54 @@ include __DIR__ . '/templates/header.php';
     <div class="flex flex-col md:flex-row gap-8">
         <!-- Sidebar Navigation & Filters (Jiji Style) -->
         <aside class="hidden md:block w-72 flex-shrink-0">
-            <!-- Category Navigation -->
+            <!-- Category Navigation (Jiji Focused Style) -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-                <div class="p-4 bg-gray-50 border-b border-gray-100">
+                <div class="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
                     <a href="/" class="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-green-600 transition">All Categories</a>
+                    <i class="fas fa-chevron-right text-[8px] text-gray-300"></i>
                 </div>
                 <div class="py-2">
-                    <?php foreach ($main_categories as $mcat): ?>
+                    <?php
+                    // Find if current is a main category or a subcategory
+                    $current_main_id = null;
+                    $stmt_parent = $pdo->prepare("SELECT parent_id FROM categories WHERE id = ?");
+                    $stmt_parent->execute([$cat_id]);
+                    $p_id = $stmt_parent->fetchColumn();
+
+                    if ($p_id == 0) {
+                        $current_main_id = $cat_id;
+                    } else {
+                        $current_main_id = $p_id;
+                    }
+
+                    foreach ($main_categories as $mcat):
+                        // Only show the active main category tree to save space for filters, exactly like Jiji
+                        if ($mcat['id'] != $current_main_id) continue;
+                    ?>
                         <div class="px-2">
-                            <a href="/category/<?php echo $mcat['slug']; ?>" class="flex items-center justify-between p-3 rounded-lg hover:bg-green-50 transition-all <?php echo $mcat['id'] == $cat_id ? 'bg-green-50 text-green-600' : 'text-gray-700'; ?>">
+                            <a href="/category/<?php echo $mcat['slug']; ?>" class="flex items-center justify-between p-3 rounded-lg bg-green-50 text-green-600 transition-all">
                                 <div class="flex items-center gap-3">
-                                    <i class="fas <?php echo h($mcat['icon_class']); ?> text-sm opacity-50 <?php echo $mcat['id'] == $cat_id ? 'text-green-600 opacity-100' : ''; ?>"></i>
+                                    <i class="fas <?php echo h($mcat['icon_class']); ?> text-sm text-green-600"></i>
                                     <span class="text-sm font-bold"><?php echo h($mcat['name']); ?></span>
                                 </div>
                                 <span class="text-[10px] font-bold opacity-50"><?php echo number_format($mcat['ad_count']); ?></span>
                             </a>
 
-                            <?php if ($mcat['id'] == $cat_id && $subcategories): ?>
-                                <div class="ml-8 mt-1 space-y-1 pb-2">
-                                    <?php foreach ($subcategories as $sub): ?>
-                                        <a href="/category/<?php echo $sub['slug']; ?>" class="block py-1 text-xs font-bold text-gray-500 hover:text-green-600 transition">
+                            <?php if ($subcategories || ($p_id != 0)): ?>
+                                <div class="ml-8 mt-2 space-y-1 pb-2">
+                                    <?php
+                                    $display_subs = $subcategories;
+                                    if ($p_id != 0) {
+                                        // We are in a subcategory, show siblings
+                                        $stmt_subs = $pdo->prepare("SELECT c.*, (SELECT COUNT(*) FROM ads a WHERE a.cat_id = c.id AND a.status = 'active') as ad_count FROM categories c WHERE parent_id = ? ORDER BY name ASC");
+                                        $stmt_subs->execute([$p_id]);
+                                        $display_subs = $stmt_subs->fetchAll();
+                                    }
+
+                                    foreach ($display_subs as $sub):
+                                        $is_active_sub = ($sub['id'] == $cat_id);
+                                    ?>
+                                        <a href="/category/<?php echo $sub['slug']; ?>" class="block py-1.5 text-xs font-bold <?php echo $is_active_sub ? 'text-green-600' : 'text-gray-500 hover:text-green-600'; ?> transition">
                                             <?php echo h($sub['name']); ?> <span class="text-[9px] opacity-40">(<?php echo $sub['ad_count']; ?>)</span>
                                         </a>
                                     <?php endforeach; ?>
@@ -308,8 +336,6 @@ function loadFilters(catId) {
                         html += `<option value="${opt}" ${sel}>${opt}</option>`;
                     });
                     html += '</select>';
-                } else if (f.type === 'number') {
-                    html += `<input type="number" name="extra[${key}]" value="${val}" placeholder="Value" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">`;
                 } else if (f.type === 'range' || f.type === 'number' || f.type === 'number_range') {
                     let min_val, max_val, min_name, max_name;
                     if (key === 'price') {
