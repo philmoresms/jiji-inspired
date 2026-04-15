@@ -16,6 +16,7 @@ if (!$category) {
 $cat_id = $category['id'];
 $type = $_GET['type'] ?? 'all';
 $state_id = (int)($_GET['state_id'] ?? 0);
+$lga_id = (int)($_GET['lga_id'] ?? 0);
 $min_price = (float)($_GET['min_price'] ?? 0);
 $max_price = (float)($_GET['max_price'] ?? 0);
 $extra = $_GET['extra'] ?? [];
@@ -69,6 +70,10 @@ if ($state_id) {
     $query .= " AND a.state_id = ?";
     $params[] = $state_id;
 }
+if ($lga_id) {
+    $query .= " AND a.lga_id = ?";
+    $params[] = $lga_id;
+}
 if ($min_price) {
     $query .= " AND a.price >= ?";
     $params[] = $min_price;
@@ -82,9 +87,22 @@ if ($extra) {
     require_once __DIR__ . '/inc/filters_config.php';
     $valid_filters = get_category_filters($category['name']);
     foreach ($extra as $key => $value) {
-        if (!empty($value) && isset($valid_filters[$key])) {
-            $query .= " AND JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"$key\"')) = ?";
-            $params[] = $value;
+        if (empty($value)) continue;
+
+        if (isset($valid_filters[$key])) {
+            if ($key === 'verified_seller' && $value === 'Verified sellers only') {
+                $query .= " AND u.is_verified = 1";
+            } else {
+                $query .= " AND JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"$key\"')) = ?";
+                $params[] = $value;
+            }
+        } elseif (strpos($key, 'min_') === 0 || strpos($key, 'max_') === 0) {
+            $base_key = substr($key, 4);
+            if (isset($valid_filters[$base_key])) {
+                $op = (strpos($key, 'min_') === 0) ? '>=' : '<=';
+                $query .= " AND CAST(JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"$base_key\"')) AS DECIMAL(15,2)) $op ?";
+                $params[] = $value;
+            }
         }
     }
 }
@@ -139,12 +157,29 @@ include __DIR__ . '/templates/header.php';
                     <input type="hidden" name="type" value="<?php echo h($type); ?>">
 
                     <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Location</label>
-                        <select name="state_id" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">State</label>
+                        <select name="state_id" onchange="loadLGAs(this.value); this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
                             <option value="">All Nigeria</option>
                             <?php foreach ($states as $s): ?>
                                 <option value="<?php echo $s['id']; ?>" <?php echo $state_id == $s['id'] ? 'selected' : ''; ?>><?php echo h($s['name']); ?></option>
                             <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div id="lga_filter_container" class="<?php echo !$state_id ? 'hidden' : ''; ?>">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">City / LGA</label>
+                        <select name="lga_id" id="lga_filter" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                            <option value="">All Cities</option>
+                            <?php
+                            if ($state_id) {
+                                $stmt_lgas = $pdo->prepare("SELECT id, name FROM lgas WHERE state_id = ? ORDER BY name ASC");
+                                $stmt_lgas->execute([$state_id]);
+                                while($l = $stmt_lgas->fetch()) {
+                                    $sel = ($lga_id == $l['id']) ? 'selected' : '';
+                                    echo "<option value='{$l['id']}' $sel>".h($l['name'])."</option>";
+                                }
+                            }
+                            ?>
                         </select>
                     </div>
 
@@ -255,7 +290,7 @@ function loadFilters(catId) {
                 const val = currentExtra[key] || '';
 
                 if (f.type === 'select') {
-                    html += `<select name="extra[${key}]" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700">`;
+                    html += `<select name="extra[${key}]" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">`;
                     html += '<option value="">All</option>';
                     f.options.forEach(opt => {
                         const sel = (val == opt) ? 'selected' : '';
@@ -263,12 +298,63 @@ function loadFilters(catId) {
                     });
                     html += '</select>';
                 } else if (f.type === 'number') {
-                    html += `<input type="number" name="extra[${key}]" value="${val}" placeholder="Value" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700">`;
+                    html += `<input type="number" name="extra[${key}]" value="${val}" placeholder="Value" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">`;
+                } else if (f.type === 'range' || f.type === 'number_range') {
+                    const min_val = currentExtra['min_' + key] || '';
+                    const max_val = currentExtra['max_' + key] || '';
+
+                    html += `<div class="grid grid-cols-2 gap-2 mb-3">
+                        <input type="number" name="extra[min_${key}]" value="${min_val}" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                        <input type="number" name="extra[max_${key}]" value="${max_val}" placeholder="Max" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                    </div>`;
+
+                    if (f.quick_ranges) {
+                        html += '<div class="flex flex-wrap gap-1 mt-2">';
+                        f.quick_ranges.forEach(range => {
+                            const active = (min_val == range.min && max_val == range.max) ? 'bg-green-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-100 hover:bg-green-50';
+                            html += `<button type="button" onclick="setQuickRange('${key}', ${range.min}, ${range.max})" class="px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all ${active}">${range.label}</button>`;
+                        });
+                        html += '</div>';
+                    }
                 }
 
                 html += '</div>';
             }
             filterContainer.innerHTML = html;
+        });
+}
+
+function setQuickRange(key, min, max) {
+    const minInput = document.querySelector(`input[name="extra[min_${key}]"]`);
+    const maxInput = document.querySelector(`input[name="extra[max_${key}]"]`);
+    if (minInput && maxInput) {
+        minInput.value = min;
+        maxInput.value = max;
+        minInput.form.submit();
+    }
+}
+
+function loadLGAs(stateId) {
+    const lgaSelect = document.getElementById('lga_filter');
+    const lgaContainer = document.getElementById('lga_filter_container');
+
+    if (!stateId) {
+        lgaContainer.classList.add('hidden');
+        lgaSelect.innerHTML = '<option value="">All Cities</option>';
+        return;
+    }
+
+    fetch('/api/lgas.php?state_id=' + stateId)
+        .then(response => response.json())
+        .then(data => {
+            lgaContainer.classList.remove('hidden');
+            lgaSelect.innerHTML = '<option value="">All Cities</option>';
+            data.forEach(lga => {
+                const option = document.createElement('option');
+                option.value = lga.id;
+                option.textContent = lga.name;
+                lgaSelect.appendChild(option);
+            });
         });
 }
 

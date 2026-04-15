@@ -17,11 +17,29 @@ function get_category_filters($cat_name) {
                 'options' => ['Toyota', 'Mercedes-Benz', 'Lexus', 'Honda', 'Hyundai', 'Acura', 'Audi', 'BMW', 'BYD', 'Bentley', 'Cadillac', 'Changan', 'Chevrolet', 'Chrysler', 'Dodge', 'Ford', 'GAC', 'Geely', 'GMC', 'Infiniti', 'Isuzu', 'IVM', 'JAC', 'Jaguar', 'Jeep', 'Jetour', 'Kia', 'Lamborghini', 'Land Rover', 'Lincoln', 'Maserati', 'Mazda', 'Mini', 'Mitsubishi', 'Nissan', 'Opel', 'Peugeot', 'Pontiac', 'Porsche', 'Rolls-Royce', 'Subaru', 'Tesla', 'Volkswagen', 'Volvo', 'XPeng'],
                 'quick' => true
             ],
+            'price' => [
+                'label' => 'Price Range (₦)',
+                'type' => 'range',
+                'quick_ranges' => [
+                    ['label' => 'Under 5.3M', 'min' => 0, 'max' => 5300000],
+                    ['label' => '5.3M–13M', 'min' => 5300000, 'max' => 13000000],
+                    ['label' => '13M–28M', 'min' => 13000000, 'max' => 28000000],
+                    ['label' => '28M–92M', 'min' => 28000000, 'max' => 92000000],
+                    ['label' => '92M+', 'min' => 92000000, 'max' => 999999999]
+                ]
+            ],
             'year' => [
                 'label' => 'Year of Manufacture',
-                'type' => 'number',
-                'ranges' => [
-                    ['2022', '2026'], ['2017', '2021'], ['2012', '2016'], ['2007', '2011'], ['2002', '2006'], ['1997', '2001'], ['1992', '1996'], ['1900', '1987']
+                'type' => 'number_range',
+                'quick_ranges' => [
+                    ['label' => '2022-2026', 'min' => 2022, 'max' => 2026],
+                    ['label' => '2017-2021', 'min' => 2017, 'max' => 2021],
+                    ['label' => '2012-2016', 'min' => 2012, 'max' => 2016],
+                    ['label' => '2007-2011', 'min' => 2007, 'max' => 2011],
+                    ['label' => '2002-2006', 'min' => 2002, 'max' => 2006],
+                    ['label' => '1997-2001', 'min' => 1997, 'max' => 2001],
+                    ['label' => '1992-1996', 'min' => 1992, 'max' => 1996],
+                    ['label' => '1987 & older', 'min' => 0, 'max' => 1987]
                 ]
             ],
             'condition' => [
@@ -36,7 +54,7 @@ function get_category_filters($cat_name) {
             ],
             'mileage' => [
                 'label' => 'Mileage (km)',
-                'type' => 'number'
+                'type' => 'number_range'
             ],
             'registered' => [
                 'label' => 'Registered Car',
@@ -60,7 +78,8 @@ function get_category_filters($cat_name) {
             ],
             'engine_size' => [
                 'label' => 'Engine Size (cc)',
-                'type' => 'number'
+                'type' => 'select',
+                'options' => ['600cc', '800cc', '1000cc', '1200cc', '1400cc', '1600cc', '1800cc', '2000cc', '2200cc', '2400cc', '2500cc', '3000cc', '3500cc', '4000cc', '4500cc', '5000cc', '5500cc', '6000cc+']
             ],
             'powertrain' => [
                 'label' => 'Powertrain',
@@ -100,70 +119,61 @@ function get_category_filters($cat_name) {
                 'label' => 'Storage',
                 'type' => 'select',
                 'options' => ['128GB SSD', '256GB SSD', '512GB SSD', '1TB SSD', '500GB HDD', '1TB HDD']
+            ],
+            'type' => [
+                'label' => 'Type',
+                'type' => 'select',
+                'options' => ['Laptop', 'Desktop', 'Tablet', 'Monitor', 'Television', 'Audio System', 'Camera']
             ]
         ];
     }
     // Property
     elseif (strpos($cat_name, 'PROPERTY') !== false || strpos($cat_name, 'HOUSES') !== false || strpos($cat_name, 'LAND') !== false) {
         $filters = [
-            'property_type' => [
-                'label' => 'Property Type',
-                'type' => 'select',
-                'options' => ['Land', 'Residential', 'Commercial', 'Industrial']
-            ],
-            'transaction_type' => [
-                'label' => 'Transaction Type',
-                'type' => 'select',
-                'options' => ['For Sale (Outright)', 'For Rent (per annum)', 'For Rent (per month)', 'Short Let (per day)']
-            ],
-            'bedrooms' => [
-                'label' => 'Bedrooms',
-                'type' => 'select',
-                'options' => ['1', '2', '3', '4+']
-            ],
-            'size' => [
-                'label' => 'Size (sqm)',
-                'type' => 'number'
+            'price' => [
+                'label' => 'Price Range (₦)',
+                'type' => 'range',
+                'quick_ranges' => [
+                    ['label' => 'Under 250K', 'min' => 0, 'max' => 250000],
+                    ['label' => '250K-10M', 'min' => 250000, 'max' => 10000000],
+                    ['label' => '10M-200M', 'min' => 10000000, 'max' => 200000000],
+                    ['label' => '200M-1.4B', 'min' => 200000000, 'max' => 1400000000],
+                    ['label' => '1.4B+', 'min' => 1400000000, 'max' => 99999999999]
+                ]
             ],
             'verified_seller' => [
-                'label' => 'Verified Sellers Only',
+                'label' => 'Verified Sellers',
                 'type' => 'select',
-                'options' => ['Yes', 'No']
-            ],
-            'trusted_agent' => [
-                'label' => 'Trusted Real Estate Agent',
-                'type' => 'select',
-                'options' => ['Yes', 'No']
+                'options' => ['Verified sellers only', 'All sellers']
             ],
             'discount' => [
                 'label' => 'Discount',
                 'type' => 'select',
                 'options' => ['With discount', 'Without discount']
-            ]
-        ];
-    }
-    // Phones
-    elseif (strpos($cat_name, 'PHONES') !== false || strpos($cat_name, 'TABLETS') !== false) {
-        $filters = [
-            'brand' => [
-                'label' => 'Brand',
-                'type' => 'select',
-                'options' => ['Apple', 'Samsung', 'Tecno', 'Infinix', 'Itel', 'Nokia', 'Xiaomi', 'Huawei', 'OnePlus', 'Oppo', 'Vivo', 'Google', 'HTC', 'Sony', 'Motorola']
             ],
-            'storage' => [
-                'label' => 'Storage',
+            'transaction_type' => [
+                'label' => 'Transaction Type',
                 'type' => 'select',
-                'options' => ['16GB', '32GB', '64GB', '128GB', '256GB', '512GB', '1TB']
+                'options' => ['For Sale (Outright)', 'For Rent (per annum)', 'For Rent (per month)', 'For Rent (per day)']
             ],
-            'ram' => [
-                'label' => 'RAM',
+            'property_type' => [
+                'label' => 'Property Type',
                 'type' => 'select',
-                'options' => ['1GB', '2GB', '3GB', '4GB', '6GB', '8GB', '12GB', '16GB']
+                'options' => ['Land', 'Residential', 'Commercial', 'Industrial']
             ],
-            'network' => [
-                'label' => 'Network',
+            'size' => [
+                'label' => 'Size (sqm)',
+                'type' => 'number_range'
+            ],
+            'bedrooms' => [
+                'label' => 'Bedrooms',
                 'type' => 'select',
-                'options' => ['2G', '3G', '4G', '5G']
+                'options' => ['1 bedroom', '2 bedrooms', '3 bedrooms', '4+ bedrooms']
+            ],
+            'trusted_agent' => [
+                'label' => 'Trusted Real Estate Agent',
+                'type' => 'select',
+                'options' => ['Yes', 'No']
             ]
         ];
     }
