@@ -134,6 +134,11 @@ function get_category_filters($cat_name) {
                 'label' => 'Trusted Real Estate Agent',
                 'type' => 'select',
                 'options' => ['Yes', 'No']
+            ],
+            'discount' => [
+                'label' => 'Discount',
+                'type' => 'select',
+                'options' => ['With discount', 'Without discount']
             ]
         ];
     }

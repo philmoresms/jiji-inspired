@@ -28,7 +28,7 @@ try {
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )");
 
-    echo "Schema updated to v3 successfully (Missing tables added).";
+    // Migration successful
 } catch (PDOException $e) {
-    echo "Schema update notice: " . $e->getMessage();
+    error_log("Schema update notice: " . $e->getMessage());
 }

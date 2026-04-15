@@ -55,8 +55,8 @@ include __DIR__ . '/templates/header.php';
 ?>
 
 <div class="container mx-auto px-4 py-8">
-    <!-- Jiji-Style Search Bar (Mobile/Desktop) -->
-    <div class="mb-8">
+    <!-- Jiji-Style Search Bar (Mobile Only) -->
+    <div class="mb-8 md:hidden">
         <form action="/search.php" method="GET" class="flex flex-col md:flex-row items-stretch bg-white rounded-2xl md:rounded-full overflow-hidden shadow-xl border-2 border-green-50 focus-within:border-green-500 transition-all">
             <div class="flex flex-1 items-center px-6 border-b md:border-b-0 md:border-r border-gray-100 gap-3">
                 <i class="fas fa-search text-gray-400"></i>

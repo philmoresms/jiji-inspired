@@ -79,8 +79,10 @@ if ($max_price) {
 }
 
 if ($extra) {
+    require_once __DIR__ . '/inc/filters_config.php';
+    $valid_filters = get_category_filters($category['name']);
     foreach ($extra as $key => $value) {
-        if (!empty($value)) {
+        if (!empty($value) && isset($valid_filters[$key])) {
             $query .= " AND JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"$key\"')) = ?";
             $params[] = $value;
         }

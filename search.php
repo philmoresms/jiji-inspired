@@ -56,8 +56,13 @@ if ($max_price) {
 }
 
 if ($extra) {
+    require_once __DIR__ . '/inc/filters_config.php';
+    // For search, we might not have a category name easily, so we whitelist by checking all possible filter keys
+    // A better approach is to check if it matches a known pattern or use a global list
+    $all_possible_keys = ['make', 'year', 'condition', 'transmission', 'mileage', 'registered', 'body_type', 'second_condition', 'color', 'engine_size', 'powertrain', 'fuel_type', 'exchange', 'brand', 'screen_size', 'storage', 'property_type', 'transaction_type', 'bedrooms', 'size', 'verified_seller', 'trusted_agent', 'discount', 'ram', 'network'];
+
     foreach ($extra as $key => $value) {
-        if (!empty($value)) {
+        if (!empty($value) && in_array($key, $all_possible_keys)) {
             $query .= " AND JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"$key\"')) = ?";
             $params[] = $value;
         }
