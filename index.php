@@ -380,34 +380,6 @@ function closeMobileSubs() {
     document.body.style.overflow = 'auto';
 }
 
-`)
-        .then(res => res.json())
-        .then(data => {
-            if (!data.success) {
-                alert(data.message);
-                if (data.message.includes('login')) window.location.href = '/login';
-                return;
-            }
-            const icon = btn.querySelector('i');
-            if (data.saved) {
-                icon.classList.replace('far', 'fas');
-                btn.classList.add('text-red-500', 'bg-red-50');
-                btn.classList.remove('text-gray-400');
-            } else {
-                icon.classList.replace('fas', 'far');
-                btn.classList.remove('text-red-500', 'bg-red-50');
-                btn.classList.add('text-gray-400');
-            }
-
-            // Update mobile counter if it exists
-            const counter = document.getElementById('savedCounter');
-            if (counter) {
-                counter.textContent = data.count;
-                counter.classList.toggle('hidden', data.count === 0);
-            }
-        });
-}
-
 function selectMainTrending(catId, name, icon) {
     const grid = document.getElementById('trendingFilterGrid');
     const backBtn = document.getElementById('backToMainCats');

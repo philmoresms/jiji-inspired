@@ -7,7 +7,11 @@ header('Content-Type: application/json');
 $cat_id = (int)($_GET['cat_id'] ?? 0);
 $type = $_GET['type'] ?? 'all';
 
-$query = "SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name
+$user_id = (int)($_SESSION['user_id'] ?? 0);
+$query = "SELECT a.*,
+         (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image,
+         s.name as state_name, c.name as cat_name,
+         (SELECT COUNT(*) FROM saved_ads WHERE user_id = $user_id AND ad_id = a.id) as is_saved
          FROM ads a
          JOIN states s ON a.state_id = s.id
          JOIN categories c ON a.cat_id = c.id
