@@ -10,7 +10,8 @@ $query = "SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND i
          FROM ads a
          JOIN states s ON a.state_id = s.id
          JOIN categories c ON a.cat_id = c.id
-         WHERE a.status = 'active' AND a.is_featured = 0";
+         JOIN users u ON a.user_id = u.id
+         WHERE a.status = 'active' AND a.is_featured = 0 AND u.is_suspended = 0";
 
 if ($cat_id > 0) {
     $query .= " AND a.cat_id = $cat_id";

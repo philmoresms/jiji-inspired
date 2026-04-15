@@ -19,7 +19,7 @@ require_once ROOT_PATH . '/inc/security.php';
 require_once ROOT_PATH . '/inc/user_auth.php';
 
 // Fetch categories for sidebar
-$stmt = $pdo->query("SELECT c.*, (SELECT COUNT(*) FROM ads WHERE cat_id = c.id AND status = 'active') as ad_count FROM categories c WHERE parent_id = 0 ORDER BY sort_order ASC, name ASC");
+$stmt = $pdo->query("SELECT c.*, (SELECT COUNT(*) FROM ads a JOIN users u ON a.user_id = u.id WHERE a.cat_id = c.id AND a.status = 'active' AND u.is_suspended = 0) as ad_count FROM categories c WHERE parent_id = 0 ORDER BY sort_order ASC, name ASC");
 $categories = $stmt->fetchAll();
 
 // Fetch Top Grid categories for mobile
@@ -31,7 +31,8 @@ $stmt = $pdo->query("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id =
                      FROM ads a
                      JOIN states s ON a.state_id = s.id
                      JOIN categories c ON a.cat_id = c.id
-                     WHERE a.status = 'active' AND a.is_featured = 1
+                     JOIN users u ON a.user_id = u.id
+                     WHERE a.status = 'active' AND a.is_featured = 1 AND u.is_suspended = 0
                      ORDER BY a.created_at DESC LIMIT 8");
 $featured_ads = $stmt->fetchAll();
 
@@ -40,7 +41,8 @@ $stmt = $pdo->query("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id =
                      FROM ads a
                      JOIN states s ON a.state_id = s.id
                      JOIN categories c ON a.cat_id = c.id
-                     WHERE a.status = 'active' AND a.is_featured = 0
+                     JOIN users u ON a.user_id = u.id
+                     WHERE a.status = 'active' AND a.is_featured = 0 AND u.is_suspended = 0
                      ORDER BY a.created_at DESC LIMIT 20");
 $recent_ads = $stmt->fetchAll();
 

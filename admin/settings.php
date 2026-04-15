@@ -154,14 +154,47 @@ include __DIR__ . '/../templates/admin_header.php';
                 </div>
 
                 <h3 class="font-bold text-lg mt-8 mb-4 text-green-700">Social Login (OAuth)</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-gray-700 font-bold mb-2">Google Client ID</label>
-                        <input type="text" name="s[google_client_id]" value="<?php echo h($settings['google_client_id'] ?? ''); ?>" class="w-full p-2 border rounded">
+                <div class="space-y-6">
+                    <div class="p-4 bg-red-50 rounded border border-red-200">
+                        <p class="text-sm text-red-800 font-bold mb-3 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 9V5a1 1 0 112 0v4a1 1 0 11-2 0zm1 4a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                            Google Login Configuration
+                        </p>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600">Client ID</label>
+                                <input type="text" name="s[google_client_id]" value="<?php echo h($settings['google_client_id'] ?? ''); ?>" class="w-full p-2 border rounded text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600">Client Secret</label>
+                                <input type="password" name="s[google_client_secret]" value="<?php echo h($settings['google_client_secret'] ?? ''); ?>" class="w-full p-2 border rounded text-sm">
+                            </div>
+                            <div class="mt-2 p-2 bg-white rounded border text-[10px] text-gray-500 font-mono">
+                                <span class="font-bold text-red-600">Authorized Redirect URI:</span><br>
+                                <?php echo (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]"; ?>/social.php?provider=google
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-gray-700 font-bold mb-2">Facebook App ID</label>
-                        <input type="text" name="s[facebook_app_id]" value="<?php echo h($settings['facebook_app_id'] ?? ''); ?>" class="w-full p-2 border rounded">
+
+                    <div class="p-4 bg-blue-50 rounded border border-blue-200">
+                        <p class="text-sm text-blue-800 font-bold mb-3 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"></path><path d="M12 2.252A8.001 8.001 0 0117.748 8H12V2.252z"></path></svg>
+                            Facebook Login Configuration
+                        </p>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600">App ID</label>
+                                <input type="text" name="s[facebook_app_id]" value="<?php echo h($settings['facebook_app_id'] ?? ''); ?>" class="w-full p-2 border rounded text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600">App Secret</label>
+                                <input type="password" name="s[facebook_app_secret]" value="<?php echo h($settings['facebook_app_secret'] ?? ''); ?>" class="w-full p-2 border rounded text-sm">
+                            </div>
+                            <div class="mt-2 p-2 bg-white rounded border text-[10px] text-gray-500 font-mono">
+                                <span class="font-bold text-blue-600">Valid OAuth Redirect URI:</span><br>
+                                <?php echo (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]"; ?>/social.php?provider=facebook
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

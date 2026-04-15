@@ -1,0 +1,64 @@
+[Wed Apr 15 08:39:39 2026] PHP 8.3.6 Development Server (http://localhost:8000) started
+[Wed Apr 15 08:41:55 2026] [::1]:40922 Accepted
+[Wed Apr 15 08:41:55 2026] PHP Warning:  require_once(/app/admin/../config/config.php): Failed to open stream: No such file or directory in /app/admin/login.php on line 7
+[Wed Apr 15 08:41:55 2026] PHP Fatal error:  Uncaught Error: Failed opening required '/app/admin/../config/config.php' (include_path='.:/usr/share/php') in /app/admin/login.php:7
+Stack trace:
+#0 {main}
+  thrown in /app/admin/login.php on line 7
+[Wed Apr 15 08:41:55 2026] [::1]:40922 [500]: GET /admin/login.php - Uncaught Error: Failed opening required '/app/admin/../config/config.php' (include_path='.:/usr/share/php') in /app/admin/login.php:7
+Stack trace:
+#0 {main}
+  thrown in /app/admin/login.php on line 7
+[Wed Apr 15 08:41:55 2026] [::1]:40922 Closing
+[Wed Apr 15 08:41:56 2026] [::1]:40924 Accepted
+[Wed Apr 15 08:41:56 2026] PHP Warning:  require_once(/app/config/config.php): Failed to open stream: No such file or directory in /app/login.php on line 3
+[Wed Apr 15 08:41:56 2026] PHP Fatal error:  Uncaught Error: Failed opening required '/app/config/config.php' (include_path='.:/usr/share/php') in /app/login.php:3
+Stack trace:
+#0 {main}
+  thrown in /app/login.php on line 3
+[Wed Apr 15 08:41:56 2026] [::1]:40924 [500]: GET /login.php - Uncaught Error: Failed opening required '/app/config/config.php' (include_path='.:/usr/share/php') in /app/login.php:3
+Stack trace:
+#0 {main}
+  thrown in /app/login.php on line 3
+[Wed Apr 15 08:41:56 2026] [::1]:40924 Closing
+[Wed Apr 15 08:42:52 2026] [::1]:51890 Accepted
+[Wed Apr 15 08:42:52 2026] PHP Warning:  require_once(/app/config/config.php): Failed to open stream: No such file or directory in /app/login.php on line 3
+[Wed Apr 15 08:42:52 2026] PHP Fatal error:  Uncaught Error: Failed opening required '/app/config/config.php' (include_path='.:/usr/share/php') in /app/login.php:3
+Stack trace:
+#0 {main}
+  thrown in /app/login.php on line 3
+[Wed Apr 15 08:42:52 2026] [::1]:51890 [500]: HEAD /login.php - Uncaught Error: Failed opening required '/app/config/config.php' (include_path='.:/usr/share/php') in /app/login.php:3
+Stack trace:
+#0 {main}
+  thrown in /app/login.php on line 3
+[Wed Apr 15 08:42:52 2026] [::1]:51890 Closing
+[Wed Apr 15 08:50:18 2026] [::1]:41848 Accepted
+[Wed Apr 15 08:50:18 2026] Migration Error: SQLSTATE[HY000]: General error: 1 near "SHOW": syntax error
+[Wed Apr 15 08:50:18 2026] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000]: General error: 1 no such table: ip_security in /app/inc/security.php:13
+Stack trace:
+#0 /app/inc/security.php(13): PDO->prepare()
+#1 /app/admin/login.php(9): require_once('...')
+#2 {main}
+  thrown in /app/inc/security.php on line 13
+[Wed Apr 15 08:50:18 2026] [::1]:41848 [500]: GET /admin/login.php - Uncaught PDOException: SQLSTATE[HY000]: General error: 1 no such table: ip_security in /app/inc/security.php:13
+Stack trace:
+#0 /app/inc/security.php(13): PDO->prepare()
+#1 /app/admin/login.php(9): require_once('...')
+#2 {main}
+  thrown in /app/inc/security.php on line 13
+[Wed Apr 15 08:50:18 2026] [::1]:41848 Closing
+[Wed Apr 15 08:50:19 2026] [::1]:41850 Accepted
+[Wed Apr 15 08:50:19 2026] Migration Error: SQLSTATE[HY000]: General error: 1 near "SHOW": syntax error
+[Wed Apr 15 08:50:19 2026] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000]: General error: 1 no such table: ip_security in /app/inc/security.php:13
+Stack trace:
+#0 /app/inc/security.php(13): PDO->prepare()
+#1 /app/login.php(5): require_once('...')
+#2 {main}
+  thrown in /app/inc/security.php on line 13
+[Wed Apr 15 08:50:19 2026] [::1]:41850 [500]: GET /login.php - Uncaught PDOException: SQLSTATE[HY000]: General error: 1 no such table: ip_security in /app/inc/security.php:13
+Stack trace:
+#0 /app/inc/security.php(13): PDO->prepare()
+#1 /app/login.php(5): require_once('...')
+#2 {main}
+  thrown in /app/inc/security.php on line 13
+[Wed Apr 15 08:50:19 2026] [::1]:41850 Closing

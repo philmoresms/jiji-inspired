@@ -16,7 +16,7 @@ if (!$category) {
 $cat_id = $category['id'];
 
 // Get subcategories
-$stmt = $pdo->prepare("SELECT c.*, (SELECT COUNT(*) FROM ads WHERE cat_id = c.id AND status = 'active') as ad_count FROM categories c WHERE parent_id = ? ORDER BY name ASC");
+$stmt = $pdo->prepare("SELECT c.*, (SELECT COUNT(*) FROM ads a JOIN users u ON a.user_id = u.id WHERE a.cat_id = c.id AND a.status = 'active' AND u.is_suspended = 0) as ad_count FROM categories c WHERE parent_id = ? ORDER BY name ASC");
 $stmt->execute([$cat_id]);
 $subcategories = $stmt->fetchAll();
 
@@ -30,7 +30,8 @@ $stmt = $pdo->prepare("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id
                      FROM ads a
                      JOIN states s ON a.state_id = s.id
                      JOIN categories c ON a.cat_id = c.id
-                     WHERE a.cat_id = ? AND a.status = 'active'
+                     JOIN users u ON a.user_id = u.id
+                     WHERE a.cat_id = ? AND a.status = 'active' AND u.is_suspended = 0
                      ORDER BY a.is_featured DESC, a.bumped_at DESC");
 $stmt->execute([$cat_id]);
 $ads = $stmt->fetchAll();

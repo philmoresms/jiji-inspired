@@ -15,7 +15,7 @@ $stmt = $pdo->prepare("SELECT a.*, u.full_name as seller_name, u.phone as seller
                      JOIN categories c ON a.cat_id = c.id
                      JOIN states s ON a.state_id = s.id
                      JOIN lgas l ON a.lga_id = l.id
-                     WHERE a.id = ? AND a.status = 'active'");
+                     WHERE a.id = ? AND a.status = 'active' AND u.is_suspended = 0");
 $stmt->execute([$id]);
 $ad = $stmt->fetch();
 
@@ -69,7 +69,8 @@ $stmt = $pdo->prepare("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id
                      FROM ads a
                      JOIN states s ON a.state_id = s.id
                      JOIN categories c ON a.cat_id = c.id
-                     WHERE a.cat_id = ? AND a.status = 'active' AND a.id != ?
+                     JOIN users u ON a.user_id = u.id
+                     WHERE a.cat_id = ? AND a.status = 'active' AND a.id != ? AND u.is_suspended = 0
                      ORDER BY a.created_at DESC LIMIT 4");
 $stmt->execute([$ad['cat_id'], $id]);
 $similar_ads = $stmt->fetchAll();
