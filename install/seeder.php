@@ -1,79 +1,75 @@
 <?php
 /**
  * Jiji-Inspired-1.0 Seeder Script
- * Includes Nigerian States & LGAs, and basic categories
+ * Includes Nigerian States & LGAs, and COMPLETE Jiji Categories
  */
 
 function seed_database($pdo) {
-    // 1. Seed Categories
-    $categories = [
-        ['Vehicles', 'cars', 'fa-car'],
-        ['Property', 'property', 'fa-home'],
-        ['Mobile Phones & Tablets', 'phones', 'fa-mobile-alt'],
-        ['Electronics', 'electronics', 'fa-tv'],
-        ['Home, Furniture & Appliances', 'home', 'fa-couch'],
-        ['Health & Beauty', 'health', 'fa-heartbeat'],
-        ['Fashion', 'fashion', 'fa-tshirt'],
-        ['Sports, Arts & Outdoors', 'sports', 'fa-running'],
-        ['Jobs', 'jobs', 'fa-briefcase'],
-        ['Services', 'services', 'fa-concierge-bell'],
-    ];
-
-    $stmt = $pdo->prepare("INSERT INTO categories (name, slug, icon_class, is_top, sort_order) VALUES (?, ?, ?, ?, ?)");
-
-    // Full Jiji-Inspired Category Tree
+    // 1. Seed COMPLETE Jiji-Standard Categories
     $categories_data = [
         'Vehicles' => [
             'icon' => 'fa-car', 'is_top' => 1, 'order' => 1,
-            'subs' => ['Cars', 'Vehicle Parts', 'Buses & Microbuses', 'Motorcycles', 'Trucks', 'Watercraft']
+            'subs' => ['Cars', 'Motorcycles & Scooters', 'Trucks & Trailers', 'Buses & Microbuses', 'Boats', 'Heavy Equipment', 'Auto Parts & Accessories', 'Car Care & Detailing', 'Number Plates & Stamps']
         ],
         'Property' => [
             'icon' => 'fa-home', 'is_top' => 1, 'order' => 2,
-            'subs' => ['Houses & Apartments for Rent', 'Houses & Apartments for Sale', 'Land', 'Commercial Property']
+            'subs' => ['Houses & Apartments for Rent', 'Houses & Apartments for Sale', 'Land & Plots for Sale', 'Land & Plots for Rent / Lease', 'Commercial Property for Rent', 'Commercial Property for Sale', 'Short Let / Daily Rentals', 'New Developments']
         ],
-        'Mobile Phones & Tablets' => [
+        'Phones & Tablets' => [
             'icon' => 'fa-mobile-alt', 'is_top' => 1, 'order' => 3,
-            'subs' => ['Mobile Phones', 'Tablets', 'Accessories', 'Smart Watches']
+            'subs' => ['Mobile Phones', 'Tablets', 'Accessories for Phones & Tablets']
         ],
         'Electronics' => [
             'icon' => 'fa-tv', 'is_top' => 0, 'order' => 4,
-            'subs' => ['Laptops & Computers', 'TV & Video Equipment', 'Audio Equipment', 'Cameras', 'Video Games']
+            'subs' => ['Computers & Laptops', 'Computer Accessories & Peripherals', 'TV & DVD Equipment', 'Cameras & Video Cameras', 'Sound & Music Equipment', 'Games & Gaming', 'Printers & Scanners', 'Networking & Connectivity']
         ],
         'Home, Furniture & Appliances' => [
             'icon' => 'fa-couch', 'is_top' => 0, 'order' => 5,
-            'subs' => ['Kitchen Appliances', 'Furniture', 'Home Decor', 'Garden & Outdoor']
+            'subs' => ['Kitchen Appliances', 'Fridges & Freezers', 'Washing Machines', 'Air Conditioning & Fans', 'Sofas & Living Room Sets', 'Beds & Mattresses', 'Dining Sets', 'Office Furniture', 'Wardrobes & Closets', 'Generators, UPS & Solar Energy', 'Lighting & Ceiling Fans', 'Cooking & Baking Appliances', 'Garden & Outdoor Items', 'Curtains & Blinds']
         ],
-        'Health & Beauty' => [
-            'icon' => 'fa-heartbeat', 'is_top' => 0, 'order' => 6,
-            'subs' => ['Skin Care', 'Hair Care', 'Makeup', 'Vitamins & Supplements']
+        'Fashion & Accessories' => [
+            'icon' => 'fa-tshirt', 'is_top' => 0, 'order' => 6,
+            'subs' => ["Men's Clothing", "Women's Clothing", "Children's Clothing", "Men's Shoes", "Women's Shoes", 'Bags', 'Watches & Accessories', 'Jewelry & Gemstones', 'Sunglasses & Eyewear']
         ],
-        'Fashion' => [
-            'icon' => 'fa-tshirt', 'is_top' => 0, 'order' => 7,
-            'subs' => ['Clothing', 'Shoes', 'Bags', 'Jewelry', 'Watches']
-        ],
-        'Sports, Arts & Outdoors' => [
-            'icon' => 'fa-running', 'is_top' => 0, 'order' => 8,
-            'subs' => ['Sports Equipment', 'Musical Instruments', 'Books & Games', 'Art']
-        ],
-        'Jobs' => [
-            'icon' => 'fa-briefcase', 'is_top' => 0, 'order' => 9,
-            'subs' => ['Teaching', 'Marketing', 'Health Care', 'I.T.', 'Construction']
+        'Beauty & Personal Care' => [
+            'icon' => 'fa-heartbeat', 'is_top' => 0, 'order' => 7,
+            'subs' => ['Skin Care', 'Hair Care & Wigs', 'Make-up & Cosmetics', 'Health Care & Supplements', 'Perfumes & Fragrances', 'Nail Care']
         ],
         'Services' => [
-            'icon' => 'fa-concierge-bell', 'is_top' => 0, 'order' => 10,
-            'subs' => ['Automotive', 'Building', 'Cleaning', 'Legal', 'Events']
+            'icon' => 'fa-concierge-bell', 'is_top' => 0, 'order' => 8,
+            'subs' => ['Financial Services', 'Legal Services', 'Education & Training', 'Cleaning & Household Services', 'Car Services & Repair', 'Catering & Chef Services', 'Computer & Technology Services', 'Health Services', 'Moving & Delivery Services', 'Photography & Videography', 'Event Planning & Management', 'Social Media & Digital Marketing']
+        ],
+        'Repair & Construction' => [
+            'icon' => 'fa-tools', 'is_top' => 0, 'order' => 9,
+            'subs' => ['Plumbing & Water Systems', 'Electrical Work', 'Construction & Civil Engineering', 'Painting & Decorating', 'Security Systems & Surveillance', 'Tiling & Flooring', 'Roofing', 'AC Repair & Maintenance']
+        ],
+        'Commercial Equipment & Tools' => [
+            'icon' => 'fa-industry', 'is_top' => 0, 'order' => 10,
+            'subs' => ['Agricultural Equipment & Tools', 'Construction Equipment', 'Office Equipment & Supplies', 'Industrial Equipment', 'Medical & Lab Equipment', 'Restaurant & Catering Equipment', 'Power Tools']
+        ],
+        'Leisure & Activities' => [
+            'icon' => 'fa-running', 'is_top' => 0, 'order' => 11,
+            'subs' => ['Sports Equipment', 'Gym & Fitness Equipment', 'Travel & Tourism Deals', 'Events, Catering & Venues', 'Books, Movies & Music', 'Musical Instruments', 'Arts & Crafts']
         ],
         'Babies & Kids' => [
-            'icon' => 'fa-baby', 'is_top' => 0, 'order' => 11,
-            'subs' => ['Baby Clothes', 'Toys', 'Prams & Strollers']
+            'icon' => 'fa-baby', 'is_top' => 0, 'order' => 12,
+            'subs' => ['Baby Clothes & Shoes', 'Baby Furniture & Gear', 'Toys & Games', 'Baby Care & Health Products', "Children's Bicycles"]
+        ],
+        'Food, Agriculture & Farming' => [
+            'icon' => 'fa-tractor', 'is_top' => 0, 'order' => 13,
+            'subs' => ['Food Products & Groceries', 'Farming Equipment & Tools', 'Livestock & Poultry', 'Crops, Seeds & Fertilizers', 'Farm Lands']
         ],
         'Animals & Pets' => [
-            'icon' => 'fa-dog', 'is_top' => 0, 'order' => 12,
-            'subs' => ['Dogs', 'Cats', 'Birds', 'Pet Accessories']
+            'icon' => 'fa-dog', 'is_top' => 0, 'order' => 14,
+            'subs' => ['Dogs', 'Cats', 'Birds', 'Fish & Aquariums', 'Rabbits & Small Animals', 'Pet Accessories & Supplies', 'Pet Food', 'Veterinary Services']
         ],
-        'Agriculture' => [
-            'icon' => 'fa-tractor', 'is_top' => 0, 'order' => 13,
-            'subs' => ['Livestock', 'Poultry', 'Farm Tools', 'Seeds']
+        'Jobs' => [
+            'icon' => 'fa-briefcase', 'is_top' => 0, 'order' => 15,
+            'subs' => ['Accounting, Auditing & Finance', 'Admin & Office Support', 'Agricultural Jobs', 'Aviation Jobs', 'Banking Jobs', 'Construction Jobs', 'Customer Service & Call Centre', 'Energy, Oil & Gas Jobs', 'Engineering & Technical Jobs', 'Healthcare & Nursing', 'Hospitality & Hotel Jobs', 'HR & Recruitment Jobs', 'ICT & Computer Jobs', 'Legal Jobs', 'Management & Business Development', 'Manufacturing Jobs', 'Marketing & Communication Jobs', 'Media & Advertisement Jobs', 'NGO, Social & Charity Jobs', 'Procurement & Logistics Jobs', 'Real Estate Jobs', 'Sales Jobs', 'Transportation & Driving Jobs']
+        ],
+        'Seeking Work — CVs' => [
+            'icon' => 'fa-id-card', 'is_top' => 0, 'order' => 16,
+            'subs' => ['Accounting, Auditing & Finance CVs', 'Admin & Office Support CVs', 'Agricultural Jobs CVs', 'Aviation Jobs CVs', 'Banking Jobs CVs', 'Construction Jobs CVs', 'Customer Service & Call Centre CVs', 'Energy, Oil & Gas Jobs CVs', 'Engineering & Technical Jobs CVs', 'Healthcare & Nursing CVs', 'Hospitality & Hotel Jobs CVs', 'HR & Recruitment Jobs CVs', 'ICT & Computer Jobs CVs', 'Legal Jobs CVs', 'Management & Business Development CVs', 'Manufacturing Jobs CVs', 'Marketing & Communication CVs', 'Media & Advertisement CVs', 'NGO, Social & Charity Jobs CVs', 'Procurement & Logistics CVs', 'Real Estate Jobs CVs', 'Sales Jobs CVs', 'Transportation & Driving Jobs CVs']
         ]
     ];
 
@@ -113,7 +109,7 @@ function seed_database($pdo) {
         "Jigawa" => ["Auyo", "Babura", "Biriniwa", "Birnin Kudu", "Buji", "Dutse", "Gagarawa", "Garki", "Gumel", "Guri", "Gwaram", "Gwiwa", "Hadejia", "Jahun", "Kafin Hausa", "Kazaure", "Kiri Kasama", "Kiyawa", "Kaugama", "Maigatari", "Malam Madori", "Miga", "Ringim", "Roni", "Sule Tankarkar", "Taura", "Yankwashi"],
         "Kaduna" => ["Birnin Gwari", "Chikun", "Giwa", "Igabi", "Ikara", "Jaba", "Jema'a", "Kachia", "Kaduna North", "Kaduna South", "Kagarko", "Kajuru", "Kaura", "Kauru", "Kubau", "Kudan", "Lere", "Makarfi", "Sabon Gari", "Sanga", "Soba", "Zangon Kataf", "Zaria"],
         "Kano" => ["Ajingi", "Albasu", "Bagwai", "Bebeji", "Bichi", "Bunkure", "Dala", "Dambatta", "Dawakin Kudu", "Dawakin Tofa", "Doguwa", "Fagge", "Gabasawa", "Garko", "Garun Mallam", "Gaya", "Gezawa", "Gwale", "Gwarzo", "Kabo", "Kano Municipal", "Karaye", "Kibiya", "Kiru", "Kumbotso", "Kunchi", "Kura", "Madobi", "Makoda", "Minjibir", "Nasarawa", "Rano", "Rimin Gado", "Rogo", "Shanono", "Sumaila", "Takai", "Tarauni", "Tofa", "Tsanyawa", "Tudun Wada", "Ungogo", "Warawa", "Wudil"],
-        "Katsina" => ["Bakori", "Batagarawa", "Batsari", "Baure", "Bindawa", "Charanchi", "Dandume", "Danja", "Dan Musa", "Daura", "Dutsi", "Dutsin Ma", "Faskari", "Funtua", "Ingawa", "Jibia", "Kafur", "Kaita", "Kankara", "Kankia", "Katsina", "Kurfi", "Kusada", "Mai'Adua", "Malumfashi", "Mani", "Mashi", "Musawa", "Rimi", "Sabuwa", "Safana", "Sandamu", "Zango"],
+        "Katsina" => ["Bakori", "Batagarawa", "Batsari", "Baure", "Bindawa", "Charanchi", "Dandume", "Danja", "Dan Musa", "Daura", "Dutsi", "Dutsi Ma", "Faskari", "Funtua", "Ingawa", "Jibia", "Kafur", "Kaita", "Kankara", "Kankia", "Katsina", "Kurfi", "Kusada", "Mai'Adua", "Malumfashi", "Mani", "Mashi", "Musawa", "Rimi", "Sabuwa", "Safana", "Sandamu", "Zango"],
         "Kebbi" => ["Aleiro", "Arewa Dandi", "Argungu", "Augie", "Bagudo", "Birnin Kebbi", "Bunza", "Dandi", "Fakai", "Gwandu", "Jega", "Kalgo", "Koko/Besse", "Maiyama", "Ngaski", "Sakaba", "Shanga", "Suru", "Wasagu/Danko", "Yauri", "Zuru"],
         "Kogi" => ["Adavi", "Ajaokuta", "Ankpa", "Bassa", "Dekina", "Ibaji", "Idah", "Igalamela Odolu", "Ijumu", "Kabba/Bunu", "Kogi", "Lokoja", "Mopa Muro", "Ofu", "Ogori/Magongo", "Okehi", "Okene", "Olamaboro", "Omala", "Yagba East", "Yagba West"],
         "Kwara" => ["Asa", "Baruten", "Edu", "Ekiti", "Ifelodun", "Ilorin East", "Ilorin South", "Ilorin West", "Irepodun", "Isin", "Kaiama", "Moro", "Offa", "Oke Ero", "Oyun", "Pategi"],

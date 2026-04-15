@@ -121,7 +121,14 @@ include __DIR__ . '/templates/header.php';
                 <div class="p-8">
                     <div class="flex justify-between items-start mb-6">
                         <h1 class="text-3xl font-bold text-gray-800"><?php echo h($ad['title']); ?></h1>
-                        <p class="text-3xl font-bold text-green-600">₦<?php echo number_format($ad['price']); ?></p>
+                        <div class="text-right">
+                            <?php if ($ad['listing_type'] != 'for_swap'): ?>
+                                <p class="text-3xl font-bold text-green-600">₦<?php echo number_format($ad['price']); ?></p>
+                            <?php endif; ?>
+                            <?php if ($ad['listing_type'] != 'for_sale'): ?>
+                                <span class="inline-block bg-blue-100 text-blue-700 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest mt-2 border border-blue-200">Available for Swap</span>
+                            <?php endif; ?>
+                        </div>
                     </div>
 
                     <div class="flex items-center gap-4 mb-8 text-sm text-gray-500 font-bold">
@@ -131,6 +138,27 @@ include __DIR__ . '/templates/header.php';
                     </div>
 
                     <div class="prose max-w-none text-gray-600 leading-relaxed border-t pt-8">
+                        <?php if ($ad['listing_type'] != 'for_sale'): ?>
+                            <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100 mb-8">
+                                <h3 class="text-blue-800 font-black text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <i class="fas fa-exchange-alt"></i> Swap Details
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <p class="text-[10px] text-blue-400 font-bold uppercase mb-1">Estimated Value</p>
+                                        <p class="text-lg font-black text-blue-900">₦<?php echo number_format($ad['estimated_value']); ?></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-blue-400 font-bold uppercase mb-1">Wants in Exchange</p>
+                                        <p class="text-sm font-bold text-blue-900"><?php echo $ad['swap_preference'] ?: 'Open to all offers'; ?></p>
+                                    </div>
+                                </div>
+                                <?php if ($ad['allow_cash_topup']): ?>
+                                    <p class="mt-4 text-[10px] font-black text-green-600 uppercase tracking-widest"><i class="fas fa-check-circle mr-1"></i> Seller accepts Item + Cash top-up</p>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
+
                         <h3 class="text-xl font-bold text-gray-800 mb-4">Description</h3>
                         <p class="mb-8"><?php echo nl2br(h($ad['description'])); ?></p>
 
@@ -184,6 +212,12 @@ include __DIR__ . '/templates/header.php';
                     </button>
 
                     <?php if (is_user_logged_in() && $_SESSION['user_id'] != $ad['user_id']): ?>
+                        <?php if ($ad['listing_type'] != 'for_sale'): ?>
+                            <a href="swap_propose.php?ad_id=<?php echo $ad['id']; ?>" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg text-lg flex items-center justify-center gap-2">
+                                <i class="fas fa-exchange-alt"></i> PROPOSE A SWAP
+                            </a>
+                        <?php endif; ?>
+
                         <a href="chat.php?ad_id=<?php echo $ad['id']; ?>" class="w-full bg-white text-green-600 border-2 border-green-600 py-4 rounded-xl font-bold hover:bg-green-600 hover:text-white transition flex items-center justify-center">
                             <i class="fas fa-comment-dots mr-2"></i> START CHAT
                         </a>

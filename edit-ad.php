@@ -28,12 +28,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $state_id = (int)$_POST['state_id'] ?: null;
         $lga_id = (int)$_POST['lga_id'] ?: null;
         $price = (float)$_POST['price'];
+        $listing_type = $_POST['listing_type'] ?? 'for_sale';
+        $estimated_value = !empty($_POST['estimated_value']) ? (float)$_POST['estimated_value'] : null;
+        $swap_preference = $_POST['swap_preference'] ?? null;
+        $allow_cash_topup = isset($_POST['allow_cash_topup']) ? 1 : 0;
         $description = $_POST['description'];
         $video_url = !empty($_POST['video_url']) ? $_POST['video_url'] : null;
 
         // Update ad and reset status to pending
-        $stmt = $pdo->prepare("UPDATE ads SET cat_id = ?, state_id = ?, lga_id = ?, title = ?, price = ?, description = ?, video_url = ?, status = 'pending', decline_reason = NULL WHERE id = ?");
-        $stmt->execute([$cat_id, $state_id, $lga_id, $title, $price, $description, $video_url, $ad_id]);
+        $stmt = $pdo->prepare("UPDATE ads SET cat_id = ?, state_id = ?, lga_id = ?, title = ?, price = ?, listing_type = ?, estimated_value = ?, swap_preference = ?, allow_cash_topup = ?, description = ?, video_url = ?, status = 'pending', decline_reason = NULL WHERE id = ?");
+        $stmt->execute([$cat_id, $state_id, $lga_id, $title, $price, $listing_type, $estimated_value, $swap_preference, $allow_cash_topup, $description, $video_url, $ad_id]);
 
     // Handle new images if any
     if (!empty($_FILES['images']['name'][0])) {
@@ -113,9 +117,45 @@ include __DIR__ . '/templates/header.php';
                 </div>
             </div>
 
-            <div class="mb-4">
-                <label class="block text-gray-700 font-bold mb-2 text-sm">Price (₦)</label>
-                <input type="number" name="price" step="0.01" value="<?php echo (float)$ad['price']; ?>" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required>
+            <div class="p-6 bg-gray-50 rounded-2xl border border-gray-100 mb-6">
+                <label class="block text-gray-700 font-black mb-4 text-xs uppercase tracking-widest">Listing Options</label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-green-200 has-[:checked]:border-green-600 has-[:checked]:bg-green-50 transition">
+                        <input type="radio" name="listing_type" value="for_sale" <?php echo $ad['listing_type'] == 'for_sale' ? 'checked' : ''; ?> class="absolute opacity-0" onchange="toggleSwapFields()">
+                        <span class="text-xs font-bold text-gray-800">For Sale</span>
+                        <span class="text-[9px] text-gray-400 mt-1">Direct monetary trade</span>
+                    </label>
+                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-green-200 has-[:checked]:border-green-600 has-[:checked]:bg-green-50 transition">
+                        <input type="radio" name="listing_type" value="for_swap" <?php echo $ad['listing_type'] == 'for_swap' ? 'checked' : ''; ?> class="absolute opacity-0" onchange="toggleSwapFields()">
+                        <span class="text-xs font-bold text-gray-800">For Swap</span>
+                        <span class="text-[9px] text-gray-400 mt-1">Item-for-item exchange</span>
+                    </label>
+                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-green-200 has-[:checked]:border-green-600 has-[:checked]:bg-green-50 transition">
+                        <input type="radio" name="listing_type" value="for_sale_or_swap" <?php echo $ad['listing_type'] == 'for_sale_or_swap' ? 'checked' : ''; ?> class="absolute opacity-0" onchange="toggleSwapFields()">
+                        <span class="text-xs font-bold text-gray-800">Sale or Swap</span>
+                        <span class="text-[9px] text-gray-400 mt-1">Accept cash or items</span>
+                    </label>
+                </div>
+
+                <div id="price_field" class="<?php echo $ad['listing_type'] == 'for_swap' ? 'hidden' : ''; ?>">
+                    <label class="block text-gray-700 font-bold mb-2 text-sm">Price (₦)</label>
+                    <input type="number" name="price" step="0.01" value="<?php echo (float)$ad['price']; ?>" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none">
+                </div>
+
+                <div id="swap_fields" class="<?php echo $ad['listing_type'] == 'for_sale' ? 'hidden' : ''; ?> space-y-4">
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-2 text-sm">Estimated Market Value (₦)</label>
+                        <input type="number" name="estimated_value" step="0.01" value="<?php echo (float)$ad['estimated_value']; ?>" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="e.g. 50000">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-bold mb-2 text-sm">Swap Preference (What do you want in exchange?)</label>
+                        <input type="text" name="swap_preference" value="<?php echo h($ad['swap_preference']); ?>" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="e.g. iPhone 13 or equivalent laptop">
+                    </div>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" name="allow_cash_topup" value="1" <?php echo $ad['allow_cash_topup'] ? 'checked' : ''; ?> class="w-5 h-5 accent-green-600">
+                        <span class="text-sm font-bold text-gray-700">Allow item + cash top-up</span>
+                    </label>
+                </div>
             </div>
 
             <div class="mb-4">
@@ -169,6 +209,23 @@ function loadLGAs(stateId, selectedLgaId = null) {
 
 // Initial LGA load
 loadLGAs(<?php echo $ad['state_id']; ?>, <?php echo $ad['lga_id']; ?>);
+
+function toggleSwapFields() {
+    const type = document.querySelector('input[name="listing_type"]:checked').value;
+    const priceField = document.getElementById('price_field');
+    const swapFields = document.getElementById('swap_fields');
+
+    if (type === 'for_sale') {
+        priceField.classList.remove('hidden');
+        swapFields.classList.add('hidden');
+    } else if (type === 'for_swap') {
+        priceField.classList.add('hidden');
+        swapFields.classList.remove('hidden');
+    } else {
+        priceField.classList.remove('hidden');
+        swapFields.classList.remove('hidden');
+    }
+}
 
 // Image logic (re-used from post-ad)
 const dropZone = document.getElementById('dropZone');

@@ -9,6 +9,7 @@ $cat_id = (int)($_GET['cat_id'] ?? 0);
 $state_id = (int)($_GET['state_id'] ?? 0);
 $min_price = (float)($_GET['min_price'] ?? 0);
 $max_price = (float)($_GET['max_price'] ?? 10000000);
+$type = $_GET['type'] ?? 'all';
 
 $query = "SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name
           FROM ads a
@@ -39,6 +40,11 @@ if ($min_price) {
 if ($max_price) {
     $query .= " AND a.price <= ?";
     $params[] = $max_price;
+}
+if ($type === 'sale') {
+    $query .= " AND (a.listing_type = 'for_sale' OR a.listing_type = 'for_sale_or_swap')";
+} elseif ($type === 'swap') {
+    $query .= " AND (a.listing_type = 'for_swap' OR a.listing_type = 'for_sale_or_swap')";
 }
 
 $query .= " ORDER BY a.is_featured DESC, a.bumped_at DESC";
@@ -85,6 +91,20 @@ include __DIR__ . '/templates/header.php';
                         }
                         ?>
                     </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Listing Type</label>
+                    <div class="flex flex-col gap-2">
+                        <label class="flex items-center gap-2 cursor-pointer text-sm font-bold text-gray-700">
+                            <input type="radio" name="type" value="all" <?php echo $type == 'all' ? 'checked' : ''; ?> class="accent-green-600"> All
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer text-sm font-bold text-gray-700">
+                            <input type="radio" name="type" value="sale" <?php echo $type == 'sale' ? 'checked' : ''; ?> class="accent-green-600"> Buy/Sell
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer text-sm font-bold text-gray-700">
+                            <input type="radio" name="type" value="swap" <?php echo $type == 'swap' ? 'checked' : ''; ?> class="accent-green-600"> Swap/Exchange
+                        </label>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Price Range (₦)</label>

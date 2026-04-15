@@ -14,6 +14,7 @@ if (!$category) {
 }
 
 $cat_id = $category['id'];
+$type = $_GET['type'] ?? 'all';
 
 // Get subcategories
 $stmt = $pdo->prepare("SELECT c.*, (SELECT COUNT(*) FROM ads a JOIN users u ON a.user_id = u.id WHERE a.cat_id = c.id AND a.status = 'active' AND u.is_suspended = 0) as ad_count FROM categories c WHERE parent_id = ? ORDER BY name ASC");
@@ -26,13 +27,22 @@ $page_desc = "Browse the best deals in " . $category['name'] . " on " . ($settin
 $page_keywords = extract_keywords($category['name'], "buy sell nigeria");
 
 // Get ads in this category
-$stmt = $pdo->prepare("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name
-                     FROM ads a
-                     JOIN states s ON a.state_id = s.id
-                     JOIN categories c ON a.cat_id = c.id
-                     JOIN users u ON a.user_id = u.id
-                     WHERE a.cat_id = ? AND a.status = 'active' AND u.is_suspended = 0
-                     ORDER BY a.is_featured DESC, a.bumped_at DESC");
+$query = "SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name
+         FROM ads a
+         JOIN states s ON a.state_id = s.id
+         JOIN categories c ON a.cat_id = c.id
+         JOIN users u ON a.user_id = u.id
+         WHERE a.cat_id = ? AND a.status = 'active' AND u.is_suspended = 0";
+
+if ($type === 'sale') {
+    $query .= " AND (a.listing_type = 'for_sale' OR a.listing_type = 'for_sale_or_swap')";
+} elseif ($type === 'swap') {
+    $query .= " AND (a.listing_type = 'for_swap' OR a.listing_type = 'for_sale_or_swap')";
+}
+
+$query .= " ORDER BY a.is_featured DESC, a.bumped_at DESC";
+
+$stmt = $pdo->prepare($query);
 $stmt->execute([$cat_id]);
 $ads = $stmt->fetchAll();
 
@@ -51,6 +61,12 @@ include __DIR__ . '/templates/header.php';
             <p class="text-green-100 font-bold text-lg opacity-80">Find the best deals in <?php echo h($category['name']); ?> across Nigeria.</p>
         </div>
         <a href="/post-ad?cat_id=<?php echo $cat_id; ?>" class="bg-yellow-500 text-white px-10 py-4 rounded-full font-bold hover:bg-yellow-600 transition shadow-lg text-lg uppercase tracking-widest">SELL IN <?php echo h($category['name']); ?></a>
+    </div>
+
+    <div class="flex flex-wrap gap-2 mb-8">
+        <a href="?type=all" class="px-6 py-2 rounded-full font-black text-xs uppercase tracking-widest transition <?php echo $type == 'all' ? 'bg-green-600 text-white shadow-lg' : 'bg-white text-gray-500 hover:bg-green-50'; ?> border border-gray-100">All Items</a>
+        <a href="?type=sale" class="px-6 py-2 rounded-full font-black text-xs uppercase tracking-widest transition <?php echo $type == 'sale' ? 'bg-green-600 text-white shadow-lg' : 'bg-white text-gray-500 hover:bg-green-50'; ?> border border-gray-100">For Sale</a>
+        <a href="?type=swap" class="px-6 py-2 rounded-full font-black text-xs uppercase tracking-widest transition <?php echo $type == 'swap' ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-gray-500 hover:bg-blue-50'; ?> border border-gray-100">For Swap</a>
     </div>
 
     <!-- Subcategories Scroller (Mobile) / Grid (Desktop) -->

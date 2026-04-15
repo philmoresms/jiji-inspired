@@ -71,7 +71,11 @@ CREATE TABLE IF NOT EXISTS ads (
     title VARCHAR(150),
     description TEXT,
     price DECIMAL(15, 2),
-    status ENUM('pending', 'active', 'declined', 'sold') DEFAULT 'pending',
+    listing_type ENUM('for_sale', 'for_swap', 'for_sale_or_swap') DEFAULT 'for_sale',
+    estimated_value DECIMAL(15, 2) DEFAULT NULL,
+    swap_preference TEXT DEFAULT NULL,
+    allow_cash_topup TINYINT(1) DEFAULT 0,
+    status ENUM('pending', 'active', 'declined', 'sold', 'swapped', 'expired') DEFAULT 'pending',
     is_featured TINYINT(1) DEFAULT 0,
     views INT DEFAULT 0,
     decline_reason TEXT,
@@ -163,6 +167,23 @@ CREATE TABLE IF NOT EXISTS blog_posts (
     meta_desc TEXT,
     meta_keys TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Swap Proposals
+CREATE TABLE IF NOT EXISTS swap_proposals (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ad_id INT, -- The item being requested
+    offered_ad_id INT, -- The item being offered
+    sender_id INT,
+    receiver_id INT,
+    cash_topup DECIMAL(15, 2) DEFAULT 0,
+    message TEXT,
+    status ENUM('pending', 'accepted', 'declined', 'countered', 'expired') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ad_id) REFERENCES ads(id) ON DELETE CASCADE,
+    FOREIGN KEY (offered_ad_id) REFERENCES ads(id) ON DELETE CASCADE,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Settings Table (Global configuration)

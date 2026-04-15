@@ -69,7 +69,35 @@ try {
         error_log("Migration: Added OTP columns to users.");
     }
 
-    // 8. Create CMS & Blog tables if not exist
+    // 8. Add Swap Feature columns
+    $stmt = $pdo->query("SHOW COLUMNS FROM ads LIKE 'listing_type'");
+    if (!$stmt->fetch()) {
+        $pdo->exec("ALTER TABLE ads ADD COLUMN listing_type ENUM('for_sale', 'for_swap', 'for_sale_or_swap') DEFAULT 'for_sale' AFTER price");
+        $pdo->exec("ALTER TABLE ads ADD COLUMN estimated_value DECIMAL(15, 2) DEFAULT NULL AFTER listing_type");
+        $pdo->exec("ALTER TABLE ads ADD COLUMN swap_preference TEXT DEFAULT NULL AFTER estimated_value");
+        $pdo->exec("ALTER TABLE ads ADD COLUMN allow_cash_topup TINYINT(1) DEFAULT 0 AFTER swap_preference");
+        $pdo->exec("ALTER TABLE ads MODIFY COLUMN status ENUM('pending', 'active', 'declined', 'sold', 'swapped', 'expired') DEFAULT 'pending'");
+        error_log("Migration: Added swap columns to ads.");
+    }
+
+    // 9. Create swap_proposals table
+    $pdo->exec("CREATE TABLE IF NOT EXISTS swap_proposals (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        ad_id INT,
+        offered_ad_id INT,
+        sender_id INT,
+        receiver_id INT,
+        cash_topup DECIMAL(15, 2) DEFAULT 0,
+        message TEXT,
+        status ENUM('pending', 'accepted', 'declined', 'countered', 'expired') DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (ad_id) REFERENCES ads(id) ON DELETE CASCADE,
+        FOREIGN KEY (offered_ad_id) REFERENCES ads(id) ON DELETE CASCADE,
+        FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+    )");
+
+    // 10. Create CMS & Blog tables if not exist
     $pdo->exec("CREATE TABLE IF NOT EXISTS pages (
         id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(150) NOT NULL,
