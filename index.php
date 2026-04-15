@@ -147,8 +147,8 @@ include __DIR__ . '/templates/header.php';
                     $subs = $stmt_sub->fetchAll();
                     if ($subs):
                     ?>
-                    <div class="hidden group-hover:block absolute left-full top-0 ml-0 w-[500px] bg-white shadow-[15px_0_30px_rgba(0,0,0,0.1)] border border-l-0 border-gray-100 min-h-full p-8 z-[60] rounded-r-2xl">
-                        <h4 class="font-black text-[12px] text-gray-800 uppercase mb-6 tracking-widest border-b pb-4"><?php echo h($cat['name']); ?></h4>
+                    <div class="hidden group-hover:block absolute left-full top-0 ml-0 w-[500px] bg-white shadow-[15px_0_30px_rgba(0,0,0,0.1)] border border-l-0 border-gray-100 max-h-[70vh] overflow-y-auto p-8 z-[60] rounded-r-2xl scrollbar-hide">
+                        <h4 class="font-black text-[12px] text-gray-800 uppercase mb-6 tracking-widest border-b pb-4 sticky top-0 bg-white z-10"><?php echo h($cat['name']); ?></h4>
                         <div class="grid grid-cols-2 gap-x-8 gap-y-4">
                             <?php foreach ($subs as $sub): ?>
                             <a href="/category/<?php echo $sub['slug']; ?>" class="flex flex-col group/sub">
@@ -193,11 +193,11 @@ include __DIR__ . '/templates/header.php';
                 <div class="flex justify-between items-center mb-8">
                     <div class="flex items-center gap-3">
                         <div class="w-2 h-8 bg-yellow-400 rounded-full"></div>
-                        <h3 class="text-2xl font-black text-gray-800 uppercase tracking-tighter">Premium Boosted</h3>
+                        <h3 class="text-xl md:text-2xl font-black text-gray-800 uppercase tracking-tighter">Premium Boosted</h3>
                     </div>
-                    <a href="/search" class="text-xs font-black text-green-600 uppercase tracking-widest hover:text-green-700 transition">View All Listings</a>
+                    <a href="/search.php" class="text-[10px] md:text-xs font-black text-green-600 uppercase tracking-widest hover:text-green-700 transition">View All Listings</a>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <?php foreach ($featured_ads as $ad): ?>
                     <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition">
                         <div class="relative h-40">
@@ -257,9 +257,9 @@ include __DIR__ . '/templates/header.php';
             <section class="mb-16">
                 <div class="flex items-center gap-3 mb-8">
                     <div class="w-2 h-8 bg-blue-500 rounded-full"></div>
-                    <h3 class="text-2xl font-black text-gray-800 uppercase tracking-tighter">Recommended For You</h3>
+                    <h3 class="text-xl md:text-2xl font-black text-gray-800 uppercase tracking-tighter">Recommended For You</h3>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <?php foreach ($recommended_ads as $ad): ?>
                     <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition border border-blue-50">
                         <div class="relative h-40">
@@ -282,8 +282,8 @@ include __DIR__ . '/templates/header.php';
             <!-- Recent Ads (Jiji/Tiki Hybrid Feed) -->
             <section class="mt-20">
                 <div class="flex items-center gap-4 mb-10">
-                    <div class="w-3 h-10 bg-green-600 rounded-full shadow-[0_0_15px_rgba(22,163,74,0.5)]"></div>
-                    <h3 class="text-3xl font-black text-gray-800 uppercase tracking-tighter italic">The Trending Feed</h3>
+                    <div class="w-3 h-8 md:h-10 bg-green-600 rounded-full shadow-[0_0_15px_rgba(22,163,74,0.5)]"></div>
+                    <h3 class="text-xl md:text-3xl font-black text-gray-800 uppercase tracking-tighter italic">The Trending Feed</h3>
                 </div>
 
                 <div class="flex flex-col lg:flex-row gap-10">
@@ -383,8 +383,8 @@ function showMobileSubs(parentId, parentName) {
             }
             content.innerHTML = data.map(sub => `
                 <a href="/category/${sub.slug}" class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-green-50 transition-colors">
-                    <span class="font-bold text-gray-700">${sub.name}</span>
-                    <span class="text-[10px] font-black bg-white px-3 py-1 rounded-full text-gray-400 shadow-sm">${sub.ad_count} ads</span>
+                    <span class="font-bold text-gray-700 text-sm md:text-base">${sub.name}</span>
+                    <span class="text-[9px] md:text-[10px] font-black bg-white px-3 py-1 rounded-full text-gray-400 shadow-sm">${sub.ad_count} ads</span>
                 </a>
             `).join('');
             // Add "View All" link at bottom
@@ -475,18 +475,18 @@ function filterTrending(catId, type = 'all') {
                 return;
             }
             container.innerHTML = data.map(ad => `
-                <a href="${ad.url}" class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 group">
-                    <div class="h-64 overflow-hidden relative">
+                <a href="${ad.url}" class="bg-white rounded-2xl md:rounded-[2.5rem] shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 group">
+                    <div class="h-48 md:h-64 overflow-hidden relative">
                         <img src="${ad.image ? '/uploads/ads/'+ad.image : 'https://placehold.co/400x300?text=No+Image'}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
                         ${ad.is_featured == 1 ? '<div class="absolute top-4 left-4 bg-yellow-400 text-yellow-900 text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-yellow-300">Premium</div>' : ''}
                         ${ad.listing_type !== 'for_sale' ? '<div class="absolute top-4 right-4 bg-blue-600 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-blue-500"><i class="fas fa-sync-alt mr-1"></i> Swap</div>' : ''}
                     </div>
-                    <div class="p-6">
-                        <h4 class="text-sm font-black text-gray-800 line-clamp-2 h-10 mb-4 group-hover:text-green-600 transition">${ad.title}</h4>
+                    <div class="p-4 md:p-6">
+                        <h4 class="text-xs md:text-sm font-black text-gray-800 line-clamp-2 h-8 md:h-10 mb-2 md:mb-4 group-hover:text-green-600 transition">${ad.title}</h4>
                         <div class="flex justify-between items-end">
                             <div>
-                                <p class="text-green-600 font-black text-xl">₦${new Intl.NumberFormat().format(ad.price)}</p>
-                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-map-marker-alt text-green-500 mr-1"></i> ${ad.state_name}</p>
+                                <p class="text-green-600 font-black text-base md:text-xl">₦${new Intl.NumberFormat().format(ad.price)}</p>
+                                <p class="text-[8px] md:text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-map-marker-alt text-green-500 mr-1"></i> ${ad.state_name}</p>
                             </div>
                             <button onclick="event.preventDefault(); toggleSave(${ad.id}, this)" class="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-red-50 group-hover:text-red-500 transition-colors duration-300">
                                 <i class="${ad.is_saved ? 'fas' : 'far'} fa-heart text-sm save-icon-${ad.id}"></i>

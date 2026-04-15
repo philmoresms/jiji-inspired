@@ -189,10 +189,10 @@ include __DIR__ . '/templates/header.php';
                 <a href="?type=swap&state_id=<?php echo $state_id; ?>&min_price=<?php echo $min_price; ?>&max_price=<?php echo $max_price; ?>" class="px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition <?php echo $type == 'swap' ? 'bg-blue-600 text-white shadow-xl' : 'bg-white text-gray-500 hover:bg-blue-50'; ?> border border-gray-100">Swap/Barter</a>
             </div>
 
-            <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                 <?php foreach ($ads as $ad): ?>
-                <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-3xl shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 group">
-                    <div class="relative h-48 overflow-hidden">
+                <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-2xl md:rounded-3xl shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 group">
+                    <div class="relative h-40 md:h-48 overflow-hidden">
                         <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
                         <?php if ($ad['is_featured']): ?>
                             <div class="absolute top-4 left-4 bg-yellow-400 text-yellow-900 text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-yellow-300">Premium</div>
@@ -204,12 +204,12 @@ include __DIR__ . '/templates/header.php';
                             <span class="bg-black/50 backdrop-blur-md text-white text-[9px] font-black px-3 py-1 rounded-full uppercase"><?php echo h($ad['cat_name']); ?></span>
                         </div>
                     </div>
-                    <div class="p-5">
-                        <h4 class="text-sm font-black text-gray-800 line-clamp-2 h-10 mb-4 group-hover:text-green-600 transition"><?php echo h($ad['title']); ?></h4>
+                    <div class="p-4 md:p-5">
+                        <h4 class="text-xs md:text-sm font-black text-gray-800 line-clamp-2 h-8 md:h-10 mb-2 md:mb-4 group-hover:text-green-600 transition"><?php echo h($ad['title']); ?></h4>
                         <div class="flex justify-between items-end">
                             <div>
-                                <p class="text-green-600 font-black text-xl">₦<?php echo number_format($ad['price']); ?></p>
-                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-map-marker-alt text-green-500 mr-1"></i> <?php echo h($ad['state_name']); ?></p>
+                                <p class="text-green-600 font-black text-base md:text-xl">₦<?php echo number_format($ad['price']); ?></p>
+                                <p class="text-[8px] md:text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-map-marker-alt text-green-500 mr-1"></i> <?php echo h($ad['state_name']); ?></p>
                             </div>
                             <div class="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-red-50 group-hover:text-red-500 transition-colors duration-300">
                                 <i class="far fa-heart text-sm"></i>
