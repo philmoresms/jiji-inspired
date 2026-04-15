@@ -190,9 +190,17 @@ include __DIR__ . '/templates/header.php';
                                 <p class="text-green-600 font-black text-xl">₦<?php echo number_format($ad['price']); ?></p>
                                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-map-marker-alt text-green-500 mr-1"></i> <?php echo h($ad['state_name']); ?></p>
                             </div>
-                            <div class="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-red-50 group-hover:text-red-500 transition-colors duration-300">
-                                <i class="far fa-heart text-sm"></i>
-                            </div>
+                            <?php
+                            $is_saved = false;
+                            if (is_user_logged_in()) {
+                                $s_stmt = $pdo->prepare("SELECT 1 FROM saved_ads WHERE user_id = ? AND ad_id = ?");
+                                $s_stmt->execute([$_SESSION['user_id'], $ad['id']]);
+                                $is_saved = $s_stmt->fetch();
+                            }
+                            ?>
+                            <button onclick="event.preventDefault(); toggleSave(<?php echo $ad['id']; ?>, this)" class="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center <?php echo $is_saved ? 'text-red-500 bg-red-50' : 'text-gray-400'; ?> group-hover:bg-red-50 group-hover:text-red-500 transition-colors duration-300">
+                                <i class="<?php echo $is_saved ? 'fas' : 'far'; ?> fa-heart text-sm save-icon-<?php echo $ad['id']; ?>"></i>
+                            </button>
                         </div>
                     </div>
                 </a>
@@ -214,6 +222,40 @@ include __DIR__ . '/templates/header.php';
 </div>
 
 <script>
+`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                if (data.message.includes('login')) {
+                    window.location.href = '/login';
+                } else {
+                    alert(data.message);
+                }
+                return;
+            }
+
+            const icons = document.querySelectorAll(`.save-icon-${adId}`);
+            icons.forEach(icon => {
+                const button = icon.parentElement;
+                if (data.saved) {
+                    icon.classList.replace('far', 'fas');
+                    button.classList.add('text-red-500', 'bg-red-50');
+                    button.classList.remove('text-gray-400');
+                } else {
+                    icon.classList.replace('fas', 'far');
+                    button.classList.remove('text-red-500', 'bg-red-50');
+                    button.classList.add('text-gray-400');
+                }
+            });
+
+            const counter = document.getElementById('savedCounter');
+            if (counter) {
+                counter.textContent = data.count;
+                counter.classList.toggle('hidden', parseInt(data.count) === 0);
+            }
+        });
+}
+
 function loadFilters(catId) {
     const filterContainer = document.getElementById('dynamic_filters');
     if (!catId) {

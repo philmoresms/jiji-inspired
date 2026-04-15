@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle new images if any
     if (!empty($_FILES['images']['name'][0])) {
         // Option: Delete old images or just add new ones.
-        // For Jiji clone, we add new ones up to limit or clear existing ones.
+        // For the marketplace, we add new ones up to limit or clear existing ones.
         // Let's clear existing ones for a clean re-submission if new ones are provided.
         $pdo->prepare("DELETE FROM ad_images WHERE ad_id = ?")->execute([$ad_id]);
 

@@ -323,7 +323,7 @@ include __DIR__ . '/templates/header.php';
                             }
                             ?>
                             <button onclick="event.preventDefault(); toggleSave(<?php echo $ad['id']; ?>, this)" class="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center <?php echo $is_saved ? 'text-red-500 bg-red-50' : 'text-gray-400'; ?> group-hover:bg-red-50 group-hover:text-red-500 transition-colors duration-300">
-                                <i class="<?php echo $is_saved ? 'fas' : 'far'; ?> fa-heart text-sm"></i>
+                                <i class="<?php echo $is_saved ? 'fas' : 'far'; ?> fa-heart text-sm save-icon-<?php echo $ad['id']; ?>"></i>
                             </button>
                             </div>
                         </div>
@@ -380,8 +380,7 @@ function closeMobileSubs() {
     document.body.style.overflow = 'auto';
 }
 
-function toggleSave(adId, btn) {
-    fetch(`/api/save_ad.php?ad_id=${adId}`)
+`)
         .then(res => res.json())
         .then(data => {
             if (!data.success) {
@@ -486,7 +485,7 @@ function filterTrending(catId, type = 'all') {
                                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-map-marker-alt text-green-500 mr-1"></i> ${ad.state_name}</p>
                             </div>
                             <button onclick="event.preventDefault(); toggleSave(${ad.id}, this)" class="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-red-50 group-hover:text-red-500 transition-colors duration-300">
-                                <i class="${ad.is_saved ? 'fas' : 'far'} fa-heart text-sm"></i>
+                                <i class="${ad.is_saved ? 'fas' : 'far'} fa-heart text-sm save-icon-${ad.id}"></i>
                             </button>
                         </div>
                     </div>

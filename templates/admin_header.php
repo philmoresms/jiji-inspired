@@ -11,7 +11,7 @@
     <div class="flex">
         <!-- Sidebar -->
         <aside class="w-64 bg-green-800 text-white min-h-screen">
-            <div class="p-6 font-bold text-2xl border-b border-green-700">Jiji Admin</div>
+            <div class="p-6 font-bold text-2xl border-b border-green-700"><?php echo h($settings['site_name'] ?? 'Classifieds'); ?> Admin</div>
             <nav class="p-4">
                 <ul class="space-y-2">
                     <li><a href="/" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a></li>

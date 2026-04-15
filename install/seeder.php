@@ -11,12 +11,21 @@ function seed_database($pdo) {
     $pdo->exec("SET FOREIGN_KEY_CHECKS = 1");
 
     // 1. Seed COMPLETE Jiji-Standard Categories
+    $jobs_subs = [
+        'Accounting, Auditing & Finance', 'Admin & Office Support', 'Agricultural Jobs', 'Aviation Jobs',
+        'Banking Jobs', 'Construction Jobs', 'Customer Service & Call Centre', 'Energy, Oil & Gas Jobs',
+        'Engineering & Technical Jobs', 'Healthcare & Nursing', 'Hospitality & Hotel Jobs', 'HR & Recruitment Jobs',
+        'ICT & Computer Jobs', 'Legal Jobs', 'Management & Business Development', 'Manufacturing Jobs',
+        'Marketing & Communication Jobs', 'Media & Advertisement Jobs', 'NGO, Social & Charity Jobs',
+        'Procurement & Logistics Jobs', 'Real Estate Jobs', 'Sales Jobs', 'Transportation & Driving Jobs'
+    ];
+
     $categories_data = [
         'Vehicles' => [
             'icon' => 'fa-car', 'is_top' => 1, 'order' => 1,
             'subs' => ['Cars', 'Motorcycles & Scooters', 'Trucks & Trailers', 'Buses & Microbuses', 'Boats', 'Heavy Equipment', 'Auto Parts & Accessories', 'Car Care & Detailing', 'Number Plates & Stamps']
         ],
-        'Property' => [
+        'Property (Real Estate)' => [
             'icon' => 'fa-home', 'is_top' => 1, 'order' => 2,
             'subs' => ['Houses & Apartments for Rent', 'Houses & Apartments for Sale', 'Land & Plots for Sale', 'Land & Plots for Rent / Lease', 'Commercial Property for Rent', 'Commercial Property for Sale', 'Short Let / Daily Rentals', 'New Developments']
         ],
@@ -29,19 +38,19 @@ function seed_database($pdo) {
             'subs' => ['Computers & Laptops', 'Computer Accessories & Peripherals', 'TV & DVD Equipment', 'Cameras & Video Cameras', 'Sound & Music Equipment', 'Games & Gaming', 'Printers & Scanners', 'Networking & Connectivity']
         ],
         'Home, Furniture & Appliances' => [
-            'icon' => 'fa-couch', 'is_top' => 1, 'order' => 5,
+            'icon' => 'fa-couch', 'is_top' => 0, 'order' => 5,
             'subs' => ['Kitchen Appliances', 'Fridges & Freezers', 'Washing Machines', 'Air Conditioning & Fans', 'Sofas & Living Room Sets', 'Beds & Mattresses', 'Dining Sets', 'Office Furniture', 'Wardrobes & Closets', 'Generators, UPS & Solar Energy', 'Lighting & Ceiling Fans', 'Cooking & Baking Appliances', 'Garden & Outdoor Items', 'Curtains & Blinds']
         ],
         'Fashion & Accessories' => [
-            'icon' => 'fa-tshirt', 'is_top' => 1, 'order' => 6,
+            'icon' => 'fa-tshirt', 'is_top' => 0, 'order' => 6,
             'subs' => ["Men's Clothing", "Women's Clothing", "Children's Clothing", "Men's Shoes", "Women's Shoes", 'Bags', 'Watches & Accessories', 'Jewelry & Gemstones', 'Sunglasses & Eyewear']
         ],
         'Beauty & Personal Care' => [
-            'icon' => 'fa-heartbeat', 'is_top' => 1, 'order' => 7,
+            'icon' => 'fa-heartbeat', 'is_top' => 0, 'order' => 7,
             'subs' => ['Skin Care', 'Hair Care & Wigs', 'Make-up & Cosmetics', 'Health Care & Supplements', 'Perfumes & Fragrances', 'Nail Care']
         ],
         'Services' => [
-            'icon' => 'fa-concierge-bell', 'is_top' => 1, 'order' => 8,
+            'icon' => 'fa-concierge-bell', 'is_top' => 0, 'order' => 8,
             'subs' => ['Financial Services', 'Legal Services', 'Education & Training', 'Cleaning & Household Services', 'Car Services & Repair', 'Catering & Chef Services', 'Computer & Technology Services', 'Health Services', 'Moving & Delivery Services', 'Photography & Videography', 'Event Planning & Management', 'Social Media & Digital Marketing']
         ],
         'Repair & Construction' => [
@@ -68,13 +77,13 @@ function seed_database($pdo) {
             'icon' => 'fa-dog', 'is_top' => 0, 'order' => 14,
             'subs' => ['Dogs', 'Cats', 'Birds', 'Fish & Aquariums', 'Rabbits & Small Animals', 'Pet Accessories & Supplies', 'Pet Food', 'Veterinary Services']
         ],
-        'Jobs' => [
+        'Jobs & Employment' => [
             'icon' => 'fa-briefcase', 'is_top' => 0, 'order' => 15,
-            'subs' => ['Accounting, Auditing & Finance', 'Admin & Office Support', 'Agricultural Jobs', 'Aviation Jobs', 'Banking Jobs', 'Construction Jobs', 'Customer Service & Call Centre', 'Energy, Oil & Gas Jobs', 'Engineering & Technical Jobs', 'Healthcare & Nursing', 'Hospitality & Hotel Jobs', 'HR & Recruitment Jobs', 'ICT & Computer Jobs', 'Legal Jobs', 'Management & Business Development', 'Manufacturing Jobs', 'Marketing & Communication Jobs', 'Media & Advertisement Jobs', 'NGO, Social & Charity Jobs', 'Procurement & Logistics Jobs', 'Real Estate Jobs', 'Sales Jobs', 'Transportation & Driving Jobs']
+            'subs' => $jobs_subs
         ],
         'Seeking Work — CVs' => [
             'icon' => 'fa-id-card', 'is_top' => 0, 'order' => 16,
-            'subs' => ['Accounting, Auditing & Finance', 'Admin & Office Support', 'Agricultural Jobs', 'Aviation Jobs', 'Banking Jobs', 'Construction Jobs', 'Customer Service & Call Centre', 'Energy, Oil & Gas Jobs', 'Engineering & Technical Jobs', 'Healthcare & Nursing', 'Hospitality & Hotel Jobs', 'HR & Recruitment Jobs', 'ICT & Computer Jobs', 'Legal Jobs', 'Management & Business Development', 'Manufacturing Jobs', 'Marketing & Communication Jobs', 'Media & Advertisement Jobs', 'NGO, Social & Charity Jobs', 'Procurement & Logistics Jobs', 'Real Estate Jobs', 'Sales Jobs', 'Transportation & Driving Jobs']
+            'subs' => $jobs_subs
         ]
     ];
 
@@ -87,10 +96,10 @@ function seed_database($pdo) {
         $parent_id = $pdo->lastInsertId();
 
         foreach ($data['subs'] as $sub_name) {
-            $sub_slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $sub_name)));
+            $sub_slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $sub_name . '-' . $name)));
             $sub_stmt->execute([$sub_name, $sub_slug, $parent_id]);
         }
-        // Add "Others" subcategory
+        // Add "Others" subcategory to every main category
         $other_slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', 'Others-' . $name)));
         $sub_stmt->execute(['Others', $other_slug, $parent_id]);
     }
@@ -126,7 +135,7 @@ function seed_database($pdo) {
         "Niger" => ["Agaie", "Agwara", "Bida", "Borgu", "Bosso", "Chanchaga", "Edati", "Gbako", "Gurara", "Katcha", "Kontagora", "Lapai", "Lavun", "Magama", "Mariga", "Mashegu", "Mokwa", "Muya", "Pailoro", "Rafi", "Rijau", "Shiroro", "Suleja", "Tafa", "Wushishi"],
         "Ogun" => ["Abeokuta North", "Abeokuta South", "Ado-Odo/Ota", "Ewekoro", "Ifo", "Ijebu East", "Ijebu North", "Ijebu North East", "Ijebu Ode", "Ikenne", "Imeko Afon", "Ipokia", "Obafemi Owode", "Odeda", "Odogbolu", "Ogun Waterside", "Remo North", "Shagamu", "Yewa North", "Yewa South"],
         "Ondo" => ["Akoko North-East", "Akoko North-West", "Akoko South-West", "Akoko South-East", "Akure North", "Akure South", "Ese Odo", "Idanre", "Ifedore", "Ilaje", "Ile Oluji/Okeigbo", "Irele", "Odigbo", "Okitipupa", "Ondo East", "Ondo West", "Ose", "Owo"],
-        "Osun" => ["Atakunmosa East", "Atakunmosa West", "Aiyedaade", "Aiyedire", "Boluwaduro", "Boripe", "Ede North", "Ede South", "Ife Central", "Ife East", "Ife North", "Ife South", "Egbedore", "Ejigbo", "Ifedayo", "Ifelodun", "Ila", "Ilesa North", "Ilesa South", "Irepodun", "Irewole", "Isokan", "Iwo", "Obokun", "Odo Otin", "Ola Oluwa", "Olorunda", "Oriade", "Orolu", "Osogbo"],
+        "Osun" => ["Atakunmosa East", "Atakunmosa West", "Aiyedaade", "Aiyedaire", "Boluwaduro", "Boripe", "Ede North", "Ede South", "Ife Central", "Ife East", "Ife North", "Ife South", "Egbedore", "Ejigbo", "Ifedayo", "Ifelodun", "Ila", "Ilesa North", "Ilesa South", "Irepodun", "Irewole", "Isokan", "Iwo", "Obokun", "Odo Otin", "Ola Oluwa", "Olorunda", "Oriade", "Orolu", "Osogbo"],
         "Oyo" => ["Afijio", "Akinyele", "Atiba", "Atisbo", "Egbeda", "Ibadan North", "Ibadan North-East", "Ibadan North-West", "Ibadan South-East", "Ibadan South-West", "Ibarapa Central", "Ibarapa East", "Ibarapa North", "Ido", "Irepo", "Iseyin", "Itesiwaju", "Iwajowa", "Kajola", "Lagelu", "Ogbomosho North", "Ogbomosho South", "Ogo Oluwa", "Olorunsogo", "Oluyole", "Ona Ara", "Orelope", "Ori Ire", "Oyo", "Oyo East", "Saki East", "Saki West", "Surulere"],
         "Plateau" => ["Bokkos", "Barkin Ladi", "Bassa", "Jos East", "Jos North", "Jos South", "Kanam", "Kanke", "Langtang North", "Langtang South", "Mangu", "Mikang", "Pankshin", "Qua'an Pan", "Riyom", "Shendam", "Wase"],
         "Rivers" => ["Abua/Odual", "Ahoada East", "Ahoada West", "Akuku-Toru", "Andoni", "Asari-Toru", "Bonny", "Degema", "Eleme", "Emuoha", "Etche", "Gokana", "Ikwerre", "Khana", "Obio/Akpor", "Ogba/Egbema/Ndoni", "Ogu/Bolo", "Okrika", "Omuma", "Opobo/Nkoro", "Oyigbo", "Port Harcourt", "Tai"],
@@ -167,11 +176,11 @@ function seed_database($pdo) {
 
     // 4. Seed Default CMS Pages
     $default_pages = [
-        ['Terms & Conditions', 'terms', 'Acceptable use policy...', '<?php echo h($settings[\'site_name\'] ?? \'Classifieds\'); ?> terms and conditions', 'terms, conditions, rules'],
+        ['Terms & Conditions', 'terms', 'Acceptable use policy...', 'Classifieds terms and conditions', 'terms, conditions, rules'],
         ['Privacy Policy', 'privacy', 'Your data is safe...', 'Our privacy policy', 'privacy, data, safety'],
         ['Billing Policy', 'billing', 'Refunds and payments...', 'Billing and refund policy', 'billing, refund, payment'],
         ['Safety Tips', 'safety', 'Meet in public...', 'Stay safe while buying and selling', 'safety, tips, security'],
-        ['FAQ', 'faq', 'Frequently asked questions...', '<?php echo h($settings[\'site_name\'] ?? \'Classifieds\'); ?> Help Center', 'faq, help, questions']
+        ['FAQ', 'faq', 'Frequently asked questions...', 'Classifieds Help Center', 'faq, help, questions']
     ];
     $page_stmt = $pdo->prepare("INSERT INTO pages (title, slug, content, meta_desc, meta_keys) VALUES (?, ?, ?, ?, ?)");
     foreach ($default_pages as $page) {

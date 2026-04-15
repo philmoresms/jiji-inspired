@@ -25,3 +25,41 @@ Stack trace:
 #0 {main}
   thrown in /app/install/index.php on line 68
 [Wed Apr 15 12:06:37 2026] [::1]:46964 Closing
+[Wed Apr 15 15:46:42 2026] [::1]:34334 Accepted
+[Wed Apr 15 15:46:42 2026] [::1]:34334 [302]: GET /
+[Wed Apr 15 15:46:42 2026] [::1]:34334 Closing
+[Wed Apr 15 15:46:42 2026] [::1]:34344 Accepted
+[Wed Apr 15 15:46:42 2026] PHP Fatal error:  Uncaught Error: Call to undefined function h() in /app/install/index.php:68
+Stack trace:
+#0 {main}
+  thrown in /app/install/index.php on line 68
+[Wed Apr 15 15:46:42 2026] [::1]:34344 [500]: GET /install/index.php - Uncaught Error: Call to undefined function h() in /app/install/index.php:68
+Stack trace:
+#0 {main}
+  thrown in /app/install/index.php on line 68
+[Wed Apr 15 15:46:42 2026] [::1]:34344 Closing
+[Wed Apr 15 15:46:45 2026] [::1]:34358 Accepted
+[Wed Apr 15 15:46:45 2026] [::1]:34358 [302]: GET /
+[Wed Apr 15 15:46:45 2026] [::1]:34358 Closing
+[Wed Apr 15 15:46:45 2026] [::1]:34372 Accepted
+[Wed Apr 15 15:46:45 2026] PHP Fatal error:  Uncaught Error: Call to undefined function h() in /app/install/index.php:68
+Stack trace:
+#0 {main}
+  thrown in /app/install/index.php on line 68
+[Wed Apr 15 15:46:45 2026] [::1]:34372 [500]: GET /install/index.php - Uncaught Error: Call to undefined function h() in /app/install/index.php:68
+Stack trace:
+#0 {main}
+  thrown in /app/install/index.php on line 68
+[Wed Apr 15 15:46:45 2026] [::1]:34372 Closing
+[Wed Apr 15 15:53:11 2026] [::1]:53188 Accepted
+[Wed Apr 15 15:53:11 2026] [::1]:53188 [302]: GET /
+[Wed Apr 15 15:53:11 2026] [::1]:53188 Closing
+[Wed Apr 15 15:53:11 2026] [::1]:53192 Accepted
+[Wed Apr 15 15:53:11 2026] [::1]:53192 [200]: GET /install/index.php
+[Wed Apr 15 15:53:11 2026] [::1]:53192 Closing
+[Wed Apr 15 15:53:13 2026] [::1]:53200 Accepted
+[Wed Apr 15 15:53:13 2026] [::1]:53200 [302]: GET /
+[Wed Apr 15 15:53:13 2026] [::1]:53200 Closing
+[Wed Apr 15 15:53:13 2026] [::1]:53204 Accepted
+[Wed Apr 15 15:53:13 2026] [::1]:53204 [200]: GET /install/index.php
+[Wed Apr 15 15:53:13 2026] [::1]:53204 Closing

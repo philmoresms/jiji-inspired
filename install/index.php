@@ -1,6 +1,7 @@
 <?php
+function h($s) { return htmlspecialchars($s, ENT_QUOTES, "UTF-8"); }
 /**
- * <?php echo h($settings['site_name'] ?? 'Marketplace'); ?> Installer
+ * Marketplace Installer
  * Stage 1: System Requirements Check
  */
 
@@ -65,12 +66,12 @@ if (isset($_POST['next']) && $can_proceed) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo h($settings['site_name'] ?? 'Marketplace'); ?> Installer - Stage 1</title>
+    <title>Marketplace Installer - Stage 1</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
-        <h1 class="text-2xl font-bold mb-6 text-green-600"><?php echo h($settings['site_name'] ?? 'Marketplace'); ?> Installation</h1>
+        <h1 class="text-2xl font-bold mb-6 text-green-600">Marketplace Installation</h1>
 
         <h2 class="text-xl font-semibold mb-4 border-b pb-2">Stage 1: Welcome & Requirements Check</h2>
 
