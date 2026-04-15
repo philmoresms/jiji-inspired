@@ -90,6 +90,9 @@ function seed_database($pdo) {
             $sub_slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $sub_name)));
             $sub_stmt->execute([$sub_name, $sub_slug, $parent_id]);
         }
+        // Add "Others" subcategory
+        $other_slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', 'Others-' . $name)));
+        $sub_stmt->execute(['Others', $other_slug, $parent_id]);
     }
 
     // 2. Seed Nigerian States & LGAs

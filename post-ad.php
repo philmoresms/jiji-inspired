@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll();
+$categories = $pdo->query("SELECT * FROM categories WHERE parent_id = 0 ORDER BY name ASC")->fetchAll();
 $states = $pdo->query("SELECT * FROM states ORDER BY name ASC")->fetchAll();
 
 include __DIR__ . '/templates/header.php';
@@ -72,7 +72,7 @@ include __DIR__ . '/templates/header.php';
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-gray-700 font-bold mb-2 text-sm">Category</label>
-                    <select name="cat_id" id="cat_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required onchange="loadFilters(this.value)">
+                    <select id="parent_cat_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required onchange="loadSubcategories(this.value)">
                         <option value="">Select Category</option>
                         <?php foreach ($categories as $cat): ?>
                             <option value="<?php echo $cat['id']; ?>"><?php echo h($cat['name']); ?></option>
@@ -80,9 +80,16 @@ include __DIR__ . '/templates/header.php';
                     </select>
                 </div>
                 <div>
-                    <label class="block text-gray-700 font-bold mb-2 text-sm">Title</label>
-                    <input type="text" name="title" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="What are you selling?" required>
+                    <label class="block text-gray-700 font-bold mb-2 text-sm">Subcategory</label>
+                    <select name="cat_id" id="cat_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required onchange="loadFilters(this.value)">
+                        <option value="">Select Subcategory</option>
+                    </select>
                 </div>
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-bold mb-2 text-sm">Title</label>
+                <input type="text" name="title" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="What are you selling?" required>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -182,6 +189,31 @@ include __DIR__ . '/templates/header.php';
 </div>
 
 <script>
+function loadSubcategories(parentId) {
+    const subSelect = document.getElementById('cat_id');
+    const filterContainer = document.getElementById('dynamic_filters');
+    filterContainer.innerHTML = '';
+
+    if (!parentId) {
+        subSelect.innerHTML = '<option value="">Select Subcategory</option>';
+        return;
+    }
+
+    subSelect.innerHTML = '<option value="">Loading...</option>';
+
+    fetch('api/subcategories.php?parent_id=' + parentId)
+        .then(response => response.json())
+        .then(data => {
+            subSelect.innerHTML = '<option value="">Select Subcategory</option>';
+            data.forEach(sub => {
+                const option = document.createElement('option');
+                option.value = sub.id;
+                option.textContent = sub.name;
+                subSelect.appendChild(option);
+            });
+        });
+}
+
 function loadFilters(catId) {
     const filterContainer = document.getElementById('dynamic_filters');
     if (!catId) {

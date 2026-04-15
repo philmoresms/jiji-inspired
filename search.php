@@ -75,6 +75,16 @@ $stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $ads = $stmt->fetchAll();
 
+// Track Search History for Recommendations
+if (is_user_logged_in() && !empty($ads)) {
+    $user_id = $_SESSION['user_id'];
+    $stmt_history = $pdo->prepare("INSERT INTO search_history (user_id, keyword, cat_id) VALUES (?, ?, ?)");
+    $stmt_history->execute([$user_id, $q ?: null, $cat_id ?: null]);
+
+    // Trigger automated marketing email (simulated)
+    send_recommendations_email($user_id, $pdo, $settings);
+}
+
 include __DIR__ . '/templates/header.php';
 ?>
 

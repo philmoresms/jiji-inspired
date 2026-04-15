@@ -38,6 +38,8 @@
     </div>
 </footer>
 
+<?php include __DIR__ . '/mobile_footer.php'; ?>
+
 <script src="/assets/js/app.js"></script>
 </body>
 </html>

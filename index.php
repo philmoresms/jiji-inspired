@@ -28,7 +28,7 @@ $stmt = $pdo->query("SELECT c.*,
 $categories = $stmt->fetchAll();
 
 // Fetch Top Grid categories for mobile
-$stmt = $pdo->query("SELECT * FROM categories WHERE is_top = 1 ORDER BY sort_order ASC LIMIT 3");
+$stmt = $pdo->query("SELECT * FROM categories WHERE is_top = 1 ORDER BY sort_order ASC LIMIT 4");
 $top_grid_categories = $stmt->fetchAll();
 
 // Fetch featured ads
@@ -57,13 +57,13 @@ include __DIR__ . '/templates/header.php';
 <div class="container mx-auto px-4 py-8">
     <!-- Categories Top Grid (Admin Managed Mobile) -->
     <?php if ($top_grid_categories): ?>
-    <div class="md:hidden grid grid-cols-3 gap-2 mb-8 px-2">
+    <div class="md:hidden grid grid-cols-4 gap-2 mb-8 px-2">
         <?php foreach ($top_grid_categories as $tcat): ?>
         <a href="/category/<?php echo $tcat['slug']; ?>" class="flex flex-col items-center bg-white p-3 rounded-2xl shadow-sm border border-gray-50">
-            <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-600 mb-2">
-                <i class="fas <?php echo h($tcat['icon_class']); ?> text-xl"></i>
+            <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-green-600 mb-2">
+                <i class="fas <?php echo h($tcat['icon_class']); ?> text-lg"></i>
             </div>
-            <span class="text-[8px] font-extrabold text-gray-800 uppercase text-center line-clamp-1"><?php echo h($tcat['name']); ?></span>
+            <span class="text-[7px] font-extrabold text-gray-800 uppercase text-center line-clamp-1"><?php echo h($tcat['name']); ?></span>
         </a>
         <?php endforeach; ?>
     </div>
@@ -143,13 +143,13 @@ include __DIR__ . '/templates/header.php';
         <!-- Main Content -->
         <div class="flex-1">
             <!-- Hero Banner (Jiji/Tiki Hybrid Style) -->
-            <div class="relative bg-gradient-to-br from-green-600 to-green-700 rounded-[2rem] p-10 mb-10 text-white overflow-hidden shadow-2xl">
+            <div class="hidden md:block relative bg-gradient-to-br from-green-600 to-green-700 rounded-[2rem] p-10 mb-10 text-white overflow-hidden shadow-2xl">
                 <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
                 <div class="absolute bottom-0 left-0 w-48 h-48 bg-yellow-500/20 rounded-full -ml-24 -mb-24 blur-3xl"></div>
 
                 <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                     <div class="text-center md:text-left">
-                        <span class="inline-block bg-yellow-500 text-green-900 text-[10px] font-black px-3 py-1 rounded-full uppercase mb-4 tracking-widest shadow-sm">Verified Marketplace</span>
+                        <span class="hidden md:inline-block bg-yellow-500 text-green-900 text-[10px] font-black px-3 py-1 rounded-full uppercase mb-4 tracking-widest shadow-sm">Verified Marketplace</span>
                         <h2 class="text-4xl md:text-5xl font-black mb-4 leading-tight">Everything is possible <br class="hidden md:block">with <span class="text-yellow-400"><?php echo h($settings['site_name'] ?? 'Classifieds'); ?></span></h2>
                         <p class="text-green-50 font-bold opacity-90 max-w-md">Nigeria's most premium classifieds platform for buying, selling and swapping anything.</p>
                     </div>
@@ -194,6 +194,67 @@ include __DIR__ . '/templates/header.php';
             </section>
             <?php endif; ?>
 
+            <!-- Recommendations Section (Based on History) -->
+            <?php
+            $recommended_ads = [];
+            if (is_user_logged_in()) {
+                $uid = $_SESSION['user_id'];
+                // Get last search category or keyword
+                $history = $pdo->prepare("SELECT keyword, cat_id FROM search_history WHERE user_id = ? ORDER BY created_at DESC LIMIT 1");
+                $history->execute([$uid]);
+                $last = $history->fetch();
+
+                if ($last) {
+                    $rec_query = "SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name
+                                 FROM ads a
+                                 JOIN states s ON a.state_id = s.id
+                                 JOIN categories c ON a.cat_id = c.id
+                                 JOIN users u ON a.user_id = u.id
+                                 WHERE a.status = 'active' AND u.is_suspended = 0 AND a.id NOT IN (SELECT id FROM ads WHERE user_id = ?)";
+                    $rec_params = [$uid];
+
+                    if ($last['cat_id']) {
+                        $rec_query .= " AND a.cat_id = ?";
+                        $rec_params[] = $last['cat_id'];
+                    } elseif ($last['keyword']) {
+                        $rec_query .= " AND a.title LIKE ?";
+                        $rec_params[] = "%".$last['keyword']."%";
+                    }
+
+                    $rec_query .= " ORDER BY RAND() LIMIT 4";
+                    $rec_stmt = $pdo->prepare($rec_query);
+                    $rec_stmt->execute($rec_params);
+                    $recommended_ads = $rec_stmt->fetchAll();
+                }
+            }
+            ?>
+
+            <?php if ($recommended_ads): ?>
+            <section class="mb-16">
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="w-2 h-8 bg-blue-500 rounded-full"></div>
+                    <h3 class="text-2xl font-black text-gray-800 uppercase tracking-tighter">Recommended For You</h3>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <?php foreach ($recommended_ads as $ad): ?>
+                    <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition border border-blue-50">
+                        <div class="relative h-40">
+                            <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
+                            <?php if ($ad['listing_type'] !== 'for_sale'): ?>
+                                <span class="absolute top-2 right-2 bg-blue-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase shadow-sm"><i class="fas fa-sync-alt mr-1"></i> Swap</span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="p-3">
+                            <h4 class="text-sm font-bold text-gray-800 line-clamp-2 h-10 mb-2"><?php echo h($ad['title']); ?></h4>
+                            <p class="text-green-600 font-bold mb-2">₦<?php echo number_format($ad['price']); ?></p>
+                            <p class="text-[10px] text-gray-400 font-bold"><i class="fas fa-map-marker-alt"></i> <?php echo h($ad['state_name']); ?></p>
+                        </div>
+                    </a>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+            <?php endif; ?>
+
             <!-- Recent Ads (Jiji/Tiki Hybrid Feed) -->
             <section class="mt-20">
                 <div class="flex items-center gap-4 mb-10">
@@ -216,15 +277,18 @@ include __DIR__ . '/templates/header.php';
                         </div>
 
                         <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 sticky top-24">
-                            <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-[3px] mb-6 px-2">Filter by Category</h4>
-                            <div class="space-y-1">
-                                <button onclick="filterTrending(0)" class="trending-filter-btn w-full text-left px-4 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center justify-between group bg-green-600 text-white shadow-xl" data-cat="0">
-                                    <span>All Items</span>
+                            <div class="flex items-center justify-between mb-6 px-2">
+                                <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-[3px]">Filter by Category</h4>
+                                <button id="backToMainCats" onclick="resetTrendingFilter()" class="hidden text-[9px] font-black text-green-600 uppercase tracking-widest"><i class="fas fa-arrow-left mr-1"></i> Back</button>
+                            </div>
+                            <div id="trendingFilterGrid" class="grid grid-cols-2 lg:grid-cols-1 gap-2">
+                                <button onclick="filterTrending(0)" class="trending-filter-btn w-full text-left px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 flex items-center justify-between group bg-green-600 text-white shadow-xl" data-cat="0">
+                                    <span class="truncate pr-1">All Items</span>
                                     <i class="fas fa-th-large opacity-50 group-hover:rotate-12 transition-transform"></i>
                                 </button>
                                 <?php foreach ($categories as $fcat): ?>
-                                    <button onclick="filterTrending(<?php echo $fcat['id']; ?>)" class="trending-filter-btn w-full text-left px-4 py-3 rounded-2xl text-xs font-black uppercase tracking-wider text-gray-500 hover:bg-green-50 hover:text-green-600 transition-all duration-300 flex items-center justify-between group" data-cat="<?php echo $fcat['id']; ?>">
-                                        <span class="truncate pr-2"><?php echo h($fcat['name']); ?></span>
+                                    <button onclick="selectMainTrending(<?php echo $fcat['id']; ?>, '<?php echo addslashes($fcat['name']); ?>', '<?php echo $fcat['icon_class']; ?>')" class="trending-filter-btn w-full text-left px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider text-gray-500 hover:bg-green-50 hover:text-green-600 transition-all duration-300 flex items-center justify-between group" data-cat="<?php echo $fcat['id']; ?>">
+                                        <span class="truncate pr-1"><?php echo h($fcat['name']); ?></span>
                                         <i class="fas <?php echo h($fcat['icon_class']); ?> opacity-20 group-hover:opacity-100 transition-opacity"></i>
                                     </button>
                                 <?php endforeach; ?>
@@ -250,9 +314,17 @@ include __DIR__ . '/templates/header.php';
                                     <p class="text-green-600 font-black text-xl">₦<?php echo number_format($ad['price']); ?></p>
                                     <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-map-marker-alt text-green-500 mr-1"></i> <?php echo h($ad['state_name']); ?></p>
                                 </div>
-                                <div class="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-red-50 group-hover:text-red-500 transition-colors duration-300">
-                                    <i class="far fa-heart text-sm"></i>
-                                </div>
+                            <?php
+                            $is_saved = false;
+                            if (is_user_logged_in()) {
+                                $s_stmt = $pdo->prepare("SELECT 1 FROM saved_ads WHERE user_id = ? AND ad_id = ?");
+                                $s_stmt->execute([$_SESSION['user_id'], $ad['id']]);
+                                $is_saved = $s_stmt->fetch();
+                            }
+                            ?>
+                            <button onclick="event.preventDefault(); toggleSave(<?php echo $ad['id']; ?>, this)" class="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center <?php echo $is_saved ? 'text-red-500 bg-red-50' : 'text-gray-400'; ?> group-hover:bg-red-50 group-hover:text-red-500 transition-colors duration-300">
+                                <i class="<?php echo $is_saved ? 'fas' : 'far'; ?> fa-heart text-sm"></i>
+                            </button>
                             </div>
                         </div>
                     </a>
@@ -308,12 +380,80 @@ function closeMobileSubs() {
     document.body.style.overflow = 'auto';
 }
 
+function toggleSave(adId, btn) {
+    fetch(`/api/save_ad.php?ad_id=${adId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                alert(data.message);
+                if (data.message.includes('login')) window.location.href = '/login';
+                return;
+            }
+            const icon = btn.querySelector('i');
+            if (data.saved) {
+                icon.classList.replace('far', 'fas');
+                btn.classList.add('text-red-500', 'bg-red-50');
+                btn.classList.remove('text-gray-400');
+            } else {
+                icon.classList.replace('fas', 'far');
+                btn.classList.remove('text-red-500', 'bg-red-50');
+                btn.classList.add('text-gray-400');
+            }
+
+            // Update mobile counter if it exists
+            const counter = document.getElementById('savedCounter');
+            if (counter) {
+                counter.textContent = data.count;
+                counter.classList.toggle('hidden', data.count === 0);
+            }
+        });
+}
+
+function selectMainTrending(catId, name, icon) {
+    const grid = document.getElementById('trendingFilterGrid');
+    const backBtn = document.getElementById('backToMainCats');
+
+    // Fetch subs
+    fetch(`api/subcategories.php?parent_id=${catId}`)
+        .then(res => res.json())
+        .then(subs => {
+            if (subs.length === 0) {
+                filterTrending(catId);
+                return;
+            }
+
+            backBtn.classList.remove('hidden');
+            let html = `
+                <button onclick="filterTrending(${catId})" class="trending-filter-btn w-full text-left px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider bg-green-50 text-green-600 flex items-center justify-between group border border-green-200" data-cat="${catId}">
+                    <span class="truncate pr-1">All ${name}</span>
+                    <i class="fas ${icon} opacity-50"></i>
+                </button>
+            `;
+
+            subs.forEach(sub => {
+                html += `
+                    <button onclick="filterTrending(${sub.id})" class="trending-filter-btn w-full text-left px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider text-gray-500 hover:bg-green-50 hover:text-green-600 transition-all duration-300 flex items-center justify-between group" data-cat="${sub.id}">
+                        <span class="truncate pr-1">${sub.name}</span>
+                        <i class="fas fa-chevron-right opacity-10 group-hover:opacity-100 transition-opacity"></i>
+                    </button>
+                `;
+            });
+
+            grid.innerHTML = html;
+            filterTrending(catId);
+        });
+}
+
+function resetTrendingFilter() {
+    location.reload(); // Simplest way to restore the complex main category grid
+}
+
 function filterTrending(catId, type = 'all') {
-    // Update buttons (List View Style)
+    // Update buttons
     document.querySelectorAll('.trending-filter-btn').forEach(btn => {
         if(btn.dataset.cat == catId && type !== 'swap') {
             btn.classList.add('bg-green-600', 'text-white', 'shadow-xl');
-            btn.classList.remove('text-gray-500', 'hover:bg-green-50');
+            btn.classList.remove('text-gray-500', 'hover:bg-green-50', 'bg-green-50', 'text-green-600');
         } else {
             btn.classList.remove('bg-green-600', 'text-white', 'shadow-xl');
             btn.classList.add('text-gray-500', 'hover:bg-green-50');
@@ -345,9 +485,9 @@ function filterTrending(catId, type = 'all') {
                                 <p class="text-green-600 font-black text-xl">₦${new Intl.NumberFormat().format(ad.price)}</p>
                                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-map-marker-alt text-green-500 mr-1"></i> ${ad.state_name}</p>
                             </div>
-                            <div class="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-red-50 group-hover:text-red-500 transition-colors duration-300">
-                                <i class="far fa-heart text-sm"></i>
-                            </div>
+                            <button onclick="event.preventDefault(); toggleSave(${ad.id}, this)" class="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-red-50 group-hover:text-red-500 transition-colors duration-300">
+                                <i class="${ad.is_saved ? 'fas' : 'far'} fa-heart text-sm"></i>
+                            </button>
                         </div>
                     </div>
                 </a>

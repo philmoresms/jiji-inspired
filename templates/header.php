@@ -69,13 +69,29 @@ if (isset($pdo)) {
                 </form>
             </div>
 
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2 md:space-x-4">
                 <?php if (is_user_logged_in()): ?>
-                    <a href="/profile" class="text-gray-600 hover:text-green-600 font-bold"><i class="fas fa-user mr-1"></i> Profile</a>
-                    <a href="/post-ad" class="bg-yellow-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-yellow-600 transition">SELL</a>
+                    <a href="/profile" class="text-gray-600 hover:text-green-600 font-bold flex flex-col items-center">
+                        <i class="fas fa-user text-xl md:text-base md:mr-1"></i>
+                        <span class="hidden md:inline">Profile</span>
+                    </a>
+                    <a href="/post-ad" class="bg-yellow-500 text-white p-2 md:px-4 md:py-2 rounded-lg font-bold hover:bg-yellow-600 transition flex items-center justify-center">
+                        <i class="fas fa-plus text-xl md:text-base md:mr-1"></i>
+                        <span class="hidden md:inline">SELL</span>
+                    </a>
                 <?php else: ?>
-                    <a href="/login" class="text-gray-600 hover:text-green-600 font-bold">Sign In</a>
-                    <a href="/register" class="text-green-600 font-bold border-2 border-green-600 px-4 py-1 rounded-lg hover:bg-green-600 hover:text-white transition">Registration</a>
+                    <a href="/login" class="text-gray-600 hover:text-green-600 font-bold flex flex-col items-center">
+                        <i class="fas fa-sign-in-alt text-xl md:text-base md:mr-1"></i>
+                        <span class="hidden md:inline">Sign In</span>
+                    </a>
+                    <a href="/register" class="text-green-600 font-bold md:border-2 md:border-green-600 p-2 md:px-4 md:py-1 rounded-lg hover:bg-green-600 hover:text-white transition flex items-center justify-center">
+                        <i class="fas fa-user-plus text-xl md:text-base md:mr-1"></i>
+                        <span class="hidden md:inline">Registration</span>
+                    </a>
+                    <!-- New Post AD Icon for Guest Mobile -->
+                    <a href="/post-ad" class="md:hidden text-yellow-500 p-2 flex flex-col items-center">
+                        <i class="fas fa-plus-circle text-2xl"></i>
+                    </a>
                 <?php endif; ?>
             </div>
         </div>
