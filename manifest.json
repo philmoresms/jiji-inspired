@@ -1,6 +1,6 @@
 {
-  "name": "Jiji-Inspired-1.0",
-  "short_name": "Jiji Clone",
+  "name": "Marketplace",
+  "short_name": "Classifieds",
   "start_url": "/index.php",
   "display": "standalone",
   "background_color": "#ffffff",

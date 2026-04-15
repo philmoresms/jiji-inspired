@@ -73,13 +73,27 @@ include __DIR__ . '/templates/header.php';
     <div class="md:hidden overflow-x-auto pb-8 mb-4 scrollbar-hide snap-x snap-mandatory">
         <div class="flex gap-3 px-2">
             <?php foreach ($categories as $cat): ?>
-            <a href="/category/<?php echo $cat['slug']; ?>" class="flex flex-col items-center snap-center">
+            <button onclick="showMobileSubs(<?php echo $cat['id']; ?>, '<?php echo h($cat['name']); ?>')" class="flex flex-col items-center snap-center outline-none">
                 <div class="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-green-600 mb-2 border border-gray-50 active:scale-95 transition-transform duration-200">
                     <i class="fas <?php echo h($cat['icon_class']); ?> text-xl"></i>
                 </div>
                 <span class="text-[9px] font-extrabold text-gray-500 uppercase tracking-tighter text-center w-16 leading-tight"><?php echo h($cat['name']); ?></span>
-            </a>
+            </button>
             <?php endforeach; ?>
+        </div>
+    </div>
+
+    <!-- Mobile Subcategories Modal -->
+    <div id="mobileSubsModal" class="fixed inset-0 bg-black/60 z-[100] hidden items-end justify-center backdrop-blur-sm" onclick="closeMobileSubs()">
+        <div class="bg-white w-full rounded-t-[2.5rem] p-8 max-h-[80vh] overflow-y-auto animate-slide-up" onclick="event.stopPropagation()">
+            <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6"></div>
+            <div class="flex justify-between items-center mb-8">
+                <h3 id="mobileSubsTitle" class="text-xl font-black text-gray-800 uppercase tracking-tighter">Category</h3>
+                <button onclick="closeMobileSubs()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-400"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="mobileSubsContent" class="grid grid-cols-1 gap-4">
+                <!-- Content via JS -->
+            </div>
         </div>
     </div>
 
@@ -136,7 +150,7 @@ include __DIR__ . '/templates/header.php';
                 <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                     <div class="text-center md:text-left">
                         <span class="inline-block bg-yellow-500 text-green-900 text-[10px] font-black px-3 py-1 rounded-full uppercase mb-4 tracking-widest shadow-sm">Verified Marketplace</span>
-                        <h2 class="text-4xl md:text-5xl font-black mb-4 leading-tight">Everything is possible <br class="hidden md:block">with <span class="text-yellow-400"><?php echo h($settings['site_name'] ?? 'Jiji Clone'); ?></span></h2>
+                        <h2 class="text-4xl md:text-5xl font-black mb-4 leading-tight">Everything is possible <br class="hidden md:block">with <span class="text-yellow-400"><?php echo h($settings['site_name'] ?? 'Classifieds'); ?></span></h2>
                         <p class="text-green-50 font-bold opacity-90 max-w-md">Nigeria's most premium classifieds platform for buying, selling and swapping anything.</p>
                     </div>
                     <div class="flex flex-col gap-4 w-full md:w-auto">
@@ -163,7 +177,7 @@ include __DIR__ . '/templates/header.php';
                     <?php foreach ($featured_ads as $ad): ?>
                     <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition">
                         <div class="relative h-40">
-                            <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
+                            <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
                             <span class="absolute top-2 left-2 bg-yellow-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Featured</span>
                             <?php if ($ad['listing_type'] !== 'for_sale'): ?>
                                 <span class="absolute top-2 right-2 bg-blue-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase shadow-sm"><i class="fas fa-sync-alt mr-1"></i> Swap</span>
@@ -224,7 +238,7 @@ include __DIR__ . '/templates/header.php';
                     <?php foreach ($recent_ads as $ad): ?>
                     <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 group">
                         <div class="h-64 overflow-hidden relative">
-                            <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                            <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
                             <?php if ($ad['listing_type'] !== 'for_sale'): ?>
                                 <div class="absolute top-4 right-4 bg-blue-600 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-blue-500"><i class="fas fa-sync-alt mr-1"></i> Swap</div>
                             <?php endif; ?>
@@ -252,6 +266,48 @@ include __DIR__ . '/templates/header.php';
 </div>
 
 <script>
+function showMobileSubs(parentId, parentName) {
+    const modal = document.getElementById('mobileSubsModal');
+    const content = document.getElementById('mobileSubsContent');
+    const title = document.getElementById('mobileSubsTitle');
+
+    title.textContent = parentName;
+    content.innerHTML = '<div class="col-span-full py-10 text-center"><i class="fas fa-spinner fa-spin text-2xl text-green-500"></i></div>';
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+
+    fetch(`api/subcategories.php?parent_id=${parentId}`)
+        .then(res => res.json())
+        .then(data => {
+            if(data.length === 0) {
+                // If no subs, just go to the category page
+                window.location.href = `/category/${parentName.toLowerCase().replace(/ /g, '-')}`;
+                return;
+            }
+            content.innerHTML = data.map(sub => `
+                <a href="/category/${sub.slug}" class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-green-50 transition-colors">
+                    <span class="font-bold text-gray-700">${sub.name}</span>
+                    <span class="text-[10px] font-black bg-white px-3 py-1 rounded-full text-gray-400 shadow-sm">${sub.ad_count} ads</span>
+                </a>
+            `).join('');
+            // Add "View All" link at bottom
+            const slug = parentName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            content.innerHTML += `
+                <a href="/category/${slug}" class="flex items-center justify-center p-4 bg-green-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs mt-4">
+                    View All ${parentName}
+                </a>
+            `;
+        });
+}
+
+function closeMobileSubs() {
+    const modal = document.getElementById('mobileSubsModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = 'auto';
+}
+
 function filterTrending(catId, type = 'all') {
     // Update buttons (List View Style)
     document.querySelectorAll('.trending-filter-btn').forEach(btn => {
@@ -278,7 +334,7 @@ function filterTrending(catId, type = 'all') {
             container.innerHTML = data.map(ad => `
                 <a href="${ad.url}" class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 group">
                     <div class="h-64 overflow-hidden relative">
-                        <img src="${ad.image ? 'uploads/ads/'+ad.image : 'https://placehold.co/400x300?text=No+Image'}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                        <img src="${ad.image ? '/uploads/ads/'+ad.image : 'https://placehold.co/400x300?text=No+Image'}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
                         ${ad.is_featured == 1 ? '<div class="absolute top-4 left-4 bg-yellow-400 text-yellow-900 text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-yellow-300">Premium</div>' : ''}
                         ${ad.listing_type !== 'for_sale' ? '<div class="absolute top-4 right-4 bg-blue-600 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-blue-500"><i class="fas fa-sync-alt mr-1"></i> Swap</div>' : ''}
                     </div>

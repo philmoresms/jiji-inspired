@@ -1,6 +1,6 @@
 <?php
 /**
- * Jiji-Inspired-1.0 Installer
+ * <?php echo h($settings['site_name'] ?? 'Marketplace'); ?> Installer
  * Stage 3: Admin Account Creation & Seeding
  */
 
@@ -33,7 +33,7 @@ if (isset($_POST['complete'])) {
 
         // 3. Set Default Settings
         $default_settings = [
-            'site_name' => 'Jiji Inspired',
+            'site_name' => 'Classifieds',
             'brute_force_period' => '15',
             'max_failures_account' => '5',
             'max_failures_ip' => '10',
@@ -69,7 +69,7 @@ if (isset($_POST['complete'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jiji-Inspired-1.0 Installer - Stage 3</title>
+    <title><?php echo h($settings['site_name'] ?? 'Marketplace'); ?> Installer - Stage 3</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">

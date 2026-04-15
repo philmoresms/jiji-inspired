@@ -1,6 +1,6 @@
 <?php
 /**
- * Jiji-Inspired-1.0 Installer
+ * <?php echo h($settings['site_name'] ?? 'Marketplace'); ?> Installer
  * Stage 2: Database Configuration & Schema Installation
  */
 
@@ -71,7 +71,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jiji-Inspired-1.0 Installer - Stage 2</title>
+    <title><?php echo h($settings['site_name'] ?? 'Marketplace'); ?> Installer - Stage 2</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">

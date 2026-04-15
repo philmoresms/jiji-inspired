@@ -20,13 +20,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description = $_POST['description'];
         $video_url = !empty($_POST['video_url']) ? $_POST['video_url'] : null;
 
+        // Handle category-specific data
+        $ad_data = null;
+        if (isset($_POST['extra'])) {
+            $ad_data = json_encode($_POST['extra']);
+        }
+
         // Get free ad duration
         $stmt = $pdo->query("SELECT setting_value FROM settings WHERE setting_key = 'free_ad_duration'");
         $duration = (int)($stmt->fetchColumn() ?: 15);
         $expires_at = date('Y-m-d H:i:s', strtotime("+$duration days"));
 
-        $stmt = $pdo->prepare("INSERT INTO ads (user_id, cat_id, state_id, lga_id, title, price, listing_type, estimated_value, swap_preference, allow_cash_topup, description, status, video_url, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)");
-        $stmt->execute([$user_id, $cat_id, $state_id, $lga_id, $title, $price, $listing_type, $estimated_value, $swap_preference, $allow_cash_topup, $description, $video_url, $expires_at]);
+        $stmt = $pdo->prepare("INSERT INTO ads (user_id, cat_id, state_id, lga_id, title, price, listing_type, estimated_value, swap_preference, allow_cash_topup, description, ad_data, status, video_url, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)");
+        $stmt->execute([$user_id, $cat_id, $state_id, $lga_id, $title, $price, $listing_type, $estimated_value, $swap_preference, $allow_cash_topup, $description, $ad_data, $video_url, $expires_at]);
         $ad_id = $pdo->lastInsertId();
 
     // Process Images
@@ -66,7 +72,7 @@ include __DIR__ . '/templates/header.php';
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-gray-700 font-bold mb-2 text-sm">Category</label>
-                    <select name="cat_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required>
+                    <select name="cat_id" id="cat_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required onchange="loadFilters(this.value)">
                         <option value="">Select Category</option>
                         <?php foreach ($categories as $cat): ?>
                             <option value="<?php echo $cat['id']; ?>"><?php echo h($cat['name']); ?></option>
@@ -138,6 +144,10 @@ include __DIR__ . '/templates/header.php';
                 </div>
             </div>
 
+            <div id="dynamic_filters" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                <!-- Filters injected here -->
+            </div>
+
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2 text-sm">Description</label>
                 <textarea name="description" rows="5" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="Provide details about the item..." required></textarea>
@@ -172,6 +182,39 @@ include __DIR__ . '/templates/header.php';
 </div>
 
 <script>
+function loadFilters(catId) {
+    const filterContainer = document.getElementById('dynamic_filters');
+    if (!catId) {
+        filterContainer.innerHTML = '';
+        return;
+    }
+
+    fetch('api/filters.php?cat_id=' + catId)
+        .then(response => response.json())
+        .then(filters => {
+            let html = '';
+            for (let key in filters) {
+                const f = filters[key];
+                html += '<div>';
+                html += `<label class="block text-gray-700 font-bold mb-2 text-sm">${f.label}</label>`;
+
+                if (f.type === 'select') {
+                    html += `<select name="extra[${key}]" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none">`;
+                    html += '<option value="">Select option</option>';
+                    f.options.forEach(opt => {
+                        html += `<option value="${opt}">${opt}</option>`;
+                    });
+                    html += '</select>';
+                } else if (f.type === 'number') {
+                    html += `<input type="number" name="extra[${key}]" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="Enter value">`;
+                }
+
+                html += '</div>';
+            }
+            filterContainer.innerHTML = html;
+        });
+}
+
 function loadLGAs(stateId) {
     const lgaSelect = document.getElementById('lga_id');
     lgaSelect.innerHTML = '<option value="">Loading...</option>';

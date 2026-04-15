@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS ads (
     lga_id INT,
     title VARCHAR(150),
     description TEXT,
+    ad_data JSON DEFAULT NULL,
     price DECIMAL(15, 2),
     listing_type ENUM('for_sale', 'for_swap', 'for_sale_or_swap') DEFAULT 'for_sale',
     estimated_value DECIMAL(15, 2) DEFAULT NULL,

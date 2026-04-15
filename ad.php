@@ -60,9 +60,10 @@ if ($ad['video_url']) {
 }
 
 // SEO Meta Data
-$page_title = $ad['title'] . " - " . ($settings['site_name'] ?? 'Jiji Inspired');
-$page_desc = substr(strip_tags($ad['description']), 0, 160);
-$page_keywords = extract_keywords($ad['title'], $ad['cat_name']);
+$meta = generate_meta_tags($ad['title'], $ad['description'], $ad['cat_name'] . " " . $ad['state_name']);
+$page_title = $meta['title'] . " - " . ($settings['site_name'] ?? 'Classifieds');
+$page_desc = $meta['description'];
+$page_keywords = $meta['keywords'];
 
 // Get similar ads (same category, active, not current)
 $stmt = $pdo->prepare("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name
@@ -99,7 +100,7 @@ include __DIR__ . '/templates/header.php';
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-8">
                 <!-- Gallery -->
                 <div class="relative h-96 bg-black flex items-center justify-center group cursor-zoom-in" onclick="openLightbox(0)">
-                    <img id="mainImage" src="/uploads/ads/<?php echo $images[0]['image_path'] ?? 'default.jpg'; ?>" class="max-h-full max-w-full object-contain">
+                    <img id="mainImage" src="<?php echo isset($images[0]) ? '/uploads/ads/'.$images[0]['image_path'] : 'https://placehold.co/800x600?text=No+Image'; ?>" class="max-h-full max-w-full object-contain">
                     <div class="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover:opacity-100 transition">
                         <button onclick="event.stopPropagation(); changeMainImage(-1)" class="bg-black/50 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-green-600 transition"><i class="fas fa-chevron-left"></i></button>
                         <button onclick="event.stopPropagation(); changeMainImage(1)" class="bg-black/50 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-green-600 transition"><i class="fas fa-chevron-right"></i></button>
@@ -156,6 +157,23 @@ include __DIR__ . '/templates/header.php';
                                 <?php if ($ad['allow_cash_topup']): ?>
                                     <p class="mt-4 text-[10px] font-black text-green-600 uppercase tracking-widest"><i class="fas fa-check-circle mr-1"></i> Seller accepts Item + Cash top-up</p>
                                 <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php
+                        $extra_data = json_decode($ad['ad_data'], true);
+                        if ($extra_data):
+                        ?>
+                            <div class="mb-8">
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">Specifications</h3>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    <?php foreach ($extra_data as $key => $value): if(empty($value)) continue; ?>
+                                        <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-1"><?php echo h(str_replace('_', ' ', $key)); ?></p>
+                                            <p class="text-sm font-bold text-gray-700"><?php echo h($value); ?></p>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
                             </div>
                         <?php endif; ?>
 
@@ -233,7 +251,8 @@ include __DIR__ . '/templates/header.php';
                     <div class="flex justify-center gap-4">
                         <?php
                         $share_url = urlencode("http://" . $_SERVER['HTTP_HOST'] . generate_ad_url($ad));
-                        $share_text = urlencode("Check out this " . $ad['title'] . " on Jiji Clone!");
+                        $site_name_plain = $settings['site_name'] ?? 'Classifieds';
+                        $share_text = urlencode("Check out this " . $ad['title'] . " on " . $site_name_plain . "!");
                         ?>
                         <a href="https://wa.me/?text=<?php echo $share_text . '%20' . $share_url; ?>" target="_blank" class="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 transition shadow-sm"><i class="fab fa-whatsapp text-xl"></i></a>
                         <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo $share_url; ?>" target="_blank" class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition shadow-sm"><i class="fab fa-facebook-f text-lg"></i></a>
@@ -262,7 +281,7 @@ include __DIR__ . '/templates/header.php';
             <?php foreach ($similar_ads as $s_ad): ?>
             <a href="<?php echo generate_ad_url($s_ad); ?>" class="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all group border border-gray-100">
                 <div class="relative h-48 overflow-hidden">
-                    <img src="<?php echo $s_ad['image'] ? 'uploads/ads/'.$s_ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <img src="<?php echo $s_ad['image'] ? '/uploads/ads/'.$s_ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                     <?php if ($s_ad['is_featured']): ?>
                         <span class="absolute top-4 left-4 bg-yellow-400 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase shadow-md"><i class="fas fa-rocket"></i> BOOSTED</span>
                     <?php endif; ?>

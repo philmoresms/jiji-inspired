@@ -6,7 +6,7 @@ require_once __DIR__ . '/inc/functions.php';
 $stmt = $pdo->query("SELECT * FROM blog_posts ORDER BY created_at DESC");
 $posts = $stmt->fetchAll();
 
-$page_title = "Blog - " . ($settings['site_name'] ?? 'Jiji Clone');
+$page_title = "Blog - " . ($settings['site_name'] ?? 'Classifieds');
 include __DIR__ . '/templates/header.php';
 ?>
 

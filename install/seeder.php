@@ -25,23 +25,23 @@ function seed_database($pdo) {
             'subs' => ['Mobile Phones', 'Tablets', 'Accessories for Phones & Tablets']
         ],
         'Electronics' => [
-            'icon' => 'fa-tv', 'is_top' => 0, 'order' => 4,
+            'icon' => 'fa-tv', 'is_top' => 1, 'order' => 4,
             'subs' => ['Computers & Laptops', 'Computer Accessories & Peripherals', 'TV & DVD Equipment', 'Cameras & Video Cameras', 'Sound & Music Equipment', 'Games & Gaming', 'Printers & Scanners', 'Networking & Connectivity']
         ],
         'Home, Furniture & Appliances' => [
-            'icon' => 'fa-couch', 'is_top' => 0, 'order' => 5,
+            'icon' => 'fa-couch', 'is_top' => 1, 'order' => 5,
             'subs' => ['Kitchen Appliances', 'Fridges & Freezers', 'Washing Machines', 'Air Conditioning & Fans', 'Sofas & Living Room Sets', 'Beds & Mattresses', 'Dining Sets', 'Office Furniture', 'Wardrobes & Closets', 'Generators, UPS & Solar Energy', 'Lighting & Ceiling Fans', 'Cooking & Baking Appliances', 'Garden & Outdoor Items', 'Curtains & Blinds']
         ],
         'Fashion & Accessories' => [
-            'icon' => 'fa-tshirt', 'is_top' => 0, 'order' => 6,
+            'icon' => 'fa-tshirt', 'is_top' => 1, 'order' => 6,
             'subs' => ["Men's Clothing", "Women's Clothing", "Children's Clothing", "Men's Shoes", "Women's Shoes", 'Bags', 'Watches & Accessories', 'Jewelry & Gemstones', 'Sunglasses & Eyewear']
         ],
         'Beauty & Personal Care' => [
-            'icon' => 'fa-heartbeat', 'is_top' => 0, 'order' => 7,
+            'icon' => 'fa-heartbeat', 'is_top' => 1, 'order' => 7,
             'subs' => ['Skin Care', 'Hair Care & Wigs', 'Make-up & Cosmetics', 'Health Care & Supplements', 'Perfumes & Fragrances', 'Nail Care']
         ],
         'Services' => [
-            'icon' => 'fa-concierge-bell', 'is_top' => 0, 'order' => 8,
+            'icon' => 'fa-concierge-bell', 'is_top' => 1, 'order' => 8,
             'subs' => ['Financial Services', 'Legal Services', 'Education & Training', 'Cleaning & Household Services', 'Car Services & Repair', 'Catering & Chef Services', 'Computer & Technology Services', 'Health Services', 'Moving & Delivery Services', 'Photography & Videography', 'Event Planning & Management', 'Social Media & Digital Marketing']
         ],
         'Repair & Construction' => [
@@ -74,7 +74,7 @@ function seed_database($pdo) {
         ],
         'Seeking Work — CVs' => [
             'icon' => 'fa-id-card', 'is_top' => 0, 'order' => 16,
-            'subs' => ['Accounting, Auditing & Finance CVs', 'Admin & Office Support CVs', 'Agricultural Jobs CVs', 'Aviation Jobs CVs', 'Banking Jobs CVs', 'Construction Jobs CVs', 'Customer Service & Call Centre CVs', 'Energy, Oil & Gas Jobs CVs', 'Engineering & Technical Jobs CVs', 'Healthcare & Nursing CVs', 'Hospitality & Hotel Jobs CVs', 'HR & Recruitment Jobs CVs', 'ICT & Computer Jobs CVs', 'Legal Jobs CVs', 'Management & Business Development CVs', 'Manufacturing Jobs CVs', 'Marketing & Communication CVs', 'Media & Advertisement CVs', 'NGO, Social & Charity Jobs CVs', 'Procurement & Logistics CVs', 'Real Estate Jobs CVs', 'Sales Jobs CVs', 'Transportation & Driving Jobs CVs']
+            'subs' => ['Accounting, Auditing & Finance', 'Admin & Office Support', 'Agricultural Jobs', 'Aviation Jobs', 'Banking Jobs', 'Construction Jobs', 'Customer Service & Call Centre', 'Energy, Oil & Gas Jobs', 'Engineering & Technical Jobs', 'Healthcare & Nursing', 'Hospitality & Hotel Jobs', 'HR & Recruitment Jobs', 'ICT & Computer Jobs', 'Legal Jobs', 'Management & Business Development', 'Manufacturing Jobs', 'Marketing & Communication Jobs', 'Media & Advertisement Jobs', 'NGO, Social & Charity Jobs', 'Procurement & Logistics Jobs', 'Real Estate Jobs', 'Sales Jobs', 'Transportation & Driving Jobs']
         ]
     ];
 
@@ -164,11 +164,11 @@ function seed_database($pdo) {
 
     // 4. Seed Default CMS Pages
     $default_pages = [
-        ['Terms & Conditions', 'terms', 'Acceptable use policy...', 'Jiji Clone terms and conditions', 'terms, conditions, rules'],
+        ['Terms & Conditions', 'terms', 'Acceptable use policy...', '<?php echo h($settings[\'site_name\'] ?? \'Classifieds\'); ?> terms and conditions', 'terms, conditions, rules'],
         ['Privacy Policy', 'privacy', 'Your data is safe...', 'Our privacy policy', 'privacy, data, safety'],
         ['Billing Policy', 'billing', 'Refunds and payments...', 'Billing and refund policy', 'billing, refund, payment'],
         ['Safety Tips', 'safety', 'Meet in public...', 'Stay safe while buying and selling', 'safety, tips, security'],
-        ['FAQ', 'faq', 'Frequently asked questions...', 'Jiji Clone Help Center', 'faq, help, questions']
+        ['FAQ', 'faq', 'Frequently asked questions...', '<?php echo h($settings[\'site_name\'] ?? \'Classifieds\'); ?> Help Center', 'faq, help, questions']
     ];
     $page_stmt = $pdo->prepare("INSERT INTO pages (title, slug, content, meta_desc, meta_keys) VALUES (?, ?, ?, ?, ?)");
     foreach ($default_pages as $page) {

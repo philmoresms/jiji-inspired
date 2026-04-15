@@ -1,6 +1,6 @@
 <?php
 /**
- * Jiji-Inspired-1.0 Installer
+ * <?php echo h($settings['site_name'] ?? 'Marketplace'); ?> Installer
  * Stage 4: Congratulations & Instructions
  */
 
@@ -17,7 +17,7 @@ if (!isset($_SESSION['install_stage']) || $_SESSION['install_stage'] < 4) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jiji-Inspired-1.0 Installer - Success!</title>
+    <title><?php echo h($settings['site_name'] ?? 'Marketplace'); ?> Installer - Success!</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
@@ -30,7 +30,7 @@ if (!isset($_SESSION['install_stage']) || $_SESSION['install_stage'] < 4) {
             </div>
         </div>
         <h1 class="text-3xl font-bold mb-4 text-green-600">Congratulations!</h1>
-        <p class="text-xl text-gray-600 mb-8">Jiji-Inspired-1.0 has been successfully installed on your server.</p>
+        <p class="text-xl text-gray-600 mb-8"><?php echo h($settings['site_name'] ?? 'Marketplace'); ?> has been successfully installed on your server.</p>
 
         <div class="bg-blue-50 p-6 rounded-lg text-left mb-8">
             <h2 class="font-bold text-blue-800 mb-3">Important Next Steps:</h2>

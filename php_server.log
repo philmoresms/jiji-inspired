@@ -1,23 +1,27 @@
-[Wed Apr 15 09:49:52 2026] PHP 8.3.6 Development Server (http://localhost:8000) started
-[Wed Apr 15 09:52:36 2026] [::1]:39228 Accepted
-[Wed Apr 15 09:52:36 2026] PHP Warning:  require_once(/app/config/config.php): Failed to open stream: No such file or directory in /app/post-ad.php on line 3
-[Wed Apr 15 09:52:36 2026] PHP Fatal error:  Uncaught Error: Failed opening required '/app/config/config.php' (include_path='.:/usr/share/php') in /app/post-ad.php:3
+[Wed Apr 15 12:02:46 2026] PHP 8.3.6 Development Server (http://localhost:8000) started
+[Wed Apr 15 12:06:35 2026] [::1]:40278 Accepted
+[Wed Apr 15 12:06:35 2026] [::1]:40278 [302]: GET /
+[Wed Apr 15 12:06:35 2026] [::1]:40278 Closing
+[Wed Apr 15 12:06:35 2026] [::1]:40284 Accepted
+[Wed Apr 15 12:06:35 2026] PHP Fatal error:  Uncaught Error: Call to undefined function h() in /app/install/index.php:68
 Stack trace:
 #0 {main}
-  thrown in /app/post-ad.php on line 3
-[Wed Apr 15 09:52:36 2026] [::1]:39228 [500]: GET /post-ad.php - Uncaught Error: Failed opening required '/app/config/config.php' (include_path='.:/usr/share/php') in /app/post-ad.php:3
+  thrown in /app/install/index.php on line 68
+[Wed Apr 15 12:06:35 2026] [::1]:40284 [500]: GET /install/index.php - Uncaught Error: Call to undefined function h() in /app/install/index.php:68
 Stack trace:
 #0 {main}
-  thrown in /app/post-ad.php on line 3
-[Wed Apr 15 09:52:36 2026] [::1]:39228 Closing
-[Wed Apr 15 09:52:37 2026] [::1]:39234 Accepted
-[Wed Apr 15 09:52:37 2026] PHP Warning:  require_once(/app/config/config.php): Failed to open stream: No such file or directory in /app/search.php on line 3
-[Wed Apr 15 09:52:37 2026] PHP Fatal error:  Uncaught Error: Failed opening required '/app/config/config.php' (include_path='.:/usr/share/php') in /app/search.php:3
+  thrown in /app/install/index.php on line 68
+[Wed Apr 15 12:06:35 2026] [::1]:40284 Closing
+[Wed Apr 15 12:06:37 2026] [::1]:46952 Accepted
+[Wed Apr 15 12:06:37 2026] [::1]:46952 [302]: GET /
+[Wed Apr 15 12:06:37 2026] [::1]:46952 Closing
+[Wed Apr 15 12:06:37 2026] [::1]:46964 Accepted
+[Wed Apr 15 12:06:37 2026] PHP Fatal error:  Uncaught Error: Call to undefined function h() in /app/install/index.php:68
 Stack trace:
 #0 {main}
-  thrown in /app/search.php on line 3
-[Wed Apr 15 09:52:37 2026] [::1]:39234 [500]: GET /search.php - Uncaught Error: Failed opening required '/app/config/config.php' (include_path='.:/usr/share/php') in /app/search.php:3
+  thrown in /app/install/index.php on line 68
+[Wed Apr 15 12:06:37 2026] [::1]:46964 [500]: GET /install/index.php - Uncaught Error: Call to undefined function h() in /app/install/index.php:68
 Stack trace:
 #0 {main}
-  thrown in /app/search.php on line 3
-[Wed Apr 15 09:52:37 2026] [::1]:39234 Closing
+  thrown in /app/install/index.php on line 68
+[Wed Apr 15 12:06:37 2026] [::1]:46964 Closing

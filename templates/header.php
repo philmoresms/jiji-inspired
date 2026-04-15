@@ -23,7 +23,7 @@ if (isset($pdo)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo h($page_title ?? ($settings['site_name'] ?? 'Jiji Inspired')); ?></title>
+    <title><?php echo h($page_title ?? ($settings['site_name'] ?? 'Classifieds')); ?></title>
     <meta name="description" content="<?php echo h($page_desc ?? ($settings['meta_description'] ?? '')); ?>">
     <meta name="keywords" content="<?php echo h($page_keywords ?? ($settings['meta_keywords'] ?? '')); ?>">
 
@@ -33,13 +33,20 @@ if (isset($pdo)) {
     <style>
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .animate-slide-up {
+            animation: slideUp 0.3s ease-out forwards;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
     <nav class="bg-white shadow-sm border-b sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <a href="/" class="flex flex-col">
-                <span class="text-2xl font-black text-green-600 leading-none"><?php echo h($settings['site_name'] ?? 'Jiji Clone'); ?></span>
+                <span class="text-2xl font-black text-green-600 leading-none"><?php echo h($settings['site_name'] ?? 'Classifieds'); ?></span>
                 <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Buy, Sell & Swap</span>
             </a>
 

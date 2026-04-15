@@ -127,13 +127,13 @@ function generate_ad_url($ad) {
  * Extract SEO Keywords from text
  */
 function extract_keywords($text, $additional = "") {
-    $premium_words = ['buy', 'sell', 'cheap', 'best', 'nigeria', 'price', 'new', 'used', 'deals'];
+    $premium_words = ['buy', 'sell', 'cheap', 'best', 'nigeria', 'price', 'new', 'used', 'deals', 'marketplace', 'classifieds', 'online shop'];
     $text = strtolower($text . " " . $additional);
     $text = preg_replace('/[^a-z0-9\s]/', '', $text);
     $words = explode(' ', $text);
 
     // Filter out short and common words
-    $common = ['the', 'and', 'with', 'for', 'this', 'that', 'your', 'from'];
+    $common = ['the', 'and', 'with', 'for', 'this', 'that', 'your', 'from', 'have', 'more', 'about'];
     $filtered = array_filter($words, function($w) use ($common) {
         return strlen($w) > 3 && !in_array($w, $common);
     });
@@ -141,4 +141,20 @@ function extract_keywords($text, $additional = "") {
     // Prioritize premium words
     $keywords = array_unique(array_merge($premium_words, $filtered));
     return implode(', ', array_slice($keywords, 0, 15));
+}
+
+/**
+ * Generate Auto SEO Meta tags for any page
+ */
+function generate_meta_tags($title, $description, $tags = "") {
+    $meta_title = h($title);
+    // Limit description to 160 characters for SEO
+    $meta_desc = h(substr(strip_tags($description), 0, 160));
+    $meta_keywords = h(extract_keywords($title, $tags));
+
+    return [
+        'title' => $meta_title,
+        'description' => $meta_desc,
+        'keywords' => $meta_keywords
+    ];
 }

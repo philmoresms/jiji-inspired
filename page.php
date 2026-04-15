@@ -13,7 +13,7 @@ if (!$page_data) {
     exit;
 }
 
-$page_title = $page_data['title'] . " - " . ($settings['site_name'] ?? 'Jiji Clone');
+$page_title = $page_data['title'] . " - " . ($settings['site_name'] ?? 'Classifieds');
 $page_desc = $page_data['meta_desc'];
 $page_keywords = $page_data['meta_keys'];
 

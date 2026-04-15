@@ -118,7 +118,7 @@ include __DIR__ . '/../templates/admin_header.php';
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-blue-600 mb-1">Account Name</label>
-                                <input type="text" name="s[account_name]" value="<?php echo h($settings['account_name'] ?? ''); ?>" class="w-full p-2 border rounded text-sm" placeholder="Jiji Clone Ventures">
+                                <input type="text" name="s[account_name]" value="<?php echo h($settings['account_name'] ?? ''); ?>" class="w-full p-2 border rounded text-sm" placeholder="<?php echo h($settings['site_name'] ?? 'Classifieds'); ?> Ventures">
                             </div>
                         </div>
                     </div>

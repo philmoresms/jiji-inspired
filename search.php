@@ -8,8 +8,9 @@ $q = $_GET['q'] ?? '';
 $cat_id = (int)($_GET['cat_id'] ?? 0);
 $state_id = (int)($_GET['state_id'] ?? 0);
 $min_price = (float)($_GET['min_price'] ?? 0);
-$max_price = (float)($_GET['max_price'] ?? 10000000);
+$max_price = (float)($_GET['max_price'] ?? 0);
 $type = $_GET['type'] ?? 'all';
+$extra = $_GET['extra'] ?? [];
 
 $query = "SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name
           FROM ads a
@@ -52,6 +53,15 @@ if ($min_price) {
 if ($max_price) {
     $query .= " AND a.price <= ?";
     $params[] = $max_price;
+}
+
+if ($extra) {
+    foreach ($extra as $key => $value) {
+        if (!empty($value)) {
+            $query .= " AND JSON_EXTRACT(a.ad_data, '$.\"$key\"') = ?";
+            $params[] = $value;
+        }
+    }
 }
 if ($type === 'sale') {
     $query .= " AND (a.listing_type = 'for_sale' OR a.listing_type = 'for_sale_or_swap')";
@@ -126,9 +136,13 @@ include __DIR__ . '/templates/header.php';
                         </div>
                     </div>
 
+                    <div id="dynamic_filters" class="space-y-4 pt-4 border-t border-gray-50">
+                        <!-- Filters here -->
+                    </div>
+
                     <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition shadow-lg shadow-green-100">Apply Filters</button>
 
-                    <?php if ($cat_id || $state_id || $min_price || $max_price || $q): ?>
+                    <?php if ($cat_id || $state_id || $min_price || $max_price || $q || $extra): ?>
                         <a href="search.php" class="block text-center text-[10px] font-black text-red-400 uppercase tracking-widest mt-4 hover:text-red-600 transition">Clear All Filters</a>
                     <?php endif; ?>
                 </form>
@@ -148,7 +162,7 @@ include __DIR__ . '/templates/header.php';
                 <?php foreach ($ads as $ad): ?>
                 <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-3xl shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 group">
                     <div class="relative h-48 overflow-hidden">
-                        <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                        <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
                         <?php if ($ad['is_featured']): ?>
                             <div class="absolute top-4 left-4 bg-yellow-400 text-yellow-900 text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-yellow-300">Premium</div>
                         <?php endif; ?>
@@ -188,5 +202,49 @@ include __DIR__ . '/templates/header.php';
         </div>
     </div>
 </div>
+
+<script>
+function loadFilters(catId) {
+    const filterContainer = document.getElementById('dynamic_filters');
+    if (!catId) {
+        filterContainer.innerHTML = '';
+        return;
+    }
+
+    fetch('api/filters.php?cat_id=' + catId)
+        .then(response => response.json())
+        .then(filters => {
+            let html = '';
+            const currentExtra = <?php echo json_encode($extra); ?>;
+            for (let key in filters) {
+                const f = filters[key];
+                html += '<div>';
+                html += `<label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">${f.label}</label>`;
+
+                const val = currentExtra[key] || '';
+
+                if (f.type === 'select') {
+                    html += `<select name="extra[${key}]" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700">`;
+                    html += '<option value="">All</option>';
+                    f.options.forEach(opt => {
+                        const sel = (val == opt) ? 'selected' : '';
+                        html += `<option value="${opt}" ${sel}>${opt}</option>`;
+                    });
+                    html += '</select>';
+                } else if (f.type === 'number') {
+                    html += `<input type="number" name="extra[${key}]" value="${val}" placeholder="Value" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700">`;
+                }
+
+                html += '</div>';
+            }
+            filterContainer.innerHTML = html;
+        });
+}
+
+// Load filters on page load if category is selected
+<?php if ($cat_id): ?>
+document.addEventListener('DOMContentLoaded', () => loadFilters(<?php echo $cat_id; ?>));
+<?php endif; ?>
+</script>
 
 <?php include __DIR__ . '/templates/footer.php'; ?>

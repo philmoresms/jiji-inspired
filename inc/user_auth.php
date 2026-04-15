@@ -29,7 +29,7 @@ function user_logout() {
  */
 function send_otp($email, $otp) {
     global $pdo;
-    $site_name = $pdo->query("SELECT setting_value FROM settings WHERE setting_key = 'site_name'")->fetchColumn() ?: 'Jiji Clone';
+    $site_name = $pdo->query("SELECT setting_value FROM settings WHERE setting_key = 'site_name'")->fetchColumn() ?: 'Classifieds';
 
     $subject = "Your Registration OTP - $site_name";
     $body = "

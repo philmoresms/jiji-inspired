@@ -42,9 +42,10 @@ $subcategories = $stmt->fetchAll();
 $states = $pdo->query("SELECT * FROM states ORDER BY name ASC")->fetchAll();
 
 // SEO Meta Data
-$page_title = $category['name'] . " - " . ($settings['site_name'] ?? 'Jiji Inspired');
-$page_desc = "Browse the best deals in " . $category['name'] . " on " . ($settings['site_name'] ?? 'Jiji Clone');
-$page_keywords = extract_keywords($category['name'], "buy sell nigeria");
+$meta = generate_meta_tags($category['name'], "Browse the best deals in " . $category['name'] . " on our marketplace. Buy and sell " . $category['name'] . " items at best prices in Nigeria.", "buy, sell, nigeria, deals");
+$page_title = $meta['title'] . " - " . ($settings['site_name'] ?? 'Classifieds');
+$page_desc = $meta['description'];
+$page_keywords = $meta['keywords'];
 
 // Get ads in this category
 $query = "SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name
@@ -176,7 +177,7 @@ include __DIR__ . '/templates/header.php';
                 <?php foreach ($ads as $ad): ?>
                 <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-3xl shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 group">
                     <div class="relative h-48 overflow-hidden">
-                        <img src="<?php echo $ad['image'] ? 'uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                        <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
                         <?php if ($ad['is_featured']): ?>
                             <div class="absolute top-4 left-4 bg-yellow-400 text-yellow-900 text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-yellow-300">Premium</div>
                         <?php endif; ?>
