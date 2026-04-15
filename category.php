@@ -90,8 +90,19 @@ if ($extra) {
         if (empty($value)) continue;
 
         if (isset($valid_filters[$key])) {
-            if ($key === 'verified_seller' && $value === 'Verified sellers only') {
-                $query .= " AND u.is_verified = 1";
+            if ($key === 'verified_seller') {
+                if ($value === 'Verified sellers only') {
+                    $query .= " AND u.is_verified = 1";
+                }
+            } elseif ($key === 'trusted_agent') {
+                if ($value === 'Yes') {
+                    $query .= " AND u.is_verified = 1";
+                }
+            } elseif ($key === 'discount') {
+                if ($value === 'With discount') {
+                    $query .= " AND JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"discount\"')) = ?";
+                    $params[] = $value;
+                }
             } else {
                 $query .= " AND JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"$key\"')) = ?";
                 $params[] = $value;
@@ -101,7 +112,7 @@ if ($extra) {
             if (isset($valid_filters[$base_key])) {
                 $op = (strpos($key, 'min_') === 0) ? '>=' : '<=';
                 $query .= " AND CAST(JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"$base_key\"')) AS DECIMAL(15,2)) $op ?";
-                $params[] = $value;
+                $params[] = (float)$value;
             }
         }
     }
@@ -299,13 +310,23 @@ function loadFilters(catId) {
                     html += '</select>';
                 } else if (f.type === 'number') {
                     html += `<input type="number" name="extra[${key}]" value="${val}" placeholder="Value" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">`;
-                } else if (f.type === 'range' || f.type === 'number_range') {
-                    const min_val = currentExtra['min_' + key] || '';
-                    const max_val = currentExtra['max_' + key] || '';
+                } else if (f.type === 'range' || f.type === 'number' || f.type === 'number_range') {
+                    let min_val, max_val, min_name, max_name;
+                    if (key === 'price') {
+                        min_val = '<?php echo $min_price ?: ''; ?>';
+                        max_val = '<?php echo $max_price ?: ''; ?>';
+                        min_name = 'min_price';
+                        max_name = 'max_price';
+                    } else {
+                        min_val = currentExtra['min_' + key] || '';
+                        max_val = currentExtra['max_' + key] || '';
+                        min_name = `extra[min_${key}]`;
+                        max_name = `extra[max_${key}]`;
+                    }
 
                     html += `<div class="grid grid-cols-2 gap-2 mb-3">
-                        <input type="number" name="extra[min_${key}]" value="${min_val}" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
-                        <input type="number" name="extra[max_${key}]" value="${max_val}" placeholder="Max" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                        <input type="number" name="${min_name}" value="${min_val}" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                        <input type="number" name="${max_name}" value="${max_val}" placeholder="Max" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
                     </div>`;
 
                     if (f.quick_ranges) {
@@ -325,8 +346,15 @@ function loadFilters(catId) {
 }
 
 function setQuickRange(key, min, max) {
-    const minInput = document.querySelector(`input[name="extra[min_${key}]"]`);
-    const maxInput = document.querySelector(`input[name="extra[max_${key}]"]`);
+    let minInput, maxInput;
+    if (key === 'price') {
+        minInput = document.querySelector('input[name="min_price"]');
+        maxInput = document.querySelector('input[name="max_price"]');
+    } else {
+        minInput = document.querySelector(`input[name="extra[min_${key}]"]`);
+        maxInput = document.querySelector(`input[name="extra[max_${key}]"]`);
+    }
+
     if (minInput && maxInput) {
         minInput.value = min;
         maxInput.value = max;

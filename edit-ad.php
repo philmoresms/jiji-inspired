@@ -35,9 +35,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description = $_POST['description'];
         $video_url = !empty($_POST['video_url']) ? $_POST['video_url'] : null;
 
+        // Handle category-specific data
+        $ad_data = null;
+        if (isset($_POST['extra'])) {
+            $ad_data = json_encode($_POST['extra']);
+        }
+
         // Update ad and reset status to pending
-        $stmt = $pdo->prepare("UPDATE ads SET cat_id = ?, state_id = ?, lga_id = ?, title = ?, price = ?, listing_type = ?, estimated_value = ?, swap_preference = ?, allow_cash_topup = ?, description = ?, video_url = ?, status = 'pending', decline_reason = NULL WHERE id = ?");
-        $stmt->execute([$cat_id, $state_id, $lga_id, $title, $price, $listing_type, $estimated_value, $swap_preference, $allow_cash_topup, $description, $video_url, $ad_id]);
+        $stmt = $pdo->prepare("UPDATE ads SET cat_id = ?, state_id = ?, lga_id = ?, title = ?, price = ?, listing_type = ?, estimated_value = ?, swap_preference = ?, allow_cash_topup = ?, description = ?, ad_data = ?, video_url = ?, status = 'pending', decline_reason = NULL WHERE id = ?");
+        $stmt->execute([$cat_id, $state_id, $lga_id, $title, $price, $listing_type, $estimated_value, $swap_preference, $allow_cash_topup, $description, $ad_data, $video_url, $ad_id]);
 
     // Handle new images if any
     if (!empty($_FILES['images']['name'][0])) {
@@ -88,7 +94,7 @@ include __DIR__ . '/templates/header.php';
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-gray-700 font-bold mb-2 text-sm">Category</label>
-                    <select name="cat_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required>
+                    <select name="cat_id" id="cat_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required onchange="loadFilters(this.value)">
                         <?php foreach ($categories as $cat): ?>
                             <option value="<?php echo $cat['id']; ?>" <?php echo $ad['cat_id'] == $cat['id'] ? 'selected' : ''; ?>><?php echo h($cat['name']); ?></option>
                         <?php endforeach; ?>
@@ -158,6 +164,10 @@ include __DIR__ . '/templates/header.php';
                 </div>
             </div>
 
+            <div id="dynamic_filters" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                <!-- Filters injected here -->
+            </div>
+
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2 text-sm">Description</label>
                 <textarea name="description" rows="5" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required><?php echo h($ad['description']); ?></textarea>
@@ -209,6 +219,46 @@ function loadLGAs(stateId, selectedLgaId = null) {
 
 // Initial LGA load
 loadLGAs(<?php echo $ad['state_id']; ?>, <?php echo $ad['lga_id']; ?>);
+
+function loadFilters(catId) {
+    const filterContainer = document.getElementById('dynamic_filters');
+    if (!catId) {
+        filterContainer.innerHTML = '';
+        return;
+    }
+
+    fetch('api/filters.php?cat_id=' + catId)
+        .then(response => response.json())
+        .then(filters => {
+            let html = '';
+            const currentExtra = <?php echo $ad['ad_data'] ?: '{}'; ?>;
+            for (let key in filters) {
+                const f = filters[key];
+                html += '<div>';
+                html += `<label class="block text-gray-700 font-bold mb-2 text-sm">${f.label}</label>`;
+
+                const val = currentExtra[key] || '';
+
+                if (f.type === 'select') {
+                    html += `<select name="extra[${key}]" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none">`;
+                    html += '<option value="">Select option</option>';
+                    f.options.forEach(opt => {
+                        const sel = (val == opt) ? 'selected' : '';
+                        html += `<option value="${opt}" ${sel}>${opt}</option>`;
+                    });
+                    html += '</select>';
+                } else if (f.type === 'number') {
+                    html += `<input type="number" name="extra[${key}]" value="${val}" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="Enter value">`;
+                }
+
+                html += '</div>';
+            }
+            filterContainer.innerHTML = html;
+        });
+}
+
+// Initial Filters load
+loadFilters(<?php echo $ad['cat_id']; ?>);
 
 function toggleSwapFields() {
     const type = document.querySelector('input[name="listing_type"]:checked').value;
