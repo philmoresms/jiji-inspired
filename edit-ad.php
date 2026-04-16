@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $swap_preference = $_POST['swap_preference'] ?? null;
         $allow_cash_topup = isset($_POST['allow_cash_topup']) ? 1 : 0;
         $description = $_POST['description'];
-        $video_url = !empty($_POST['video_url']) ? $_POST['video_url'] : null;
+        $property_role = $_POST['property_role'] ?? null;
 
         // Handle category-specific data
         $ad_data = null;
@@ -42,18 +42,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Update ad and reset status to pending
-        $stmt = $pdo->prepare("UPDATE ads SET cat_id = ?, state_id = ?, lga_id = ?, title = ?, price = ?, listing_type = ?, estimated_value = ?, swap_preference = ?, allow_cash_topup = ?, description = ?, ad_data = ?, video_url = ?, status = 'pending', decline_reason = NULL WHERE id = ?");
-        $stmt->execute([$cat_id, $state_id, $lga_id, $title, $price, $listing_type, $estimated_value, $swap_preference, $allow_cash_topup, $description, $ad_data, $video_url, $ad_id]);
+        $stmt = $pdo->prepare("UPDATE ads SET cat_id = ?, state_id = ?, lga_id = ?, title = ?, price = ?, listing_type = ?, estimated_value = ?, swap_preference = ?, allow_cash_topup = ?, description = ?, ad_data = ?, status = 'pending', decline_reason = NULL WHERE id = ?");
+        $stmt->execute([$cat_id, $state_id, $lga_id, $title, $price, $listing_type, $estimated_value, $swap_preference, $allow_cash_topup, $description, $ad_data, $ad_id]);
+
+        if ($property_role) {
+             // Check if exists or use INSERT ... ON DUPLICATE KEY (need unique key on ad_id in schema)
+             $pdo->prepare("INSERT INTO property_declarations (ad_id, user_id, declared_role) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE declared_role = VALUES(declared_role)")->execute([$ad_id, $user_id, $property_role]);
+        }
 
     // Handle new images if any
     if (!empty($_FILES['images']['name'][0])) {
-        // Option: Delete old images or just add new ones.
-        // For the marketplace, we add new ones up to limit or clear existing ones.
-        // Let's clear existing ones for a clean re-submission if new ones are provided.
         $pdo->prepare("DELETE FROM ad_images WHERE ad_id = ?")->execute([$ad_id]);
 
         foreach ($_FILES['images']['tmp_name'] as $key => $tmp_name) {
-            $filename = process_image_upload($tmp_name, __DIR__ . '/uploads/ads', 800);
+            $filename = process_image_upload($tmp_name, __DIR__ . '/uploads/ads', 800, $user_id, $ad_id);
             if ($filename) {
                 $is_main = ($key === 0) ? 1 : 0;
                 $stmt = $pdo->prepare("INSERT INTO ad_images (ad_id, image_path, is_main) VALUES (?, ?, ?)");
@@ -81,13 +83,6 @@ include __DIR__ . '/templates/header.php';
 
         <?php if (isset($error)): ?>
             <div class="bg-red-100 text-red-700 p-4 rounded-lg mb-6 font-bold text-sm"><?php echo h($error); ?></div>
-        <?php endif; ?>
-
-        <?php if ($ad['status'] == 'declined'): ?>
-            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded">
-                <p class="text-red-700 font-bold mb-1">Rejection Reason:</p>
-                <p class="text-red-600 text-sm italic"><?php echo h($ad['decline_reason']); ?></p>
-            </div>
         <?php endif; ?>
 
         <form method="POST" enctype="multipart/form-data" class="space-y-6">
@@ -118,7 +113,6 @@ include __DIR__ . '/templates/header.php';
                 <div>
                     <label class="block text-gray-700 font-bold mb-2 text-sm">LGA (City)</label>
                     <select name="lga_id" id="lga_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required>
-                        <!-- Will be populated by JS -->
                     </select>
                 </div>
             </div>
@@ -164,8 +158,26 @@ include __DIR__ . '/templates/header.php';
                 </div>
             </div>
 
+            <div id="propertyDeclaration" class="hidden p-6 bg-blue-50 rounded-2xl border border-blue-100 mb-6">
+                <label class="block text-blue-800 font-black mb-4 text-xs uppercase tracking-widest">Property Relationship</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <?php
+                    $stmt_p = $pdo->prepare("SELECT declared_role FROM property_declarations WHERE ad_id = ?");
+                    $stmt_p->execute([$ad['id']]);
+                    $p_role = $stmt_p->fetchColumn();
+                    ?>
+                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-blue-200 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 transition">
+                        <input type="radio" name="property_role" value="owner" <?php echo $p_role == 'owner' ? 'checked' : ''; ?> class="absolute opacity-0">
+                        <span class="text-xs font-bold text-gray-800">I am the Owner</span>
+                    </label>
+                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-blue-200 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 transition">
+                        <input type="radio" name="property_role" value="agent" <?php echo $p_role == 'agent' ? 'checked' : ''; ?> class="absolute opacity-0">
+                        <span class="text-xs font-bold text-gray-800">I am an Agent</span>
+                    </label>
+                </div>
+            </div>
+
             <div id="dynamic_filters" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                <!-- Filters injected here -->
             </div>
 
             <div class="mb-4">
@@ -173,13 +185,8 @@ include __DIR__ . '/templates/header.php';
                 <textarea name="description" rows="5" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required><?php echo h($ad['description']); ?></textarea>
             </div>
 
-            <div class="mb-4">
-                <label class="block text-gray-700 font-bold mb-2 text-sm">Video Link (YouTube/TikTok)</label>
-                <input type="url" name="video_url" value="<?php echo h($ad['video_url']); ?>" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none">
-            </div>
-
             <div id="dropZone" class="mb-4 p-8 border-4 border-dashed border-gray-200 rounded-2xl bg-gray-50 hover:bg-white transition cursor-pointer relative group">
-                <label class="block text-gray-700 font-bold mb-4 text-sm text-center">Update Photos (Optional - replacing all current photos)</label>
+                <label class="block text-gray-700 font-bold mb-4 text-sm text-center">Update Photos (Optional - Max 10)</label>
                 <input type="file" name="images[]" id="fileInput" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                 <div class="text-center">
                     <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -202,7 +209,6 @@ include __DIR__ . '/templates/header.php';
 function loadLGAs(stateId, selectedLgaId = null) {
     const lgaSelect = document.getElementById('lga_id');
     lgaSelect.innerHTML = '<option value="">Loading...</option>';
-
     fetch('api/lgas.php?state_id=' + stateId)
         .then(response => response.json())
         .then(data => {
@@ -217,14 +223,19 @@ function loadLGAs(stateId, selectedLgaId = null) {
         });
 }
 
-// Initial LGA load
 loadLGAs(<?php echo $ad['state_id']; ?>, <?php echo $ad['lga_id']; ?>);
 
 function loadFilters(catId) {
     const filterContainer = document.getElementById('dynamic_filters');
-    if (!catId) {
-        filterContainer.innerHTML = '';
-        return;
+    if (!catId) { filterContainer.innerHTML = ''; return; }
+
+    const propDecl = document.getElementById("propertyDeclaration");
+    const catSelect = document.getElementById("cat_id");
+    const catName = catSelect.options[catSelect.selectedIndex].text;
+    if (catName.toUpperCase().includes("PROPERTY") || catName.toUpperCase().includes("REAL ESTATE")) {
+        propDecl.classList.remove("hidden");
+    } else {
+        propDecl.classList.add("hidden");
     }
 
     fetch('api/filters.php?cat_id=' + catId)
@@ -237,46 +248,39 @@ function loadFilters(catId) {
                 if (f.search_only) continue;
                 html += '<div>';
                 html += `<label class="block text-gray-700 font-bold mb-2 text-sm">${f.label}</label>`;
-
                 const val = currentExtra[key] || '';
-
                 if (f.type === 'checkbox') {
-                    const isChecked = val == '1' ? 'checked' : '';
                     html += `<label class="flex items-center gap-3 cursor-pointer py-2">
-                        <input type="checkbox" name="extra[${key}]" value="1" ${isChecked} class="w-5 h-5 accent-green-600">
+                        <input type="checkbox" name="extra[${key}]" value="1" ${val == '1' ? 'checked' : ''} class="w-5 h-5 accent-green-600">
                         <span class="text-sm font-bold text-gray-700">${f.label}</span>
                     </label>`;
                 } else if (f.type === 'select' || f.type === 'multi_select') {
                     if (f.searchable) {
                         html += `<div class="relative group">
                             <input type="text" placeholder="Search ${f.label}..." onkeyup="filterPostOptions(this)" class="w-full p-3 border rounded-t-lg focus:border-green-500 outline-none mb-[1px]">
-                            <select name="extra[${key}]" class="w-full p-3 border rounded-b-lg focus:border-green-500 outline-none custom-select-list" size="5">
+                            <select name="extra[${key}]" class="w-full p-3 border rounded-b-lg focus:border-green-500 outline-none" size="5">
                                 <option value="">Select ${f.label}</option>`;
                         f.options.forEach(opt => {
-                            const sel = (val == opt) ? 'selected' : '';
-                            html += `<option value="${opt}" ${sel}>${opt}</option>`;
+                            html += `<option value="${opt}" ${val == opt ? 'selected' : ''}>${opt}</option>`;
                         });
                         html += `</select></div>`;
                     } else {
                         html += `<select name="extra[${key}]" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none">`;
                         html += '<option value="">Select option</option>';
                         f.options.forEach(opt => {
-                            const sel = (val == opt) ? 'selected' : '';
-                            html += `<option value="${opt}" ${sel}>${opt}</option>`;
+                            html += `<option value="${opt}" ${val == opt ? 'selected' : ''}>${opt}</option>`;
                         });
                         html += '</select>';
                     }
                 } else if (f.type === 'number' || f.type === 'number_range' || f.type === 'range') {
                     html += `<input type="number" name="extra[${key}]" value="${val}" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="Enter value">`;
                 }
-
                 html += '</div>';
             }
             filterContainer.innerHTML = html;
         });
 }
 
-// Initial Filters load
 loadFilters(<?php echo $ad['cat_id']; ?>);
 
 function filterPostOptions(input) {
@@ -293,7 +297,6 @@ function toggleSwapFields() {
     const type = document.querySelector('input[name="listing_type"]:checked').value;
     const priceField = document.getElementById('price_field');
     const swapFields = document.getElementById('swap_fields');
-
     if (type === 'for_sale') {
         priceField.classList.remove('hidden');
         swapFields.classList.add('hidden');
@@ -306,35 +309,28 @@ function toggleSwapFields() {
     }
 }
 
-// Image logic (re-used from post-ad)
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const previewContainer = document.getElementById('imagePreviewContainer');
 let allFiles = new DataTransfer();
-
 ['dragover', 'dragleave', 'drop'].forEach(ev => {
     dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); });
 });
-
 dropZone.addEventListener('dragover', () => dropZone.classList.add('bg-green-50', 'border-green-400'));
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('bg-green-50', 'border-green-400'));
-
 dropZone.addEventListener('drop', (e) => {
     dropZone.classList.remove('bg-green-50', 'border-green-400');
     const files = e.dataTransfer.files;
     if (files.length > 0) addFiles(files);
 });
-
 fileInput.addEventListener('change', () => addFiles(fileInput.files));
-
 function addFiles(files) {
     for (let i = 0; i < files.length; i++) {
-        if (allFiles.items.length < 5) allFiles.items.add(files[i]);
+        if (allFiles.items.length < 10) allFiles.items.add(files[i]);
     }
     fileInput.files = allFiles.files;
     renderPreviews();
 }
-
 function removeFile(index) {
     const newDT = new DataTransfer();
     for (let i = 0; i < allFiles.files.length; i++) {
@@ -344,7 +340,6 @@ function removeFile(index) {
     fileInput.files = allFiles.files;
     renderPreviews();
 }
-
 function renderPreviews() {
     previewContainer.innerHTML = '';
     if (allFiles.files.length === 0) { previewContainer.classList.add('hidden'); return; }

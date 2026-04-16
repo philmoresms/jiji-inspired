@@ -26,7 +26,7 @@ if (isset($pdo)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo h($page_title ?? ($settings['site_name'] ?? 'Classifieds')); ?></title>
+    <title><?php echo h($page_title ?? ($settings['site_name'] ?? 'Tiki.ng')); ?></title>
     <meta name="description" content="<?php echo h($page_desc ?? ($settings['meta_description'] ?? '')); ?>">
     <meta name="keywords" content="<?php echo h($page_keywords ?? ($settings['meta_keywords'] ?? '')); ?>">
 
@@ -44,12 +44,19 @@ if (isset($pdo)) {
             animation: slideUp 0.3s ease-out forwards;
         }
     </style>
+
+    <!-- Open Graph / WhatsApp Integration (Feature 10) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<?php echo (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on" ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"; ?>">
+    <meta property="og:title" content="<?php echo h($page_title ?? ($settings["site_name"] ?? "Tiki.ng")); ?>">
+    <meta property="og:description" content="<?php echo h($page_desc ?? ($settings["meta_description"] ?? "")); ?>">
+    <meta property="og:image" content="<?php echo isset($ad["image"]) ? "/uploads/ads/".$ad["image"] : "/assets/img/og-tiki.png"; ?>">
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
     <nav class="bg-white shadow-sm border-b sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <a href="/" class="flex flex-col">
-                <span class="text-lg md:text-2xl font-black text-green-600 leading-none"><?php echo h($settings['site_name'] ?? 'Classifieds'); ?></span>
+                <span class="text-lg md:text-2xl font-black text-green-600 leading-none"><?php echo h($settings['site_name'] ?? 'Tiki.ng'); ?></span>
                 <span class="text-[8px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest">Buy, Sell & Swap</span>
             </a>
 

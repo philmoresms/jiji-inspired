@@ -200,6 +200,12 @@ include __DIR__ . '/templates/header.php';
             <!-- Filters -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
                 <h3 class="text-xs font-black text-gray-800 uppercase tracking-widest mb-6 pb-2 border-b">Refine Results</h3>
+<div class="mb-6">
+    <label class="flex items-center gap-3 cursor-pointer group">
+        <input type="checkbox" name="extra[verified_seller]" value="Verified sellers only" <?php echo ($extra["verified_seller"] ?? "") === "Verified sellers only" ? "checked" : ""; ?> onchange="this.form.submit()" class="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500">
+        <span class="text-xs font-black text-gray-700 uppercase tracking-widest group-hover:text-green-600 transition">NIN Verified Sellers Only</span>
+    </label>
+</div>
                 <form action="" method="GET" class="space-y-6">
                     <input type="hidden" name="type" value="<?php echo h($type); ?>">
 

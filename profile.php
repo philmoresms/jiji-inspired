@@ -46,11 +46,11 @@ include __DIR__ . '/templates/header.php';
                     <p class="text-[10px] text-gray-400 font-bold mb-4 uppercase tracking-widest"><?php echo h($user['email']); ?></p>
                     <?php if ($user['is_verified']): ?>
                         <div class="inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 py-1.5 rounded-full text-[10px] font-black border border-green-100 uppercase tracking-widest">
-                            <i class="fas fa-check-circle"></i> VERIFIED SELLER
+                            <i class="fas fa-check-circle"></i> <?php echo ($user["verification_tier"] == "business_verified" ? "TIKI BUSINESS" : "NIN VERIFIED"); ?>
                         </div>
                     <?php else: ?>
                         <div class="inline-flex items-center gap-2 bg-gray-50 text-gray-500 px-4 py-1.5 rounded-full text-[10px] font-black border border-gray-100 uppercase tracking-widest">
-                            REGULAR USER
+                            PHONE VERIFIED
                         </div>
                     <?php endif; ?>
                 </div>

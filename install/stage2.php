@@ -90,7 +90,7 @@ try {
             </div>
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2">DB Name</label>
-                <input type="text" name="db_name" value="jiji_clone" class="w-full p-2 border rounded" required>
+                <input type="text" name="db_name" value="tiki_ng" class="w-full p-2 border rounded" required>
             </div>
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2">DB User</label>

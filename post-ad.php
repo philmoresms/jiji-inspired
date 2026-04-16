@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $swap_preference = $_POST['swap_preference'] ?? null;
         $allow_cash_topup = isset($_POST['allow_cash_topup']) ? 1 : 0;
         $description = $_POST['description'];
-        $video_url = !empty($_POST['video_url']) ? $_POST['video_url'] : null;
+        $property_role = $_POST['property_role'] ?? null;
 
         // Handle category-specific data
         $ad_data = null;
@@ -31,14 +31,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $duration = (int)($stmt->fetchColumn() ?: 15);
         $expires_at = date('Y-m-d H:i:s', strtotime("+$duration days"));
 
-        $stmt = $pdo->prepare("INSERT INTO ads (user_id, cat_id, state_id, lga_id, title, price, listing_type, estimated_value, swap_preference, allow_cash_topup, description, ad_data, status, video_url, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)");
-        $stmt->execute([$user_id, $cat_id, $state_id, $lga_id, $title, $price, $listing_type, $estimated_value, $swap_preference, $allow_cash_topup, $description, $ad_data, $video_url, $expires_at]);
+        $stmt = $pdo->prepare("INSERT INTO ads (user_id, cat_id, state_id, lga_id, title, price, listing_type, estimated_value, swap_preference, allow_cash_topup, description, ad_data, status, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)");
+        $stmt->execute([$user_id, $cat_id, $state_id, $lga_id, $title, $price, $listing_type, $estimated_value, $swap_preference, $allow_cash_topup, $description, $ad_data, $expires_at]);
         $ad_id = $pdo->lastInsertId();
+
+        if ($property_role) {
+            $pdo->prepare("INSERT INTO property_declarations (ad_id, user_id, declared_role) VALUES (?, ?, ?)")->execute([$ad_id, $user_id, $property_role]);
+        }
 
     // Process Images
     if (!empty($_FILES['images']['name'][0])) {
         foreach ($_FILES['images']['tmp_name'] as $key => $tmp_name) {
-            $filename = process_image_upload($tmp_name, __DIR__ . '/uploads/ads', 800);
+            $filename = process_image_upload($tmp_name, __DIR__ . '/uploads/ads', 800, $user_id, $ad_id);
             if ($filename) {
                 $is_main = ($key === 0) ? 1 : 0;
                 $stmt = $pdo->prepare("INSERT INTO ad_images (ad_id, image_path, is_main) VALUES (?, ?, ?)");
@@ -151,6 +155,23 @@ include __DIR__ . '/templates/header.php';
                 </div>
             </div>
 
+            <div id="propertyDeclaration" class="hidden p-6 bg-blue-50 rounded-2xl border border-blue-100 mb-6">
+                <label class="block text-blue-800 font-black mb-4 text-xs uppercase tracking-widest">Property Relationship</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-blue-200 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 transition">
+                        <input type="radio" name="property_role" value="owner" class="absolute opacity-0">
+                        <span class="text-xs font-bold text-gray-800">I am the Owner</span>
+                        <span class="text-[9px] text-gray-400 mt-1">Direct property holder</span>
+                    </label>
+                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-blue-200 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50 transition">
+                        <input type="radio" name="property_role" value="agent" class="absolute opacity-0">
+                        <span class="text-xs font-bold text-gray-800">I am an Agent</span>
+                        <span class="text-[9px] text-gray-400 mt-1">Authorized representative</span>
+                    </label>
+                </div>
+                <p class="text-[9px] text-blue-400 font-bold mt-4 uppercase">Verification badges significantly increase buyer trust.</p>
+            </div>
+
             <div id="dynamic_filters" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                 <!-- Filters injected here -->
             </div>
@@ -160,13 +181,8 @@ include __DIR__ . '/templates/header.php';
                 <textarea name="description" rows="5" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="Provide details about the item..." required></textarea>
             </div>
 
-            <div class="mb-4">
-                <label class="block text-gray-700 font-bold mb-2 text-sm">Video Link (YouTube/TikTok)</label>
-                <input type="url" name="video_url" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="https://youtube.com/watch?v=...">
-            </div>
-
             <div id="dropZone" class="mb-4 p-8 border-4 border-dashed border-gray-200 rounded-2xl bg-gray-50 hover:bg-white transition cursor-pointer relative group">
-                <label class="block text-gray-700 font-bold mb-4 text-sm text-center">Upload Ad Photos (Maximum 5)</label>
+                <label class="block text-gray-700 font-bold mb-4 text-sm text-center">Upload Ad Photos (Maximum 10)</label>
                 <input type="file" name="images[]" id="fileInput" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
                 <div class="text-center">
                     <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-100 transition">
@@ -219,6 +235,14 @@ function loadFilters(catId) {
     if (!catId) {
         filterContainer.innerHTML = '';
         return;
+    }
+
+    const propDecl = document.getElementById("propertyDeclaration");
+    const catName = document.querySelector("#parent_cat_id option:checked")?.text || "";
+    if (catName.toUpperCase().includes("PROPERTY") || catName.toUpperCase().includes("REAL ESTATE")) {
+        propDecl.classList.remove("hidden");
+    } else {
+        propDecl.classList.add("hidden");
     }
 
     fetch('api/filters.php?cat_id=' + catId)
@@ -317,7 +341,7 @@ function toggleSwapFields() {
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const previewContainer = document.getElementById('imagePreviewContainer');
-let allFiles = new DataTransfer(); // To keep track of multiple selections
+let allFiles = new DataTransfer();
 
 ['dragover', 'dragleave', 'drop'].forEach(eventName => {
     dropZone.addEventListener(eventName, e => {
@@ -352,11 +376,11 @@ fileInput.addEventListener('change', () => {
 
 function addFiles(files) {
     for (let i = 0; i < files.length; i++) {
-        if (allFiles.items.length < 5) {
+        if (allFiles.items.length < 10) {
             allFiles.items.add(files[i]);
         }
     }
-    fileInput.files = allFiles.files; // Update the real input
+    fileInput.files = allFiles.files;
     renderPreviews();
 }
 
@@ -374,14 +398,11 @@ function removeFile(index) {
 
 function renderPreviews() {
     previewContainer.innerHTML = '';
-
     if (allFiles.files.length === 0) {
         previewContainer.classList.add('hidden');
         return;
     }
-
     previewContainer.classList.remove('hidden');
-
     Array.from(allFiles.files).forEach((file, i) => {
         const reader = new FileReader();
         reader.onload = (e) => {

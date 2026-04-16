@@ -1,7 +1,7 @@
 <footer class="bg-gray-800 text-white mt-auto py-10">
     <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
-            <h4 class="font-bold text-lg mb-4 text-green-500"><?php echo h($settings['site_name'] ?? 'Classifieds'); ?></h4>
+            <h4 class="font-bold text-lg mb-4 text-green-500"><?php echo h($settings['site_name'] ?? 'Tiki.ng'); ?></h4>
             <p class="text-sm text-gray-400">The safest and best classifieds platform in Nigeria.</p>
         </div>
         <div>
@@ -34,7 +34,7 @@
         </div>
     </div>
     <div class="text-center mt-10 border-t border-gray-700 pt-6 text-sm text-gray-500">
-        &copy; <?php echo date('Y'); ?> <?php echo h($settings['site_name'] ?? 'Classifieds'); ?> - All Rights Reserved.
+        &copy; <?php echo date('Y'); ?> <?php echo h($settings['site_name'] ?? 'Tiki.ng'); ?> - All Rights Reserved.
     </div>
 </footer>
 

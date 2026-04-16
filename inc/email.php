@@ -20,7 +20,7 @@ function send_email($to, $subject, $body) {
 
     $headers = "MIME-Version: 1.0" . "\r\n";
     $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-    $headers .= 'From: <no-reply@jijiclone.com>' . "\r\n";
+    $headers .= 'From: <no-reply@tiki.ng>' . "\r\n";
 
     // log email for debugging in this environment
     error_log("Email to: $to, Subject: $subject, Body: $body");

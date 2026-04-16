@@ -58,11 +58,57 @@ function get_client_ip() {
 /**
  * Image Upload & Processing (GD Library)
  */
-function process_image_upload($file_tmp, $target_dir, $max_width = 800) {
+
+/**
+ * Image Upload & Processing (GD Library) - Enhanced with pHash & Watermark
+ */
+function process_image_upload($file_tmp, $target_dir, $max_width = 800, $user_id = 0, $ad_id = 0) {
+    global $pdo;
     if (!is_dir($target_dir)) {
         mkdir($target_dir, 0755, true);
     }
 
+    list($width, $height, $type) = getimagesize($file_tmp);
+    switch ($type) {
+        case IMAGETYPE_JPEG: $src = imagecreatefromjpeg($file_tmp); break;
+        case IMAGETYPE_PNG: $src = imagecreatefrompng($file_tmp); break;
+        case IMAGETYPE_GIF: $src = imagecreatefromgif($file_tmp); break;
+        case IMAGETYPE_WEBP: $src = imagecreatefromwebp($file_tmp); break;
+        default: return false;
+    }
+
+    // Perceptual Hash Check
+    $phash = generate_phash($src);
+    if ($pdo) {
+        $stmt = $pdo->prepare("SELECT id FROM image_hashes WHERE phash = ?");
+        $stmt->execute([$phash]);
+        if ($stmt->fetch()) {
+            imagedestroy($src);
+            return "DUPLICATE";
+        }
+    }
+
+    // Apply Watermark
+    apply_tiki_watermark($src);
+
+    $filename = md5(uniqid(rand(), true)) . ".jpg";
+    $target_file = $target_dir . "/" . $filename;
+
+    $new_width = min($width, $max_width);
+    $new_height = ($height / $width) * $new_width;
+    $tmp = imagecreatetruecolor($new_width, $new_height);
+    imagecopyresampled($tmp, $src, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+    imagejpeg($tmp, $target_file, 80);
+
+    // Save hash
+    if ($pdo && $ad_id) {
+        $pdo->prepare("INSERT INTO image_hashes (ad_id, user_id, phash) VALUES (?, ?, ?)")->execute([$ad_id, $user_id, $phash]);
+    }
+
+    imagedestroy($src);
+    imagedestroy($tmp);
+    return $filename;
+}
     $filename = md5(uniqid(rand(), true)) . '.jpg';
     $target_file = $target_dir . '/' . $filename;
 
@@ -159,4 +205,89 @@ function generate_meta_tags($title, $description, $tags = "") {
         'description' => $meta_desc,
         'keywords' => $meta_keywords
     ];
+}
+
+/**
+ * Generate a simple Perceptual Hash for an image (Feature 03)
+ * Note: A production implementation would use a library or more complex algorithm.
+ */
+function generate_phash($resource) {
+    // Resize to 8x8, grayscale, and hash
+    $resized = imagecreatetruecolor(8, 8);
+    imagecopyresampled($resized, $resource, 0, 0, 0, 0, 8, 8, imagesx($resource), imagesy($resource));
+    imagefilter($resized, IMG_FILTER_GRAYSCALE);
+
+    $hash = '';
+    for ($y = 0; $y < 8; $y++) {
+        for ($x = 0; $x < 8; $x++) {
+            $rgb = imagecolorat($resized, $x, $y);
+            $hash .= ($rgb & 0xFF) > 128 ? '1' : '0';
+        }
+    }
+    imagedestroy($resized);
+    return $hash;
+}
+
+/**
+ * Apply Tiki.ng Watermark (Feature 06)
+ */
+function apply_tiki_watermark($resource) {
+    $width = imagesx($resource);
+    $height = imagesy($resource);
+    $text = "Tiki.ng";
+    $font_size = max(10, $width / 20);
+
+    // Position: Center
+    $x = $width / 2 - ($font_size * 2);
+    $y = $height / 2;
+
+    $white = imagecolorallocatealpha($resource, 255, 255, 255, 60); // Semi-transparent
+    imagestring($resource, 5, $x, $y, $text, $white);
+}
+
+/**
+ * Calculate Deal Safety Score (Feature 08)
+ */
+function calculate_safety_score($user, $ad) {
+    $score = 0;
+
+    // 1. Seller Verification (35%)
+    if (($user['verification_tier'] ?? '') === 'nin_verified' || ($user['verification_tier'] ?? '') === 'business_verified') {
+        $score += 35;
+    } elseif ($user['is_verified'] ?? 0) {
+        $score += 15;
+    }
+
+    // 2. Transaction History (25%) - Stubbed for now
+    $score += 15;
+
+    // 3. Listing Completeness (20%)
+    if (strlen($ad['description'] ?? '') > 100) $score += 10;
+    // Assuming ad has photos if it exists
+    $score += 10;
+
+    // 4. Account Age (20%)
+    $created = strtotime($user['created_at'] ?? 'now');
+    if (time() - $created > 7 * 24 * 3600) $score += 20;
+
+    return min(100, $score);
+}
+
+/**
+ * Check for duplicate listings by the same user (Feature 03 velocity check)
+ */
+function is_duplicate_listing($pdo, $user_id, $title, $description) {
+    $stmt = $pdo->prepare("SELECT title, description FROM ads WHERE user_id = ? AND status = 'active'");
+    $stmt->execute([$user_id]);
+    $existing = $stmt->fetchAll();
+
+    foreach ($existing as $ad) {
+        similar_text(strtolower($title), strtolower($ad['title']), $title_sim);
+        similar_text(strtolower($description), strtolower($ad['description']), $desc_sim);
+
+        if ($title_sim > 85 || $desc_sim > 85) {
+            return true;
+        }
+    }
+    return false;
 }

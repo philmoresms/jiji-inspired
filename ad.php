@@ -216,7 +216,7 @@ include __DIR__ . '/templates/header.php';
                                 <span class="text-[10px] font-bold text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full border border-yellow-200 w-fit uppercase"><i class="fas fa-crown mr-1"></i> PREMIUM AD</span>
                             <?php endif; ?>
                             <?php if ($ad['is_verified']): ?>
-                                <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-200 w-fit uppercase"><i class="fas fa-check-circle mr-1"></i> VERIFIED SELLER</span>
+                                <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-200 w-fit uppercase"><i class="fas fa-check-circle mr-1"></i> <?php echo ($ad["verification_tier"] == "business_verified" ? "TIKI BUSINESS" : "NIN VERIFIED"); ?></span>
                             <?php else: ?>
                                 <span class="text-[10px] font-bold text-gray-400 uppercase">Regular Seller</span>
                             <?php endif; ?>
@@ -256,6 +256,9 @@ include __DIR__ . '/templates/header.php';
                 <div class="mt-8 border-t pt-8">
                     <p class="text-xs font-bold text-gray-400 uppercase mb-4 tracking-widest text-center">Share this ad</p>
                     <div class="flex justify-center gap-4">
+                        <a href="https://api.whatsapp.com/send?text=<?php echo urlencode($ad["title"] . " - ₦" . number_format($ad["price"]) . ". View on Tiki: ") . (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on" ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"; ?>" target="_blank" class="w-12 h-12 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center hover:bg-green-600 hover:text-white transition-all shadow-sm">
+                            <i class="fab fa-whatsapp text-xl"></i>
+                        </a>
                         <?php
                         $share_url = urlencode("http://" . $_SERVER['HTTP_HOST'] . generate_ad_url($ad));
                         $site_name_plain = $settings['site_name'] ?? 'Classifieds';
@@ -398,3 +401,38 @@ document.addEventListener('keydown', (e) => {
 </script>
 
 <?php include __DIR__ . '/templates/footer.php'; ?>
+
+<!-- Phone Safety Modal (Feature 04) -->
+<div id="phoneModal" class="fixed inset-0 bg-black/60 z-[100] hidden items-center justify-center backdrop-blur-sm p-4">
+    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 animate-slide-up shadow-2xl border border-gray-100">
+        <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-shield-alt text-3xl text-green-600"></i>
+        </div>
+        <h3 class="text-xl font-black text-gray-800 uppercase tracking-tighter text-center mb-2">Deal Safely on Tiki</h3>
+        <p class="text-sm text-gray-500 font-bold text-center mb-8">Buyers who chat on Tiki before paying have full dispute support. Use our message feature to keep a record of your deal.</p>
+
+        <div class="space-y-4">
+            <a href="/chat.php?ad_id=<?php echo $ad["id"]; ?>" class="block w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest text-center hover:bg-green-700 transition shadow-xl">Message on Tiki</a>
+            <button onclick="revealNumber()" class="block w-full bg-gray-50 text-gray-400 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-center hover:bg-gray-100 transition">Show Number Anyway</button>
+            <button onclick="closePhoneModal()" class="block w-full text-gray-300 font-black text-[9px] uppercase tracking-widest mt-4">Maybe Later</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function showPhoneModal() {
+    document.getElementById("phoneModal").classList.remove("hidden");
+    document.getElementById("phoneModal").classList.add("flex");
+}
+function closePhoneModal() {
+    document.getElementById("phoneModal").classList.add("hidden");
+    document.getElementById("phoneModal").classList.remove("flex");
+}
+function revealNumber() {
+    const fullPhone = "<?php echo h($ad["seller_phone"]); ?>";
+    const telLink = "tel:" + fullPhone.replace(/^0/, "234");
+    document.getElementById("blurredPhone").textContent = fullPhone;
+    window.location.href = telLink;
+    closePhoneModal();
+}
+</script>

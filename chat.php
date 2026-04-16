@@ -42,6 +42,12 @@ include __DIR__ . '/templates/header.php';
     <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-xl">
         <h1 class="text-xl font-bold mb-6 text-gray-800">Chat about: <?php echo h($ad['title']); ?></h1>
 
+<div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-xl">
+    <div class="flex items-center gap-3">
+        <i class="fas fa-info-circle text-blue-500 text-lg"></i>
+        <p class="text-[10px] font-black text-blue-800 uppercase tracking-widest leading-relaxed">Keep all deal discussions here. Tiki cannot help resolve disputes for deals made outside the platform.</p>
+    </div>
+</div>
         <div id="chatBox" class="h-96 overflow-y-auto mb-6 p-4 bg-gray-50 rounded-lg space-y-4">
             <?php
             $stmt = $pdo->prepare("SELECT * FROM messages WHERE ad_id = ? AND ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) ORDER BY created_at ASC");

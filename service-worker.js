@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jiji-cache-v1';
+const CACHE_NAME = 'tiki-cache-v1';
 const urlsToCache = [
   '/',
   '/index.php',
