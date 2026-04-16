@@ -9,32 +9,23 @@ if (!isset($_GET['id'])) {
 }
 
 $id = (int)$_GET['id'];
-$stmt = $pdo->prepare("SELECT a.*, u.full_name as seller_name, u.phone as seller_phone, u.is_verified, c.name as cat_name, s.name as state_name, l.name as lga_name
+$stmt = $pdo->prepare("SELECT a.*, u.full_name as seller_name, u.phone as seller_phone, u.is_verified, u.verification_tier, u.created_at as seller_created_at, c.name as cat_name, s.name as state_name, l.name as lga_name
                      FROM ads a
                      JOIN users u ON a.user_id = u.id
                      JOIN categories c ON a.cat_id = c.id
                      JOIN states s ON a.state_id = s.id
                      JOIN lgas l ON a.lga_id = l.id
-                     WHERE a.id = ? AND a.status = 'active' AND u.is_suspended = 0");
+                     WHERE a.id = ? AND u.is_suspended = 0");
 $stmt->execute([$id]);
 $ad = $stmt->fetch();
 
-if (!$ad) {
-    // Check if it's a preview by the owner
-    $stmt = $pdo->prepare("SELECT a.*, u.full_name as seller_name, u.phone as seller_phone, u.is_verified, c.name as cat_name, s.name as state_name, l.name as lga_name
-                         FROM ads a
-                         JOIN users u ON a.user_id = u.id
-                         JOIN categories c ON a.cat_id = c.id
-                         JOIN states s ON a.state_id = s.id
-                         JOIN lgas l ON a.lga_id = l.id
-                         WHERE a.id = ?");
-    $stmt->execute([$id]);
-    $ad = $stmt->fetch();
-
-    if (!$ad || ($ad['status'] !== 'active' && (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != $ad['user_id']) && !isset($_SESSION['admin_id']))) {
-        redirect('index.php', 'Ad not found or pending moderation.');
-    }
+if (!$ad || ($ad['status'] !== 'active' && (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != $ad['user_id']) && !isset($_SESSION['admin_id']))) {
+    redirect('index.php', 'Ad not found or pending moderation.');
 }
+
+// Log view for analytics (Feature 07)
+$viewer_id = $_SESSION["user_id"] ?? null;
+$pdo->prepare("INSERT INTO seller_analytics (ad_id, viewer_id, source, ip_address) VALUES (?, ?, ?, ?)")->execute([$id, $viewer_id, $_GET["source"] ?? "direct", get_client_ip()]);
 
 // Increment views
 $pdo->prepare("UPDATE ads SET views = views + 1 WHERE id = ?")->execute([$id]);
@@ -44,28 +35,16 @@ $stmt = $pdo->prepare("SELECT image_path, is_main FROM ad_images WHERE ad_id = ?
 $stmt->execute([$id]);
 $images = $stmt->fetchAll();
 
-// Prepare media array for JS
-$media_list = [];
-foreach ($images as $img) {
-    $media_list[] = ['type' => 'image', 'url' => '/uploads/ads/' . $img['image_path']];
-}
-if ($ad['video_url']) {
-    $vurl = $ad['video_url'];
-    $vid = '';
-    if (strpos($vurl, 'youtube.com') !== false || strpos($vurl, 'youtu.be') !== false) {
-        parse_str(parse_url($vurl, PHP_URL_QUERY), $vparams);
-        $vid = $vparams['v'] ?? basename(parse_url($vurl, PHP_URL_PATH));
-        $media_list[] = ['type' => 'video', 'url' => 'https://www.youtube.com/embed/' . $vid];
-    }
-}
+// Calculate Deal Safety Score (Feature 08)
+$safety_score = calculate_safety_score(['verification_tier' => $ad['verification_tier'], 'is_verified' => $ad['is_verified'], 'created_at' => $ad['seller_created_at']], $ad);
 
 // SEO Meta Data
 $meta = generate_meta_tags($ad['title'], $ad['description'], $ad['cat_name'] . " " . $ad['state_name']);
-$page_title = $meta['title'] . " - " . ($settings['site_name'] ?? 'Classifieds');
+$page_title = $meta['title'] . " - Tiki.ng";
 $page_desc = $meta['description'];
 $page_keywords = $meta['keywords'];
 
-// Get similar ads (same category, active, not current)
+// Get similar ads
 $stmt = $pdo->prepare("SELECT a.*, (SELECT image_path FROM ad_images WHERE ad_id = a.id AND is_main = 1 LIMIT 1) as image, s.name as state_name, c.name as cat_name
                      FROM ads a
                      JOIN states s ON a.state_id = s.id
@@ -83,79 +62,122 @@ include __DIR__ . '/templates/header.php';
     <?php if ($ad['status'] !== 'active'): ?>
         <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded shadow-sm flex items-center justify-between" role="alert">
             <div>
-                <p class="font-bold">Ad Preview Mode</p>
-                <p class="text-sm">This ad is currently <strong><?php echo h($ad['status']); ?></strong>. Only you (the owner) and admins can see this page.</p>
-                <?php if ($ad['status'] === 'declined'): ?>
-                    <p class="mt-2 text-sm"><strong>Reason for rejection:</strong> <?php echo h($ad['decline_reason']); ?></p>
-                <?php endif; ?>
+                <p class="font-bold">Ad Preview Mode (Status: <?php echo h($ad['status']); ?>)</p>
+                <p class="text-sm">Only you and admins can see this page.</p>
             </div>
             <?php if ($ad['status'] === 'declined' && isset($_SESSION['user_id']) && $_SESSION['user_id'] == $ad['user_id']): ?>
-                <a href="edit-ad.php?id=<?php echo $ad['id']; ?>" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition shadow-md">Edit Ad & Re-submit</a>
+                <a href="edit-ad.php?id=<?php echo $ad['id']; ?>" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition shadow-md">Edit & Re-submit</a>
             <?php endif; ?>
         </div>
     <?php endif; ?>
+
     <div class="flex flex-col lg:flex-row gap-8">
         <!-- Main Content (Left) -->
         <div class="lg:w-2/3">
-            <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-8">
+            <div class="bg-white rounded-3xl shadow-sm overflow-hidden mb-8 border border-gray-100">
                 <!-- Gallery -->
-                <div class="relative h-96 bg-black flex items-center justify-center group cursor-zoom-in" onclick="openLightbox(0)">
+                <div class="relative h-[500px] bg-gray-900 flex items-center justify-center group">
                     <img id="mainImage" src="<?php echo isset($images[0]) ? '/uploads/ads/'.$images[0]['image_path'] : 'https://placehold.co/800x600?text=No+Image'; ?>" class="max-h-full max-w-full object-contain">
-                    <div class="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover:opacity-100 transition">
-                        <button onclick="event.stopPropagation(); changeMainImage(-1)" class="bg-black/50 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-green-600 transition"><i class="fas fa-chevron-left"></i></button>
-                        <button onclick="event.stopPropagation(); changeMainImage(1)" class="bg-black/50 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-green-600 transition"><i class="fas fa-chevron-right"></i></button>
-                    </div>
-                    <?php if (count($images) > 1 || $ad['video_url']): ?>
-                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto p-2 bg-black/40 rounded-lg backdrop-blur-sm max-w-[90%]" onclick="event.stopPropagation()">
+
+                    <?php if (count($images) > 1): ?>
+                        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto p-3 bg-black/40 rounded-2xl backdrop-blur-md max-w-[90%] scrollbar-hide">
                             <?php foreach ($images as $index => $img): ?>
-                                <img src="/uploads/ads/<?php echo $img['image_path']; ?>" class="w-12 h-12 rounded object-cover cursor-pointer border-2 border-transparent hover:border-green-500 transition-all" onclick="setMainImage(<?php echo $index; ?>)">
+                                <img src="/uploads/ads/<?php echo $img['image_path']; ?>" class="w-14 h-14 rounded-xl object-cover cursor-pointer border-2 border-transparent hover:border-green-500 transition-all shadow-lg" onclick="document.getElementById('mainImage').src=this.src">
                             <?php endforeach; ?>
-                            <?php if ($ad['video_url']): ?>
-                                <div class="w-12 h-12 rounded bg-red-600 flex items-center justify-center cursor-pointer hover:bg-red-700 transition" onclick="openLightbox(<?php echo count($images); ?>)">
-                                    <i class="fas fa-play text-white text-xs"></i>
-                                </div>
-                            <?php endif; ?>
                         </div>
                     <?php endif; ?>
                 </div>
 
-                <div class="p-8">
-                    <div class="flex justify-between items-start mb-6">
-                        <h1 class="text-3xl font-bold text-gray-800"><?php echo h($ad['title']); ?></h1>
-                        <div class="text-right">
+                <div class="p-8 md:p-12">
+                    <?php if (!$ad["is_verified"]): ?>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-5 mb-8 rounded-r-2xl shadow-sm">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <p class="text-xs font-bold text-yellow-800">This seller has not completed identity verification. For safer transactions, we recommend only dealing with <span class="text-green-600">Verified Sellers</span>.</p>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <?php if (strpos(strtoupper($ad["cat_name"]), "PROPERTY") !== false): ?>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-5 mb-8 rounded-r-2xl shadow-sm">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-600">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <p class="text-xs font-black text-red-800 uppercase tracking-tight leading-relaxed">NEVER pay a deposit or rent in advance without first: (1) visiting the property in person, (2) confirming the seller's identity, and (3) signing a written agreement.</p>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <div class="flex flex-col md:flex-row justify-between items-start mb-8 gap-6">
+                        <div>
+                            <h1 class="text-3xl md:text-4xl font-black text-gray-800 leading-tight mb-4"><?php echo h($ad['title']); ?></h1>
+                            <div class="flex flex-wrap gap-3">
+                                <span class="bg-gray-100 text-gray-500 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2"><i class="fas fa-map-marker-alt text-green-500"></i> <?php echo h($ad['state_name']); ?>, <?php echo h($ad['lga_name']); ?></span>
+                                <span class="bg-gray-100 text-gray-500 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2"><i class="fas fa-clock text-blue-500"></i> <?php echo date('d M, Y', strtotime($ad['created_at'])); ?></span>
+
+                                <?php
+                                $color = $safety_score >= 80 ? "green" : ($safety_score >= 50 ? "yellow" : "red");
+                                $icon = $safety_score >= 80 ? "fa-shield-alt" : "fa-exclamation-circle";
+                                ?>
+                                <div class="flex items-center gap-2 bg-<?php echo $color; ?>-50 px-4 py-2 rounded-xl border border-<?php echo $color; ?>-100 shadow-sm">
+                                    <i class="fas <?php echo $icon; ?> text-<?php echo $color; ?>-500 text-xs"></i>
+                                    <span class="text-[10px] font-black text-<?php echo $color; ?>-700 uppercase tracking-widest">Deal Safety: <?php echo $safety_score; ?>/100</span>
+                                </div>
+
+                                <?php
+                                $stmt_prop = $pdo->prepare("SELECT * FROM property_declarations WHERE ad_id = ?");
+                                $stmt_prop->execute([$ad["id"]]);
+                                $prop = $stmt_prop->fetch();
+                                if ($prop):
+                                    $p_role = $prop["declared_role"];
+                                    $p_verified = $prop["verified"];
+                                    $p_color = $p_verified ? "green" : "amber";
+                                    $p_icon = $p_role == "owner" ? "fa-home" : "fa-briefcase";
+                                ?>
+                                <div class="flex items-center gap-2 bg-<?php echo $p_color; ?>-50 px-4 py-2 rounded-xl border border-<?php echo $p_color; ?>-100 shadow-sm">
+                                    <i class="fas <?php echo $p_icon; ?> text-<?php echo $p_color; ?>-500 text-xs"></i>
+                                    <span class="text-[10px] font-black text-<?php echo $p_color; ?>-700 uppercase tracking-widest">
+                                        <?php echo $p_verified ? "Tiki Verified" : "Self-Declared"; ?> <?php echo ucfirst($p_role); ?>
+                                    </span>
+                                </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <div class="text-left md:text-right w-full md:w-auto">
                             <?php if ($ad['listing_type'] != 'for_swap'): ?>
-                                <p class="text-3xl font-bold text-green-600">₦<?php echo number_format($ad['price']); ?></p>
+                                <p class="text-4xl font-black text-green-600">₦<?php echo number_format($ad['price']); ?></p>
                             <?php endif; ?>
                             <?php if ($ad['listing_type'] != 'for_sale'): ?>
-                                <span class="inline-block bg-blue-100 text-blue-700 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest mt-2 border border-blue-200">Available for Swap</span>
+                                <div class="inline-flex items-center gap-2 bg-blue-600 text-white text-[10px] font-black px-4 py-2 rounded-xl uppercase tracking-widest mt-2 shadow-lg shadow-blue-100">
+                                    <i class="fas fa-sync-alt"></i> Available for Swap
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-4 mb-8 text-sm text-gray-500 font-bold">
-                        <span class="bg-gray-100 px-3 py-1 rounded-full"><i class="fas fa-map-marker-alt text-green-600 mr-1"></i> <?php echo h($ad['state_name']); ?>, <?php echo h($ad['lga_name']); ?></span>
-                        <span class="bg-gray-100 px-3 py-1 rounded-full"><i class="fas fa-clock text-blue-600 mr-1"></i> <?php echo date('d M, Y', strtotime($ad['created_at'])); ?></span>
-                        <span class="bg-gray-100 px-3 py-1 rounded-full"><i class="fas fa-eye text-purple-600 mr-1"></i> <?php echo $ad['views']; ?> views</span>
-                    </div>
-
-                    <div class="prose max-w-none text-gray-600 leading-relaxed border-t pt-8">
+                    <div class="border-t border-gray-50 pt-10">
                         <?php if ($ad['listing_type'] != 'for_sale'): ?>
-                            <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100 mb-8">
-                                <h3 class="text-blue-800 font-black text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    <i class="fas fa-exchange-alt"></i> Swap Details
+                            <div class="bg-blue-50/50 p-8 rounded-3xl border border-blue-100 mb-10">
+                                <h3 class="text-blue-800 font-black text-xs uppercase tracking-[3px] mb-6 flex items-center gap-3">
+                                    <div class="w-2 h-2 bg-blue-600 rounded-full"></div> Swap Terms
                                 </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <p class="text-[10px] text-blue-400 font-bold uppercase mb-1">Estimated Value</p>
-                                        <p class="text-lg font-black text-blue-900">₦<?php echo number_format($ad['estimated_value']); ?></p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div class="bg-white p-4 rounded-2xl shadow-sm">
+                                        <p class="text-[10px] text-blue-400 font-black uppercase mb-1">Estimated Value</p>
+                                        <p class="text-xl font-black text-blue-900">₦<?php echo number_format($ad['estimated_value']); ?></p>
                                     </div>
-                                    <div>
-                                        <p class="text-[10px] text-blue-400 font-bold uppercase mb-1">Wants in Exchange</p>
+                                    <div class="bg-white p-4 rounded-2xl shadow-sm">
+                                        <p class="text-[10px] text-blue-400 font-black uppercase mb-1">Desired Item</p>
                                         <p class="text-sm font-bold text-blue-900"><?php echo $ad['swap_preference'] ?: 'Open to all offers'; ?></p>
                                     </div>
                                 </div>
                                 <?php if ($ad['allow_cash_topup']): ?>
-                                    <p class="mt-4 text-[10px] font-black text-green-600 uppercase tracking-widest"><i class="fas fa-check-circle mr-1"></i> Seller accepts Item + Cash top-up</p>
+                                    <div class="mt-6 flex items-center gap-2 text-[11px] font-black text-green-600 uppercase tracking-widest">
+                                        <i class="fas fa-check-circle"></i> Item + Cash top-up accepted
+                                    </div>
                                 <?php endif; ?>
                             </div>
                         <?php endif; ?>
@@ -164,39 +186,25 @@ include __DIR__ . '/templates/header.php';
                         $extra_data = !empty($ad['ad_data']) ? json_decode($ad['ad_data'], true) : null;
                         if ($extra_data):
                         ?>
-                            <div class="mb-8">
-                                <h3 class="text-xl font-bold text-gray-800 mb-4">Specifications</h3>
-                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div class="mb-10">
+                                <h3 class="text-xs font-black text-gray-400 uppercase tracking-[3px] mb-6">Specifications</h3>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <?php foreach ($extra_data as $key => $value): if(empty($value)) continue; ?>
-                                        <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-1"><?php echo h(str_replace('_', ' ', $key)); ?></p>
-                                            <p class="text-sm font-bold text-gray-700"><?php echo h($value); ?></p>
+                                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:bg-white transition-colors">
+                                            <p class="text-[9px] text-gray-400 font-black uppercase mb-1"><?php echo h(str_replace('_', ' ', $key)); ?></p>
+                                            <p class="text-xs font-black text-gray-700"><?php echo h(is_array($value) ? implode(', ', $value) : $value); ?></p>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
                             </div>
                         <?php endif; ?>
 
-                        <h3 class="text-xl font-bold text-gray-800 mb-4">Description</h3>
-                        <p class="mb-8"><?php echo nl2br(h($ad['description'])); ?></p>
-
-                        <?php if ($ad['video_url']): ?>
-                            <div class="mt-8">
-                                <h3 class="text-xl font-bold text-gray-800 mb-4"><i class="fab fa-youtube text-red-600 mr-2"></i> Video Tour</h3>
-                                <div class="relative pb-[56.25%] h-0 rounded-xl overflow-hidden shadow-lg border-4 border-gray-100">
-                                    <?php
-                                    $vurl = $ad['video_url'];
-                                    if (strpos($vurl, 'youtube.com') !== false || strpos($vurl, 'youtu.be') !== false) {
-                                        parse_str(parse_url($vurl, PHP_URL_QUERY), $vparams);
-                                        $vid = $vparams['v'] ?? basename(parse_url($vurl, PHP_URL_PATH));
-                                        echo '<iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/'.$vid.'" frameborder="0" allowfullscreen></iframe>';
-                                    } else {
-                                        echo '<a href="'.h($vurl).'" target="_blank" class="bg-blue-50 text-blue-600 p-4 rounded-lg block font-bold text-center hover:bg-blue-100 transition">View External Video Link</a>';
-                                    }
-                                    ?>
-                                </div>
+                        <div class="mb-10">
+                            <h3 class="text-xs font-black text-gray-400 uppercase tracking-[3px] mb-6">Description</h3>
+                            <div class="text-gray-600 leading-relaxed font-medium space-y-4">
+                                <?php echo nl2br(h($ad['description'])); ?>
                             </div>
-                        <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -204,102 +212,134 @@ include __DIR__ . '/templates/header.php';
 
         <!-- Sidebar (Right) -->
         <div class="lg:w-1/3">
-            <div class="bg-white p-8 rounded-2xl shadow-sm border-2 border-green-50 sticky top-24">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-2xl font-bold uppercase">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 sticky top-24">
+                <div class="flex items-center gap-5 mb-8">
+                    <div class="w-20 h-20 bg-gradient-to-br from-green-50 to-green-100 rounded-3xl flex items-center justify-center text-green-600 text-3xl font-black uppercase shadow-inner">
                         <?php echo substr($ad['seller_name'], 0, 1); ?>
                     </div>
                     <div>
-                        <h4 class="font-bold text-lg text-gray-800"><?php echo h($ad['seller_name']); ?></h4>
-                        <div class="flex flex-col gap-1 mt-1">
-                            <?php if ($ad['is_featured']): ?>
-                                <span class="text-[10px] font-bold text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full border border-yellow-200 w-fit uppercase"><i class="fas fa-crown mr-1"></i> PREMIUM AD</span>
-                            <?php endif; ?>
+                        <h4 class="font-black text-xl text-gray-800 tracking-tight"><?php echo h($ad['seller_name']); ?></h4>
+                        <div class="flex flex-col gap-2 mt-2">
                             <?php if ($ad['is_verified']): ?>
-                                <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-200 w-fit uppercase"><i class="fas fa-check-circle mr-1"></i> <?php echo ($ad["verification_tier"] == "business_verified" ? "TIKI BUSINESS" : "NIN VERIFIED"); ?></span>
+                                <div class="inline-flex items-center gap-2 bg-green-50 text-green-600 px-3 py-1.5 rounded-xl text-[10px] font-black border border-green-100 uppercase tracking-widest shadow-sm">
+                            <?php
+                            $stmt_rep = $pdo->prepare("SELECT badge_tier FROM seller_reputation WHERE user_id = ?");
+                            $stmt_rep->execute([$ad["user_id"]]);
+                            $rep = $stmt_rep->fetch();
+                            if ($rep && $rep["badge_tier"] == "trusted"): ?>
+                                <div class="inline-flex items-center gap-2 bg-yellow-50 text-yellow-700 px-3 py-1.5 rounded-xl text-[10px] font-black border border-yellow-100 uppercase tracking-widest shadow-sm">
+                                    <i class="fas fa-crown"></i> TIKI TRUSTED
+                                </div>
+                            <?php endif; ?>
+                                    <i class="fas fa-check-circle"></i> <?php echo ($ad["verification_tier"] == "business_verified" ? "TIKI BUSINESS" : "NIN VERIFIED"); ?>
+                                </div>
                             <?php else: ?>
-                                <span class="text-[10px] font-bold text-gray-400 uppercase">Regular Seller</span>
+                                <div class="inline-flex items-center gap-2 bg-gray-50 text-gray-400 px-3 py-1.5 rounded-xl text-[10px] font-black border border-gray-100 uppercase tracking-widest">
+                                    PHONE VERIFIED
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
                 </div>
 
                 <div class="space-y-4">
-                    <?php
-                    $phone = $ad['seller_phone'];
-                    $tel_phone = $phone;
-                    if (strpos($phone, '0') === 0) {
-                        $tel_phone = '234' . substr($phone, 1);
-                    }
-                    ?>
-                    <button id="showContactBtn" onclick="this.innerHTML='<a href=\'tel:<?php echo h($tel_phone); ?>\' class=\'text-white w-full flex items-center justify-center\'><i class=\'fas fa-phone mr-2\'></i> <?php echo h($phone); ?></a>'; this.onclick=null;" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:bg-green-700 transition shadow-lg text-lg flex items-center justify-center">
-                        <i class="fas fa-phone-alt mr-2"></i> SHOW CONTACT
-                    </button>
+                    <div class="space-y-3">
+                        <button onclick="showPhoneModal()" class="w-full bg-white border-2 border-green-600 text-green-600 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-50 transition flex items-center justify-center gap-3 active:scale-95 shadow-sm">
+                            <i class="fas fa-phone-alt"></i>
+                            <span id="blurredPhone"><?php echo substr($ad["seller_phone"], 0, 7); ?>XXXX</span>
+                        </button>
+                        <p class="text-[9px] text-gray-400 font-black text-center uppercase tracking-widest">Click to show full number</p>
+                    </div>
 
                     <?php if (is_user_logged_in() && $_SESSION['user_id'] != $ad['user_id']): ?>
+                        <a href="chat.php?ad_id=<?php echo $ad['id']; ?>" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition shadow-xl shadow-green-100 flex items-center justify-center gap-3 active:scale-95">
+                            <i class="fas fa-comment-dots"></i> START CHAT
+                        </a>
                         <?php if ($ad['listing_type'] != 'for_sale'): ?>
-                            <a href="swap_propose.php?ad_id=<?php echo $ad['id']; ?>" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg text-lg flex items-center justify-center gap-2">
+                            <a href="swap_propose.php?ad_id=<?php echo $ad['id']; ?>" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition shadow-xl shadow-blue-100 flex items-center justify-center gap-3 active:scale-95">
                                 <i class="fas fa-exchange-alt"></i> PROPOSE A SWAP
                             </a>
                         <?php endif; ?>
-
-                        <a href="chat.php?ad_id=<?php echo $ad['id']; ?>" class="w-full bg-white text-green-600 border-2 border-green-600 py-4 rounded-xl font-bold hover:bg-green-600 hover:text-white transition flex items-center justify-center">
-                            <i class="fas fa-comment-dots mr-2"></i> START CHAT
-                        </a>
                     <?php elseif (!is_user_logged_in()): ?>
-                        <a href="/login" class="w-full bg-white text-green-600 border-2 border-green-600 py-4 rounded-xl font-bold hover:bg-green-600 hover:text-white transition flex items-center justify-center">
+                        <a href="/login" class="w-full bg-gray-800 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition shadow-xl flex items-center justify-center gap-3">
                              LOGIN TO CHAT
                         </a>
                     <?php endif; ?>
                 </div>
 
-                <div class="mt-8 border-t pt-8">
-                    <p class="text-xs font-bold text-gray-400 uppercase mb-4 tracking-widest text-center">Share this ad</p>
+                <div class="mt-10 border-t border-gray-50 pt-8">
+                    <p class="text-[10px] font-black text-gray-400 uppercase mb-6 tracking-[3px] text-center">Share this ad</p>
                     <div class="flex justify-center gap-4">
                         <a href="https://api.whatsapp.com/send?text=<?php echo urlencode($ad["title"] . " - ₦" . number_format($ad["price"]) . ". View on Tiki: ") . (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on" ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"; ?>" target="_blank" class="w-12 h-12 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center hover:bg-green-600 hover:text-white transition-all shadow-sm">
                             <i class="fab fa-whatsapp text-xl"></i>
                         </a>
-                        <?php
-                        $share_url = urlencode("http://" . $_SERVER['HTTP_HOST'] . generate_ad_url($ad));
-                        $site_name_plain = $settings['site_name'] ?? 'Classifieds';
-                        $share_text = urlencode("Check out this " . $ad['title'] . " on " . $site_name_plain . "!");
-                        ?>
-                        <a href="https://wa.me/?text=<?php echo $share_text . '%20' . $share_url; ?>" target="_blank" class="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 transition shadow-sm"><i class="fab fa-whatsapp text-xl"></i></a>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo $share_url; ?>" target="_blank" class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition shadow-sm"><i class="fab fa-facebook-f text-lg"></i></a>
-                        <a href="https://twitter.com/intent/tweet?text=<?php echo $share_text; ?>&url=<?php echo $share_url; ?>" target="_blank" class="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition shadow-sm"><i class="fab fa-x-twitter text-lg"></i></a>
-                        <a href="https://t.me/share/url?url=<?php echo $share_url; ?>&text=<?php echo $share_text; ?>" target="_blank" class="w-10 h-10 bg-blue-400 text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition shadow-sm"><i class="fab fa-telegram-plane text-lg"></i></a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode("http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']); ?>" target="_blank" class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm"><i class="fab fa-facebook-f text-lg"></i></a>
                     </div>
                 </div>
 
-                <div class="mt-8 p-4 bg-yellow-50 rounded-xl border border-yellow-100 text-center">
-                    <p class="text-xs font-bold text-yellow-800 uppercase mb-2">Safety Tips</p>
-                    <ul class="text-[10px] text-yellow-700 text-left space-y-1">
-                        <li>• Never pay in advance, even for delivery.</li>
-                        <li>• Meet in a safe, public location.</li>
-                        <li>• Check the item before you buy it.</li>
+                <div class="mt-10 p-6 bg-yellow-50 rounded-3xl border border-yellow-100">
+                    <h5 class="text-[10px] font-black text-yellow-800 uppercase mb-4 tracking-widest flex items-center gap-2"><i class="fas fa-lightbulb"></i> Safety Tips</h5>
+                    <ul class="text-[11px] text-yellow-700 font-bold space-y-3">
+                        <li class="flex gap-2"><span>•</span> <span>Never pay in advance, even for delivery.</span></li>
+                        <li class="flex gap-2"><span>•</span> <span>Meet in a safe, public location.</span></li>
+                        <li class="flex gap-2"><span>•</span> <span>Check the item before you buy it.</span></li>
                     </ul>
                 </div>
             </div>
+
+            <?php if ($ad["listing_type"] !== "for_sale"): ?>
+            <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 mt-8">
+                <h3 class="text-xs font-black text-gray-800 uppercase tracking-[3px] mb-8 flex items-center gap-3">
+                    <i class="fas fa-sync-alt text-blue-600"></i> Smart Matches
+                </h3>
+                <div id="swapMatches" class="space-y-6">
+                    <div class="flex items-center justify-center py-10"><i class="fas fa-spinner fa-spin text-blue-500"></i></div>
+                </div>
+            </div>
+            <script>
+            fetch("/api/swaps_matches.php?id=<?php echo $ad["id"]; ?>")
+                .then(res => res.json())
+                .then(matches => {
+                    const container = document.getElementById("swapMatches");
+                    if (matches.length === 0) {
+                        container.innerHTML = "<p class='text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center'>No exact matches yet.</p>";
+                        return;
+                    }
+                    container.innerHTML = matches.map(m => `
+                        <a href="/ad.php?id=${m.id}" class="flex items-center gap-4 p-2 rounded-2xl hover:bg-blue-50 transition group">
+                            <img src="/uploads/ads/${m.image || "placeholder.jpg"}" class="w-16 h-16 object-cover rounded-xl shadow-sm">
+                            <div class="flex-1">
+                                <h4 class="text-xs font-black text-gray-800 line-clamp-1 group-hover:text-blue-600">${m.title}</h4>
+                                <p class="text-[10px] font-bold text-gray-400 mt-1">₦${new Intl.NumberFormat().format(m.price)}</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-200 group-hover:text-blue-600 text-[10px]"></i>
+                        </a>
+                    `).join("");
+                });
+            </script>
+            <?php endif; ?>
         </div>
     </div>
 
     <!-- Similar Ads Section -->
     <?php if ($similar_ads): ?>
-    <div class="mt-20 border-t pt-16">
-        <h2 class="text-2xl font-bold text-gray-800 mb-10 uppercase tracking-widest border-l-8 border-green-600 pl-6">Similar Ads You May Like</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+    <div class="mt-24 border-t border-gray-50 pt-16">
+        <div class="flex items-center gap-4 mb-12">
+            <div class="w-2 h-10 bg-green-600 rounded-full"></div>
+            <h2 class="text-3xl font-black text-gray-800 uppercase tracking-tighter italic">Recommended Deals</h2>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
             <?php foreach ($similar_ads as $s_ad): ?>
-            <a href="<?php echo generate_ad_url($s_ad); ?>" class="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-all group border border-gray-100">
+            <a href="<?php echo generate_ad_url($s_ad); ?>" class="bg-white rounded-[2rem] shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-500 group border border-gray-50">
                 <div class="relative h-48 overflow-hidden">
-                    <img src="<?php echo $s_ad['image'] ? '/uploads/ads/'.$s_ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <img src="<?php echo $s_ad['image'] ? '/uploads/ads/'.$s_ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
                     <?php if ($s_ad['is_featured']): ?>
-                        <span class="absolute top-4 left-4 bg-yellow-400 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase shadow-md"><i class="fas fa-rocket"></i> BOOSTED</span>
+                        <span class="absolute top-4 left-4 bg-yellow-400 text-yellow-900 text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl">Premium</span>
                     <?php endif; ?>
                 </div>
-                <div class="p-4">
-                    <h4 class="text-sm font-bold text-gray-800 line-clamp-2 h-10 mb-3 group-hover:text-green-600 transition"><?php echo h($s_ad['title']); ?></h4>
-                    <p class="text-green-600 font-extrabold text-lg mb-4">₦<?php echo number_format($s_ad['price']); ?></p>
-                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest"><i class="fas fa-map-marker-alt mr-1 text-green-500"></i> <?php echo h($s_ad['state_name']); ?></p>
+                <div class="p-6">
+                    <h4 class="text-xs font-black text-gray-800 line-clamp-2 h-8 mb-4 group-hover:text-green-600 transition uppercase tracking-tight"><?php echo h($s_ad['title']); ?></h4>
+                    <p class="text-green-600 font-black text-xl">₦<?php echo number_format($s_ad['price']); ?></p>
                 </div>
             </a>
             <?php endforeach; ?>
@@ -307,100 +347,6 @@ include __DIR__ . '/templates/header.php';
     </div>
     <?php endif; ?>
 </div>
-
-<!-- Lightbox Modal -->
-<div id="lightbox" class="fixed inset-0 bg-black/95 hidden items-center justify-center z-[100] p-4 group" onclick="closeLightbox()">
-    <button class="absolute top-6 right-6 text-white text-4xl hover:text-green-500 transition z-[110]">&times;</button>
-
-    <button onclick="event.stopPropagation(); navigateMedia(-1)" class="absolute left-6 top-1/2 -translate-y-1/2 text-white text-5xl hover:text-green-500 transition hidden md:block z-[110]"><i class="fas fa-chevron-left"></i></button>
-    <button onclick="event.stopPropagation(); navigateMedia(1)" class="absolute right-6 top-1/2 -translate-y-1/2 text-white text-5xl hover:text-green-500 transition hidden md:block z-[110]"><i class="fas fa-chevron-right"></i></button>
-
-    <div class="w-full max-w-5xl h-full flex items-center justify-center" onclick="event.stopPropagation()">
-        <img id="lightboxImg" src="" class="max-h-full max-w-full object-contain shadow-2xl hidden transition-opacity duration-300">
-        <div id="lightboxVideo" class="w-full aspect-video hidden">
-            <iframe id="lightboxIframe" class="w-full h-full" src="" frameborder="0" allowfullscreen></iframe>
-        </div>
-    </div>
-
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white font-bold bg-black/50 px-4 py-2 rounded-full text-sm">
-        <span id="mediaCounter">1 / 1</span>
-    </div>
-</div>
-
-<script>
-const media = <?php echo json_encode($media_list); ?>;
-let currentIndex = 0;
-
-function setMainImage(index) {
-    currentIndex = index;
-    const mainImg = document.getElementById('mainImage');
-    mainImg.src = media[index].url;
-}
-
-function changeMainImage(dir) {
-    currentIndex = (currentIndex + dir + media.length) % media.length;
-    if (media[currentIndex].type === 'image') {
-        document.getElementById('mainImage').src = media[currentIndex].url;
-    } else {
-        openLightbox(currentIndex);
-    }
-}
-
-function openLightbox(index = currentIndex) {
-    currentIndex = index;
-    const lightbox = document.getElementById('lightbox');
-    updateLightboxContent();
-    lightbox.classList.remove('hidden');
-    lightbox.classList.add('flex');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeLightbox() {
-    const lightbox = document.getElementById('lightbox');
-    document.getElementById('lightboxIframe').src = ''; // Stop video
-    lightbox.classList.add('hidden');
-    lightbox.classList.remove('flex');
-    document.body.style.overflow = 'auto';
-}
-
-function navigateMedia(dir) {
-    currentIndex = (currentIndex + dir + media.length) % media.length;
-    updateLightboxContent();
-}
-
-function updateLightboxContent() {
-    const img = document.getElementById('lightboxImg');
-    const video = document.getElementById('lightboxVideo');
-    const iframe = document.getElementById('lightboxIframe');
-    const counter = document.getElementById('mediaCounter');
-
-    img.classList.add('hidden');
-    video.classList.add('hidden');
-    iframe.src = '';
-
-    const current = media[currentIndex];
-    if (current.type === 'image') {
-        img.src = current.url;
-        img.classList.remove('hidden');
-    } else {
-        iframe.src = current.url;
-        video.classList.remove('hidden');
-    }
-
-    counter.textContent = `${currentIndex + 1} / ${media.length}`;
-}
-
-// Keyboard navigation
-document.addEventListener('keydown', (e) => {
-    if (document.getElementById('lightbox').classList.contains('flex')) {
-        if (e.key === 'Escape') closeLightbox();
-        if (e.key === 'ArrowLeft') navigateMedia(-1);
-        if (e.key === 'ArrowRight') navigateMedia(1);
-    }
-});
-</script>
-
-<?php include __DIR__ . '/templates/footer.php'; ?>
 
 <!-- Phone Safety Modal (Feature 04) -->
 <div id="phoneModal" class="fixed inset-0 bg-black/60 z-[100] hidden items-center justify-center backdrop-blur-sm p-4">
@@ -436,3 +382,5 @@ function revealNumber() {
     closePhoneModal();
 }
 </script>
+
+<?php include __DIR__ . '/templates/footer.php'; ?>

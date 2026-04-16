@@ -106,3 +106,9 @@ if (isset($pdo)) {
             </div>
         </div>
     </nav>
+<div class="bg-green-600 text-white py-3 shadow-inner">
+    <div class="container mx-auto px-4 flex items-center justify-center gap-3">
+        <i class="fas fa-shield-check text-xl"></i>
+        <p class="text-[10px] md:text-xs font-black uppercase tracking-[2px]">Tiki Verified Sellers have completed NIN + live identity verification. Always look for the <span class="text-yellow-400">Verified Badge</span>.</p>
+    </div>
+</div>

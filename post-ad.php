@@ -7,17 +7,42 @@ require_user();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        $user_id = $_SESSION['user_id'];
+        $user_id = $_SESSION["user_id"];
+
+        // Tiki Feature 01: Verification Tiers & Limits
+        $stmt = $pdo->prepare("SELECT verification_tier FROM users WHERE id = ?");
+        $stmt->execute([$user_id]);
+        $user_tier = $stmt->fetchColumn();
+
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM ads WHERE user_id = ?");
+        $stmt->execute([$user_id]);
+        $post_count = $stmt->fetchColumn();
+
+        if ($user_tier === "phone_verified" && $post_count >= 20) {
+            throw new Exception("You have reached the limit of 20 free listings for Phone Verified accounts. Complete NIN verification to unlock unlimited postings.");
+        }
+
         $title = $_POST['title'];
+        $description = $_POST['description'];
+        $listing_type = $_POST["listing_type"] ?? "for_sale";
+
+        // Tiki Feature 02: Swap restricted to NIN Verified
+        if ($listing_type !== "for_sale" && $user_tier === "phone_verified") {
+            throw new Exception("Swap listings are only available for NIN Verified sellers. Please verify your identity to continue.");
+        }
+
+        // Tiki Feature 03: Velocity Check (Duplicate Listing)
+        if (is_duplicate_listing($pdo, $user_id, $title, $description)) {
+            throw new Exception("This listing appears to be a duplicate of another item you have already posted. Please check your inventory.");
+        }
+
         $cat_id = (int)$_POST['cat_id'] ?: null;
         $state_id = (int)$_POST['state_id'] ?: null;
         $lga_id = (int)$_POST['lga_id'] ?: null;
         $price = (float)$_POST['price'];
-        $listing_type = $_POST['listing_type'] ?? 'for_sale';
         $estimated_value = !empty($_POST['estimated_value']) ? (float)$_POST['estimated_value'] : null;
         $swap_preference = $_POST['swap_preference'] ?? null;
         $allow_cash_topup = isset($_POST['allow_cash_topup']) ? 1 : 0;
-        $description = $_POST['description'];
         $property_role = $_POST['property_role'] ?? null;
 
         // Handle category-specific data
@@ -39,22 +64,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->prepare("INSERT INTO property_declarations (ad_id, user_id, declared_role) VALUES (?, ?, ?)")->execute([$ad_id, $user_id, $property_role]);
         }
 
-    // Process Images
-    if (!empty($_FILES['images']['name'][0])) {
-        foreach ($_FILES['images']['tmp_name'] as $key => $tmp_name) {
-            $filename = process_image_upload($tmp_name, __DIR__ . '/uploads/ads', 800, $user_id, $ad_id);
-            if ($filename) {
-                $is_main = ($key === 0) ? 1 : 0;
-                $stmt = $pdo->prepare("INSERT INTO ad_images (ad_id, image_path, is_main) VALUES (?, ?, ?)");
-                $stmt->execute([$ad_id, $filename, $is_main]);
+        // Calculate initial Safety Score
+        $safety_score = calculate_safety_score(['verification_tier' => $user_tier, 'is_verified' => 1, 'created_at' => date('Y-m-d')], ['description' => $description]);
+        $pdo->prepare("UPDATE ads SET safety_score = ? WHERE id = ?")->execute([$safety_score, $ad_id]);
+
+        // Process Images
+        if (!empty($_FILES['images']['name'][0])) {
+            foreach ($_FILES['images']['tmp_name'] as $key => $tmp_name) {
+                if ($key >= 10) break; // Max 10 photos
+                $filename = process_image_upload($tmp_name, __DIR__ . '/uploads/ads', 800, $user_id, $ad_id);
+                if ($filename === "DUPLICATE") {
+                    continue; // Skip duplicate photos
+                }
+                if ($filename) {
+                    $is_main = ($key === 0) ? 1 : 0;
+                    $stmt = $pdo->prepare("INSERT INTO ad_images (ad_id, image_path, is_main) VALUES (?, ?, ?)");
+                    $stmt->execute([$ad_id, $filename, $is_main]);
+                }
             }
         }
-    }
 
         redirect('profile.php', 'Ad posted successfully! It will be live after moderation.');
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
         error_log("Post Ad Error: " . $e->getMessage());
-        $error = "An error occurred while posting your ad. Database Error: " . $e->getMessage();
+        $error = "An error occurred while posting your ad. " . $e->getMessage();
     }
 }
 
@@ -66,7 +99,7 @@ include __DIR__ . '/templates/header.php';
 
 <div class="container mx-auto px-4 py-10 flex justify-center">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
-        <h1 class="text-2xl font-bold mb-8 text-green-600 border-b pb-4"><i class="fas fa-plus-circle mr-2"></i> Post Your Ad</h1>
+        <h1 class="text-2xl font-black mb-8 text-green-600 border-b pb-4 uppercase tracking-tighter"><i class="fas fa-plus-circle mr-2"></i> Create Listing</h1>
 
         <?php if (isset($error)): ?>
             <div class="bg-red-100 text-red-700 p-4 rounded-lg mb-6 font-bold text-sm"><?php echo h($error); ?></div>
@@ -169,7 +202,6 @@ include __DIR__ . '/templates/header.php';
                         <span class="text-[9px] text-gray-400 mt-1">Authorized representative</span>
                     </label>
                 </div>
-                <p class="text-[9px] text-blue-400 font-bold mt-4 uppercase">Verification badges significantly increase buyer trust.</p>
             </div>
 
             <div id="dynamic_filters" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
@@ -186,19 +218,19 @@ include __DIR__ . '/templates/header.php';
                 <input type="file" name="images[]" id="fileInput" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
                 <div class="text-center">
                     <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-100 transition">
-                        <i class="fas fa-cloud-upload-alt text-3xl text-green-500"></i>
+                        <i class="fas fa-camera text-3xl text-green-500"></i>
                     </div>
-                    <p class="text-sm font-bold text-gray-600 mb-1">Drag & drop images here</p>
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">or click to browse from device</p>
+                    <p class="text-sm font-bold text-gray-600 mb-1">Drag & drop up to 10 images</p>
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">or click to browse</p>
                 </div>
             </div>
 
             <div id="imagePreviewContainer" class="grid grid-cols-5 gap-4 mb-6 hidden">
-                <!-- Previews will appear here -->
+                <!-- Previews -->
             </div>
 
             <div class="pt-6">
-                <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:bg-green-700 transition shadow-lg text-lg uppercase">Post Ad</button>
+                <button type="submit" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black hover:bg-green-700 transition shadow-xl text-lg uppercase tracking-widest">Post My Ad</button>
             </div>
         </form>
     </div>
@@ -209,14 +241,8 @@ function loadSubcategories(parentId) {
     const subSelect = document.getElementById('cat_id');
     const filterContainer = document.getElementById('dynamic_filters');
     filterContainer.innerHTML = '';
-
-    if (!parentId) {
-        subSelect.innerHTML = '<option value="">Select Subcategory</option>';
-        return;
-    }
-
+    if (!parentId) { subSelect.innerHTML = '<option value="">Select Subcategory</option>'; return; }
     subSelect.innerHTML = '<option value="">Loading...</option>';
-
     fetch('api/subcategories.php?parent_id=' + parentId)
         .then(response => response.json())
         .then(data => {
@@ -232,10 +258,7 @@ function loadSubcategories(parentId) {
 
 function loadFilters(catId) {
     const filterContainer = document.getElementById('dynamic_filters');
-    if (!catId) {
-        filterContainer.innerHTML = '';
-        return;
-    }
+    if (!catId) { filterContainer.innerHTML = ''; return; }
 
     const propDecl = document.getElementById("propertyDeclaration");
     const catName = document.querySelector("#parent_cat_id option:checked")?.text || "";
@@ -281,7 +304,6 @@ function loadFilters(catId) {
                 } else if (f.type === 'number' || f.type === 'number_range' || f.type === 'range') {
                     html += `<input type="number" name="extra[${key}]" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="Enter value">`;
                 }
-
                 html += '</div>';
             }
             filterContainer.innerHTML = html;
@@ -291,12 +313,7 @@ function loadFilters(catId) {
 function loadLGAs(stateId) {
     const lgaSelect = document.getElementById('lga_id');
     lgaSelect.innerHTML = '<option value="">Loading...</option>';
-
-    if (!stateId) {
-        lgaSelect.innerHTML = '<option value="">Select LGA</option>';
-        return;
-    }
-
+    if (!stateId) { lgaSelect.innerHTML = '<option value="">Select LGA</option>'; return; }
     fetch('api/lgas.php?state_id=' + stateId)
         .then(response => response.json())
         .then(data => {
@@ -324,7 +341,6 @@ function toggleSwapFields() {
     const type = document.querySelector('input[name="listing_type"]:checked').value;
     const priceField = document.getElementById('price_field');
     const swapFields = document.getElementById('swap_fields');
-
     if (type === 'for_sale') {
         priceField.classList.remove('hidden');
         swapFields.classList.add('hidden');
@@ -337,48 +353,26 @@ function toggleSwapFields() {
     }
 }
 
-// Image Preview & Drag and Drop Logic
+// Image handling
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const previewContainer = document.getElementById('imagePreviewContainer');
 let allFiles = new DataTransfer();
 
 ['dragover', 'dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, e => {
-        e.preventDefault();
-        e.stopPropagation();
-    });
+    dropZone.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); });
 });
-
-dropZone.addEventListener('dragover', () => {
-    dropZone.classList.replace('border-gray-200', 'border-green-400');
-    dropZone.classList.add('bg-green-50');
-});
-
-dropZone.addEventListener('dragleave', () => {
-    dropZone.classList.replace('border-green-400', 'border-gray-200');
-    dropZone.classList.remove('bg-green-50');
-});
-
+dropZone.addEventListener('dragover', () => dropZone.classList.add('bg-green-50', 'border-green-400'));
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('bg-green-50', 'border-green-400'));
 dropZone.addEventListener('drop', (e) => {
-    dropZone.classList.replace('border-green-400', 'border-gray-200');
-    dropZone.classList.remove('bg-green-50');
-
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-        addFiles(files);
-    }
+    dropZone.classList.remove('bg-green-50', 'border-green-400');
+    if (e.dataTransfer.files.length > 0) addFiles(e.dataTransfer.files);
 });
-
-fileInput.addEventListener('change', () => {
-    addFiles(fileInput.files);
-});
+fileInput.addEventListener('change', () => addFiles(fileInput.files));
 
 function addFiles(files) {
     for (let i = 0; i < files.length; i++) {
-        if (allFiles.items.length < 10) {
-            allFiles.items.add(files[i]);
-        }
+        if (allFiles.items.length < 10) allFiles.items.add(files[i]);
     }
     fileInput.files = allFiles.files;
     renderPreviews();
@@ -387,9 +381,7 @@ function addFiles(files) {
 function removeFile(index) {
     const newDT = new DataTransfer();
     for (let i = 0; i < allFiles.files.length; i++) {
-        if (i !== index) {
-            newDT.items.add(allFiles.files[i]);
-        }
+        if (i !== index) newDT.items.add(allFiles.files[i]);
     }
     allFiles = newDT;
     fileInput.files = allFiles.files;
@@ -398,16 +390,13 @@ function removeFile(index) {
 
 function renderPreviews() {
     previewContainer.innerHTML = '';
-    if (allFiles.files.length === 0) {
-        previewContainer.classList.add('hidden');
-        return;
-    }
+    if (allFiles.files.length === 0) { previewContainer.classList.add('hidden'); return; }
     previewContainer.classList.remove('hidden');
     Array.from(allFiles.files).forEach((file, i) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             const previewDiv = document.createElement('div');
-            previewDiv.className = 'relative group aspect-square rounded-xl overflow-hidden border-2 border-gray-100 shadow-sm transition transform hover:scale-95';
+            previewDiv.className = 'relative group aspect-square rounded-xl overflow-hidden border-2 border-gray-100 shadow-sm';
             previewDiv.innerHTML = `
                 <img src="${e.target.result}" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
@@ -415,7 +404,6 @@ function renderPreviews() {
                         <i class="fas fa-trash-alt text-xs"></i>
                     </button>
                 </div>
-                <div class="absolute bottom-1 right-1 bg-green-600 text-white text-[8px] px-1 rounded font-bold">PHOTO ${i + 1}</div>
             `;
             previewContainer.appendChild(previewDiv);
         };
@@ -424,4 +412,4 @@ function renderPreviews() {
 }
 </script>
 
-<?php include __DIR__ . '/templates/footer.php'; ?>
+<?php include __DIR__ . '/templates/header.php'; ?>

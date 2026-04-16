@@ -1,6 +1,6 @@
 <?php
 /**
- * Main Entry Point for Jiji-Inspired-1.0
+ * Main Entry Point for Tiki-Inspired-1.0
  */
 
 // Define project root
@@ -55,7 +55,7 @@ include __DIR__ . '/templates/header.php';
 ?>
 
 <div class="container mx-auto px-4 py-8">
-    <!-- Jiji-Style Search Bar (Mobile Only) -->
+    <!-- Tiki-Style Search Bar (Mobile Only) -->
     <div class="mb-8 md:hidden">
         <form action="/search.php" method="GET" class="flex flex-col md:flex-row items-stretch bg-white rounded-2xl md:rounded-full overflow-hidden shadow-xl border-2 border-green-50 focus-within:border-green-500 transition-all">
             <div class="flex flex-1 items-center px-6 border-b md:border-b-0 md:border-r border-gray-100 gap-3">
@@ -122,7 +122,7 @@ include __DIR__ . '/templates/header.php';
     </div>
 
     <div class="flex flex-col md:flex-row gap-8">
-        <!-- Sidebar Categories (Desktop Only - Jiji Perfect Style) -->
+        <!-- Sidebar Categories (Desktop Only - Tiki Perfect Style) -->
         <aside class="hidden md:block w-72 bg-white shadow-sm overflow-visible h-fit sticky top-24 border-r border-gray-100 z-50">
             <div class="py-2">
                 <?php foreach ($categories as $cat): ?>
@@ -140,7 +140,7 @@ include __DIR__ . '/templates/header.php';
                         <i class="fas fa-chevron-right text-[10px] text-gray-300 group-hover:text-green-600 transition"></i>
                     </a>
 
-                    <!-- Full-Width Jiji Submenu on Hover -->
+                    <!-- Full-Width Tiki Submenu on Hover -->
                     <?php
                     $stmt_sub = $pdo->prepare("SELECT c.*, (SELECT COUNT(*) FROM ads a JOIN users u ON a.user_id = u.id WHERE a.cat_id = c.id AND a.status = 'active' AND u.is_suspended = 0) as sub_ad_count FROM categories c WHERE parent_id = ? ORDER BY name ASC");
                     $stmt_sub->execute([$cat['id']]);
@@ -166,7 +166,7 @@ include __DIR__ . '/templates/header.php';
 
         <!-- Main Content -->
         <div class="flex-1">
-            <!-- Hero Banner (Jiji/Tiki Hybrid Style) -->
+            <!-- Hero Banner (Tiki/Tiki Hybrid Style) -->
             <div class="hidden md:block relative bg-gradient-to-br from-green-600 to-green-700 rounded-[2rem] p-10 mb-10 text-white overflow-hidden shadow-2xl">
                 <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
                 <div class="absolute bottom-0 left-0 w-48 h-48 bg-yellow-500/20 rounded-full -ml-24 -mb-24 blur-3xl"></div>
@@ -175,7 +175,7 @@ include __DIR__ . '/templates/header.php';
                     <div class="text-center md:text-left">
                         <span class="hidden md:inline-block bg-yellow-500 text-green-900 text-[10px] font-black px-3 py-1 rounded-full uppercase mb-4 tracking-widest shadow-sm">Verified Marketplace</span>
                         <h2 class="text-4xl md:text-5xl font-black mb-4 leading-tight">Everything is possible <br class="hidden md:block">with <span class="text-yellow-400"><?php echo h($settings['site_name'] ?? 'Classifieds'); ?></span></h2>
-                        <p class="text-green-50 font-bold opacity-90 max-w-md">Nigeria's most premium classifieds platform for buying, selling and swapping anything.</p>
+                        <p class="text-green-50 font-bold opacity-90 max-w-md">Nigeria's #1 Verified Marketplace. Buy, Sell and Swap with total peace of mind.</p>
                     </div>
                     <div class="flex flex-col gap-4 w-full md:w-auto">
                         <a href="/post-ad" class="bg-yellow-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-yellow-400 transition transform hover:-translate-y-1 shadow-2xl flex items-center justify-center gap-3">
@@ -279,7 +279,7 @@ include __DIR__ . '/templates/header.php';
             </section>
             <?php endif; ?>
 
-            <!-- Recent Ads (Jiji/Tiki Hybrid Feed) -->
+            <!-- Recent Ads (Tiki/Tiki Hybrid Feed) -->
             <section class="mt-20">
                 <div class="flex items-center gap-4 mb-10">
                     <div class="w-3 h-8 md:h-10 bg-green-600 rounded-full shadow-[0_0_15px_rgba(22,163,74,0.5)]"></div>
