@@ -90,18 +90,37 @@ if ($extra) {
         if (empty($value)) continue;
 
         if (isset($valid_filters[$key])) {
-            if ($key === 'verified_seller' && $value === 'Verified sellers only') {
-                $query .= " AND u.is_verified = 1";
+            if ($key === 'verified_seller') {
+                if ($value === 'Verified sellers only') {
+                    $query .= " AND u.is_verified = 1";
+                }
+            } elseif ($key === 'trusted_agent') {
+                if ($value === 'Yes') {
+                    $query .= " AND u.is_verified = 1";
+                }
+            } elseif ($key === 'discount') {
+                if ($value === 'With discount') {
+                    $query .= " AND JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"discount\"')) = ?";
+                    $params[] = $value;
+                }
             } else {
-                $query .= " AND JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"$key\"')) = ?";
-                $params[] = $value;
+                if (is_array($value)) {
+                    $json_placeholders = implode(',', array_fill(0, count($value), '?'));
+                    $query .= " AND JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"$key\"')) IN ($json_placeholders)";
+                    foreach ($value as $v) {
+                        $params[] = $v;
+                    }
+                } else {
+                    $query .= " AND JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"$key\"')) = ?";
+                    $params[] = $value;
+                }
             }
         } elseif (strpos($key, 'min_') === 0 || strpos($key, 'max_') === 0) {
             $base_key = substr($key, 4);
             if (isset($valid_filters[$base_key])) {
                 $op = (strpos($key, 'min_') === 0) ? '>=' : '<=';
                 $query .= " AND CAST(JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"$base_key\"')) AS DECIMAL(15,2)) $op ?";
-                $params[] = $value;
+                $params[] = (float)$value;
             }
         }
     }
@@ -120,26 +139,54 @@ include __DIR__ . '/templates/header.php';
     <div class="flex flex-col md:flex-row gap-8">
         <!-- Sidebar Navigation & Filters (Jiji Style) -->
         <aside class="hidden md:block w-72 flex-shrink-0">
-            <!-- Category Navigation -->
+            <!-- Category Navigation (Jiji Focused Style) -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-                <div class="p-4 bg-gray-50 border-b border-gray-100">
+                <div class="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
                     <a href="/" class="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-green-600 transition">All Categories</a>
+                    <i class="fas fa-chevron-right text-[8px] text-gray-300"></i>
                 </div>
                 <div class="py-2">
-                    <?php foreach ($main_categories as $mcat): ?>
+                    <?php
+                    // Find if current is a main category or a subcategory
+                    $current_main_id = null;
+                    $stmt_parent = $pdo->prepare("SELECT parent_id FROM categories WHERE id = ?");
+                    $stmt_parent->execute([$cat_id]);
+                    $p_id = $stmt_parent->fetchColumn();
+
+                    if ($p_id == 0) {
+                        $current_main_id = $cat_id;
+                    } else {
+                        $current_main_id = $p_id;
+                    }
+
+                    foreach ($main_categories as $mcat):
+                        // Only show the active main category tree to save space for filters, exactly like Jiji
+                        if ($mcat['id'] != $current_main_id) continue;
+                    ?>
                         <div class="px-2">
-                            <a href="/category/<?php echo $mcat['slug']; ?>" class="flex items-center justify-between p-3 rounded-lg hover:bg-green-50 transition-all <?php echo $mcat['id'] == $cat_id ? 'bg-green-50 text-green-600' : 'text-gray-700'; ?>">
+                            <a href="/category/<?php echo $mcat['slug']; ?>" class="flex items-center justify-between p-3 rounded-lg bg-green-50 text-green-600 transition-all">
                                 <div class="flex items-center gap-3">
-                                    <i class="fas <?php echo h($mcat['icon_class']); ?> text-sm opacity-50 <?php echo $mcat['id'] == $cat_id ? 'text-green-600 opacity-100' : ''; ?>"></i>
+                                    <i class="fas <?php echo h($mcat['icon_class']); ?> text-sm text-green-600"></i>
                                     <span class="text-sm font-bold"><?php echo h($mcat['name']); ?></span>
                                 </div>
                                 <span class="text-[10px] font-bold opacity-50"><?php echo number_format($mcat['ad_count']); ?></span>
                             </a>
 
-                            <?php if ($mcat['id'] == $cat_id && $subcategories): ?>
-                                <div class="ml-8 mt-1 space-y-1 pb-2">
-                                    <?php foreach ($subcategories as $sub): ?>
-                                        <a href="/category/<?php echo $sub['slug']; ?>" class="block py-1 text-xs font-bold text-gray-500 hover:text-green-600 transition">
+                            <?php if ($subcategories || ($p_id != 0)): ?>
+                                <div class="ml-8 mt-2 space-y-1 pb-2">
+                                    <?php
+                                    $display_subs = $subcategories;
+                                    if ($p_id != 0) {
+                                        // We are in a subcategory, show siblings
+                                        $stmt_subs = $pdo->prepare("SELECT c.*, (SELECT COUNT(*) FROM ads a WHERE a.cat_id = c.id AND a.status = 'active') as ad_count FROM categories c WHERE parent_id = ? ORDER BY name ASC");
+                                        $stmt_subs->execute([$p_id]);
+                                        $display_subs = $stmt_subs->fetchAll();
+                                    }
+
+                                    foreach ($display_subs as $sub):
+                                        $is_active_sub = ($sub['id'] == $cat_id);
+                                    ?>
+                                        <a href="/category/<?php echo $sub['slug']; ?>" class="block py-1.5 text-xs font-bold <?php echo $is_active_sub ? 'text-green-600' : 'text-gray-500 hover:text-green-600'; ?> transition">
                                             <?php echo h($sub['name']); ?> <span class="text-[9px] opacity-40">(<?php echo $sub['ad_count']; ?>)</span>
                                         </a>
                                     <?php endforeach; ?>
@@ -183,15 +230,18 @@ include __DIR__ . '/templates/header.php';
                         </select>
                     </div>
 
-                    <div>
+                    <div id="price_range_container">
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Price Range (₦)</label>
                         <div class="grid grid-cols-2 gap-2">
                             <input type="number" name="min_price" value="<?php echo $min_price ?: ''; ?>" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
                             <input type="number" name="max_price" value="<?php echo $max_price ?: ''; ?>" placeholder="Max" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
                         </div>
+                        <div id="price_quick_ranges" class="flex flex-wrap gap-1 mt-3">
+                            <!-- Quick ranges injected by JS -->
+                        </div>
                     </div>
 
-                    <div id="dynamic_filters" class="space-y-4 pt-4 border-t border-gray-50">
+                    <div id="dynamic_filters" class="space-y-6 pt-6 border-t border-gray-100">
                         <!-- Filters here -->
                     </div>
 
@@ -284,28 +334,81 @@ function loadFilters(catId) {
             const currentExtra = <?php echo json_encode($extra); ?>;
             for (let key in filters) {
                 const f = filters[key];
-                html += '<div>';
+                html += '<div class="filter-group" data-filter-key="'+key+'">';
                 html += `<label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">${f.label}</label>`;
 
                 const val = currentExtra[key] || '';
 
+                if (key === 'price') {
+                    if (f.quick_ranges) {
+                        const priceQuick = document.getElementById('price_quick_ranges');
+                        let phtml = '';
+                        const min_val = '<?php echo $min_price ?: ''; ?>';
+                        const max_val = '<?php echo $max_price ?: ''; ?>';
+                        f.quick_ranges.forEach(range => {
+                            const active = (min_val == range.min && max_val == range.max) ? 'bg-green-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-100 hover:bg-green-50';
+                            phtml += `<button type="button" onclick="setQuickRange('price', ${range.min}, ${range.max})" class="px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all ${active}">${range.label}</button>`;
+                        });
+                        priceQuick.innerHTML = phtml;
+                    }
+                    return;
+                }
+
                 if (f.type === 'select') {
-                    html += `<select name="extra[${key}]" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">`;
-                    html += '<option value="">All</option>';
+                    if (f.searchable) {
+                        html += `<div class="relative searchable-select group">
+                            <div class="flex items-center bg-gray-50 rounded-xl px-3 focus-within:ring-2 focus-within:ring-green-500 transition shadow-sm">
+                                <i class="fas fa-search text-gray-300 text-[10px]"></i>
+                                <input type="text" placeholder="Search ${f.label}..." onkeyup="filterSelectOptions(this)" class="w-full p-3 bg-transparent border-none text-xs font-bold text-gray-700 outline-none">
+                                <button type="button" onclick="clearSearch(this)" class="hidden text-gray-300 hover:text-gray-500"><i class="fas fa-times-circle"></i></button>
+                            </div>
+                            <select name="extra[${key}]" onchange="this.form.submit()" size="5" class="w-full mt-2 p-2 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition custom-scrollbar shadow-inner">
+                                <option value="" ${val === '' ? 'selected' : ''} class="py-2 px-3">All ${f.label}</option>`;
+                        f.options.forEach(opt => {
+                            const sel = (val == opt) ? 'selected' : '';
+                            html += `<option value="${opt}" ${sel} class="py-2 px-3 rounded-lg hover:bg-green-100">${opt}</option>`;
+                        });
+                        html += `</select></div>`;
+                    } else {
+                        html += `<select name="extra[${key}]" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">`;
+                        html += '<option value="">All</option>';
+                        f.options.forEach(opt => {
+                            const sel = (val == opt) ? 'selected' : '';
+                            html += `<option value="${opt}" ${sel}>${opt}</option>`;
+                        });
+                        html += '</select>';
+                    }
+                } else if (f.type === 'multi_select') {
+                    html += `<div class="bg-gray-50 rounded-xl p-3 max-h-48 overflow-y-auto custom-scrollbar space-y-2">`;
+                    if (f.searchable) {
+                        html += `<div class="relative flex items-center mb-2">
+                            <input type="text" placeholder="Search..." onkeyup="filterCheckboxes(this)" class="w-full p-2 bg-white border border-gray-100 rounded-lg text-[10px] font-bold text-gray-700 focus:ring-1 focus:ring-green-500 outline-none pr-7">
+                            <button type="button" onclick="clearCheckboxSearch(this)" class="hidden absolute right-2 text-gray-300 hover:text-gray-500 text-xs"><i class="fas fa-times-circle"></i></button>
+                        </div>`;
+                    }
                     f.options.forEach(opt => {
-                        const sel = (val == opt) ? 'selected' : '';
-                        html += `<option value="${opt}" ${sel}>${opt}</option>`;
+                        const isChecked = Array.isArray(val) ? val.includes(opt) : (val == opt);
+                        html += `<label class="flex items-center gap-2 cursor-pointer group checkbox-item">
+                            <input type="checkbox" name="extra[${key}][]" value="${opt}" ${isChecked ? 'checked' : ''} onchange="this.form.submit()" class="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            <span class="text-[11px] font-bold text-gray-600 group-hover:text-green-600 transition">${opt}</span>
+                        </label>`;
                     });
-                    html += '</select>';
-                } else if (f.type === 'number') {
-                    html += `<input type="number" name="extra[${key}]" value="${val}" placeholder="Value" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">`;
-                } else if (f.type === 'range' || f.type === 'number_range') {
-                    const min_val = currentExtra['min_' + key] || '';
-                    const max_val = currentExtra['max_' + key] || '';
+                    html += `</div>`;
+                } else if (f.type === 'checkbox') {
+                    const isChecked = val == '1' ? 'checked' : '';
+                    html += `<label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" name="extra[${key}]" value="1" ${isChecked} onchange="this.form.submit()" class="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                        <span class="text-[11px] font-bold text-gray-600 group-hover:text-green-600 transition">${f.label}</span>
+                    </label>`;
+                } else if (f.type === 'range' || f.type === 'number' || f.type === 'number_range') {
+                    let min_val = currentExtra['min_' + key] || '';
+                    let max_val = currentExtra['max_' + key] || '';
+                    let min_name = `extra[min_${key}]`;
+                    let max_name = `extra[max_${key}]`;
 
                     html += `<div class="grid grid-cols-2 gap-2 mb-3">
-                        <input type="number" name="extra[min_${key}]" value="${min_val}" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
-                        <input type="number" name="extra[max_${key}]" value="${max_val}" placeholder="Max" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                        <input type="number" name="${min_name}" value="${min_val}" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                        <input type="number" name="${max_name}" value="${max_val}" placeholder="Max" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
                     </div>`;
 
                     if (f.quick_ranges) {
@@ -325,8 +428,15 @@ function loadFilters(catId) {
 }
 
 function setQuickRange(key, min, max) {
-    const minInput = document.querySelector(`input[name="extra[min_${key}]"]`);
-    const maxInput = document.querySelector(`input[name="extra[max_${key}]"]`);
+    let minInput, maxInput;
+    if (key === 'price') {
+        minInput = document.querySelector('input[name="min_price"]');
+        maxInput = document.querySelector('input[name="max_price"]');
+    } else {
+        minInput = document.querySelector(`input[name="extra[min_${key}]"]`);
+        maxInput = document.querySelector(`input[name="extra[max_${key}]"]`);
+    }
+
     if (minInput && maxInput) {
         minInput.value = min;
         maxInput.value = max;
@@ -358,7 +468,73 @@ function loadLGAs(stateId) {
         });
 }
 
+function filterSelectOptions(input) {
+    const filter = input.value.toLowerCase();
+    const select = input.closest('.searchable-select').querySelector('select');
+    const options = select.options;
+    const clearBtn = input.nextElementSibling;
+
+    if (filter.length > 0) {
+        clearBtn.classList.remove('hidden');
+    } else {
+        clearBtn.classList.add('hidden');
+    }
+
+    for (let i = 0; i < options.length; i++) {
+        const txt = options[i].text.toLowerCase();
+        options[i].style.display = txt.includes(filter) || options[i].value === "" ? "" : "none";
+    }
+}
+
+function clearSearch(btn) {
+    const input = btn.previousElementSibling;
+    input.value = '';
+    btn.classList.add('hidden');
+    filterSelectOptions(input);
+}
+
+function filterCheckboxes(input) {
+    const filter = input.value.toLowerCase();
+    const container = input.closest('.filter-group');
+    const items = container.querySelectorAll('.checkbox-item');
+    const clearBtn = input.nextElementSibling;
+
+    if (filter.length > 0) {
+        clearBtn.classList.remove('hidden');
+    } else {
+        clearBtn.classList.add('hidden');
+    }
+
+    items.forEach(item => {
+        const txt = item.textContent.toLowerCase();
+        item.style.display = txt.includes(filter) ? "" : "none";
+    });
+}
+
+function clearCheckboxSearch(btn) {
+    const input = btn.previousElementSibling;
+    input.value = '';
+    btn.classList.add('hidden');
+    filterCheckboxes(input);
+}
+
 document.addEventListener('DOMContentLoaded', () => loadFilters(<?php echo $cat_id; ?>));
 </script>
+
+<style>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #d1d5db;
+}
+</style>
 
 <?php include __DIR__ . '/templates/footer.php'; ?>

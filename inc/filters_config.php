@@ -11,21 +11,36 @@ function get_category_filters($cat_name) {
     // Vehicles / Cars
     if (strpos($cat_name, 'VEHICLES') !== false || strpos($cat_name, 'CARS') !== false) {
         $filters = [
-            'make' => [
-                'label' => 'Make (Brand)',
-                'type' => 'select',
-                'options' => ['Toyota', 'Mercedes-Benz', 'Lexus', 'Honda', 'Hyundai', 'Acura', 'Audi', 'BMW', 'BYD', 'Bentley', 'Cadillac', 'Changan', 'Chevrolet', 'Chrysler', 'Dodge', 'Ford', 'GAC', 'Geely', 'GMC', 'Infiniti', 'Isuzu', 'IVM', 'JAC', 'Jaguar', 'Jeep', 'Jetour', 'Kia', 'Lamborghini', 'Land Rover', 'Lincoln', 'Maserati', 'Mazda', 'Mini', 'Mitsubishi', 'Nissan', 'Opel', 'Peugeot', 'Pontiac', 'Porsche', 'Rolls-Royce', 'Subaru', 'Tesla', 'Volkswagen', 'Volvo', 'XPeng'],
-                'quick' => true
-            ],
             'price' => [
                 'label' => 'Price Range (₦)',
                 'type' => 'range',
                 'quick_ranges' => [
-                    ['label' => 'Under 5.3M', 'min' => 0, 'max' => 5300000],
+                    ['label' => 'Under ₦5.3M', 'min' => 0, 'max' => 5300000],
                     ['label' => '5.3M–13M', 'min' => 5300000, 'max' => 13000000],
                     ['label' => '13M–28M', 'min' => 13000000, 'max' => 28000000],
                     ['label' => '28M–92M', 'min' => 28000000, 'max' => 92000000],
-                    ['label' => '92M+', 'min' => 92000000, 'max' => 999999999]
+                    ['label' => '92M+', 'min' => 92000000, 'max' => 99999999999]
+                ]
+            ],
+            'make' => [
+                'label' => 'Make (Brand)',
+                'type' => 'select',
+                'searchable' => true,
+                'options' => [
+                    'Toyota', 'Mercedes-Benz', 'Lexus', 'Honda', 'Hyundai', 'Acura', 'Audi', 'BMW', 'BYD', 'Bentley',
+                    'Cadillac', 'Changan', 'Chevrolet', 'Chrysler', 'Dodge', 'Ford', 'GAC', 'Geely', 'GMC', 'Infiniti',
+                    'Isuzu', 'Innoson (IVM)', 'JAC', 'Jaguar', 'Jeep', 'Jetour', 'Kia', 'Lamborghini', 'Land Rover', 'Lincoln',
+                    'Maserati', 'Mazda', 'Mini', 'Mitsubishi', 'Nissan', 'Opel', 'Peugeot', 'Pontiac', 'Porsche',
+                    'Rolls-Royce', 'Subaru', 'Tesla', 'Volkswagen', 'Volvo', 'XPeng', 'Abarth', 'Alfa Romeo', 'Alpine',
+                    'Aston Martin', 'Baic', 'Baojun', 'Beijing', 'Borgward', 'Brilliance', 'Bristol', 'Bugatti', 'Buick',
+                    'Caterham', 'Chery', 'Citroen', 'Cupra', 'Dacia', 'Dadi', 'Daewoo', 'Daihatsu', 'DFSK', 'Dongfeng',
+                    'Donkervoort', 'DS', 'Eicher', 'Ferrari', 'Fiat', 'Fisker', 'Force', 'Foton', 'Genesis', 'Gonow',
+                    'Great Wall', 'Gumpert', 'Hafei', 'Haima', 'Haval', 'Higer', 'Holden', 'Huanghai', 'Hummer', 'Ineos',
+                    'Invicta', 'JMC', 'Karma', 'KTM', 'Lada', 'Lancia', 'Landwind', 'Lifan', 'Lotus', 'Luxgen', 'Lynk & Co',
+                    'Mahindra', 'Marussia', 'Maxus', 'Maybach', 'McLaren', 'MG', 'Microcar', 'Morgan', 'Nio', 'Noble',
+                    'Oldsmobile', 'Pagani', 'Perodua', 'Polestar', 'Proton', 'Qvale', 'Radical', 'Ram', 'Ravon', 'Renault',
+                    'Rimac', 'Rivian', 'Roewe', 'Ruf', 'Saab', 'Saleen', 'Scion', 'Seat', 'Shelby', 'Skoda', 'Smart',
+                    'Spyker', 'SsangYong', 'Suzuki', 'Tata', 'Tvr', 'Ultima', 'Vauxhall', 'Venturi', 'Wiesmann', 'Zotye'
                 ]
             ],
             'year' => [
@@ -39,7 +54,7 @@ function get_category_filters($cat_name) {
                     ['label' => '2002-2006', 'min' => 2002, 'max' => 2006],
                     ['label' => '1997-2001', 'min' => 1997, 'max' => 2001],
                     ['label' => '1992-1996', 'min' => 1992, 'max' => 1996],
-                    ['label' => '1987 & older', 'min' => 0, 'max' => 1987]
+                    ['label' => '1987 and older', 'min' => 0, 'max' => 1987]
                 ]
             ],
             'condition' => [
@@ -62,14 +77,10 @@ function get_category_filters($cat_name) {
                 'options' => ['Yes', 'No']
             ],
             'body_type' => [
-                'label' => 'Body Type',
-                'type' => 'select',
-                'options' => ['SUV', 'Sedan', 'Hatchback', 'Coupe', 'Convertible', 'Pickup', 'Minivan', 'Station Wagon', 'Van', 'Truck', 'Wagon', 'Panel Van', 'Crossover', 'Convertible Coupe']
-            ],
-            'second_condition' => [
-                'label' => 'Second Condition',
-                'type' => 'select',
-                'options' => ['No faults', 'Original parts', 'Unpainted', 'First owner', 'First registration', 'After crash', 'Engine issue', 'Gear issue', 'Need body repair', 'Need repainting', 'Need repair', 'Wiring problems']
+                'label' => 'Body',
+                'type' => 'multi_select',
+                'searchable' => true,
+                'options' => ['Wagon', 'Van', 'Truck', 'SUV', 'Station Wagon', 'Sedan', 'Pickup', 'Panel Van', 'Minivan', 'Hatchback', 'Crossover', 'Coupe', 'Convertible Coupe', 'Convertible']
             ],
             'color' => [
                 'label' => 'Color',
@@ -79,7 +90,14 @@ function get_category_filters($cat_name) {
             'engine_size' => [
                 'label' => 'Engine Size (cc)',
                 'type' => 'select',
-                'options' => ['600cc', '800cc', '1000cc', '1200cc', '1400cc', '1600cc', '1800cc', '2000cc', '2200cc', '2400cc', '2500cc', '3000cc', '3500cc', '4000cc', '4500cc', '5000cc', '5500cc', '6000cc+']
+                'options' => [
+                    '660cc', '700cc', '800cc', '900cc', '1000cc', '1100cc', '1200cc', '1300cc', '1400cc', '1500cc', '1600cc', '1700cc',
+                    '1800cc', '1900cc', '2000cc', '2100cc', '2200cc', '2300cc', '2400cc', '2500cc', '2600cc', '2700cc', '2800cc',
+                    '2900cc', '3000cc', '3100cc', '3200cc', '3300cc', '3400cc', '3500cc', '3600cc', '3700cc', '3800cc', '3900cc',
+                    '4000cc', '4100cc', '4200cc', '4300cc', '4400cc', '4500cc', '4600cc', '4700cc', '4800cc', '4900cc', '5000cc',
+                    '5200cc', '5300cc', '5400cc', '5500cc', '5600cc', '5700cc', '5800cc', '5900cc', '6000cc', '6200cc',
+                    '6500cc', '6700cc', '7000cc', '7300cc', '7500cc', '8000cc', '8100cc'
+                ]
             ],
             'powertrain' => [
                 'label' => 'Powertrain',
@@ -92,15 +110,23 @@ function get_category_filters($cat_name) {
                 'options' => ['Petrol', 'Diesel', 'Hybrid', 'Mild Hybrid', 'Electric', 'CNG', 'Plug-in Hybrid']
             ],
             'exchange' => [
-                'label' => 'Exchange Possible',
+                'label' => 'Exchange offers available',
+                'type' => 'checkbox'
+            ],
+            'second_condition' => [
+                'label' => 'Second Condition',
                 'type' => 'select',
-                'options' => ['Yes', 'No']
+                'options' => ['No faults', 'Original parts', 'Unpainted', 'First owner', 'First registration', 'After crash', 'Engine issue', 'Gear issue', 'Need body repair', 'Need repainting', 'Need repair', 'Wiring problems']
             ]
         ];
     }
     // Electronics
-    elseif (strpos($cat_name, 'ELECTRONICS') !== false || strpos($cat_name, 'LAPTOPS') !== false || strpos($cat_name, 'TV') !== false) {
+    elseif (strpos($cat_name, 'ELECTRONICS') !== false || strpos($cat_name, 'LAPTOPS') !== false || strpos($cat_name, 'TV') !== false || strpos($cat_name, 'COMPUTERS') !== false) {
         $filters = [
+            'price' => [
+                'label' => 'Price Range (₦)',
+                'type' => 'range'
+            ],
             'condition' => [
                 'label' => 'Condition',
                 'type' => 'select',
@@ -109,21 +135,21 @@ function get_category_filters($cat_name) {
             'brand' => [
                 'label' => 'Brand',
                 'type' => 'select',
-                'options' => ['Dell', 'HP', 'Lenovo', 'Apple', 'Sony', 'LG', 'Samsung', 'Acer', 'Asus', 'Toshiba', 'Panasonic', 'Hisense', 'TCL']
-            ],
-            'screen_size' => [
-                'label' => 'Screen Size (inches)',
-                'type' => 'number'
-            ],
-            'storage' => [
-                'label' => 'Storage',
-                'type' => 'select',
-                'options' => ['128GB SSD', '256GB SSD', '512GB SSD', '1TB SSD', '500GB HDD', '1TB HDD']
+                'options' => ['Dell', 'HP', 'Lenovo', 'Apple', 'Sony', 'LG', 'Samsung', 'Acer', 'Asus', 'Toshiba', 'Panasonic', 'Hisense', 'TCL', 'Huawei', 'Xiaomi', 'Tecno', 'Infinix', 'Microsoft', 'Google', 'Nintendo', 'Sega', 'Canon', 'Nikon', 'Fujifilm']
             ],
             'type' => [
                 'label' => 'Type',
                 'type' => 'select',
-                'options' => ['Laptop', 'Desktop', 'Tablet', 'Monitor', 'Television', 'Audio System', 'Camera']
+                'options' => ['Laptop', 'Desktop', 'Tablet', 'Monitor', 'Television', 'Audio System', 'Camera', 'Game Console', 'Headphones', 'Speaker', 'Projector']
+            ],
+            'screen_size' => [
+                'label' => 'Screen Size (inches)',
+                'type' => 'number_range'
+            ],
+            'storage' => [
+                'label' => 'Storage',
+                'type' => 'select',
+                'options' => ['128GB SSD', '256GB SSD', '512GB SSD', '1TB SSD', '2TB SSD', '500GB HDD', '1TB HDD', '2TB HDD', '64GB', '128GB', '256GB']
             ]
         ];
     }
@@ -134,7 +160,7 @@ function get_category_filters($cat_name) {
                 'label' => 'Price Range (₦)',
                 'type' => 'range',
                 'quick_ranges' => [
-                    ['label' => 'Under 250K', 'min' => 0, 'max' => 250000],
+                    ['label' => 'Under ₦250K', 'min' => 0, 'max' => 250000],
                     ['label' => '250K-10M', 'min' => 250000, 'max' => 10000000],
                     ['label' => '10M-200M', 'min' => 10000000, 'max' => 200000000],
                     ['label' => '200M-1.4B', 'min' => 200000000, 'max' => 1400000000],
@@ -144,11 +170,13 @@ function get_category_filters($cat_name) {
             'verified_seller' => [
                 'label' => 'Verified Sellers',
                 'type' => 'select',
+                'search_only' => true,
                 'options' => ['Verified sellers only', 'All sellers']
             ],
             'discount' => [
                 'label' => 'Discount',
                 'type' => 'select',
+                'search_only' => true,
                 'options' => ['With discount', 'Without discount']
             ],
             'transaction_type' => [
@@ -173,6 +201,7 @@ function get_category_filters($cat_name) {
             'trusted_agent' => [
                 'label' => 'Trusted Real Estate Agent',
                 'type' => 'select',
+                'search_only' => true,
                 'options' => ['Yes', 'No']
             ]
         ];
