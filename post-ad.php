@@ -231,14 +231,30 @@ function loadFilters(catId) {
                 html += '<div>';
                 html += `<label class="block text-gray-700 font-bold mb-2 text-sm">${f.label}</label>`;
 
-                if (f.type === 'select') {
-                    html += `<select name="extra[${key}]" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none">`;
-                    html += '<option value="">Select option</option>';
-                    f.options.forEach(opt => {
-                        html += `<option value="${opt}">${opt}</option>`;
-                    });
-                    html += '</select>';
-                } else if (f.type === 'number') {
+                if (f.type === 'checkbox') {
+                    html += `<label class="flex items-center gap-3 cursor-pointer py-2">
+                        <input type="checkbox" name="extra[${key}]" value="1" class="w-5 h-5 accent-green-600">
+                        <span class="text-sm font-bold text-gray-700">${f.label}</span>
+                    </label>`;
+                } else if (f.type === 'select' || f.type === 'multi_select') {
+                    if (f.searchable) {
+                        html += `<div class="relative group">
+                            <input type="text" placeholder="Search ${f.label}..." onkeyup="filterPostOptions(this)" class="w-full p-3 border rounded-t-lg focus:border-green-500 outline-none mb-[1px]">
+                            <select name="extra[${key}]" class="w-full p-3 border rounded-b-lg focus:border-green-500 outline-none custom-select-list" size="5">
+                                <option value="">Select ${f.label}</option>`;
+                        f.options.forEach(opt => {
+                            html += `<option value="${opt}">${opt}</option>`;
+                        });
+                        html += `</select></div>`;
+                    } else {
+                        html += `<select name="extra[${key}]" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none">`;
+                        html += '<option value="">Select option</option>';
+                        f.options.forEach(opt => {
+                            html += `<option value="${opt}">${opt}</option>`;
+                        });
+                        html += '</select>';
+                    }
+                } else if (f.type === 'number' || f.type === 'number_range' || f.type === 'range') {
                     html += `<input type="number" name="extra[${key}]" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="Enter value">`;
                 }
 
@@ -268,6 +284,16 @@ function loadLGAs(stateId) {
                 lgaSelect.appendChild(option);
             });
         });
+}
+
+function filterPostOptions(input) {
+    const filter = input.value.toLowerCase();
+    const select = input.nextElementSibling;
+    const options = select.options;
+    for (let i = 0; i < options.length; i++) {
+        const txt = options[i].text.toLowerCase();
+        options[i].style.display = txt.includes(filter) || options[i].value === "" ? "" : "none";
+    }
 }
 
 function toggleSwapFields() {

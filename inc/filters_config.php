@@ -25,26 +25,27 @@ function get_category_filters($cat_name) {
             'make' => [
                 'label' => 'Make (Brand)',
                 'type' => 'select',
+                'searchable' => true,
                 'options' => [
                     'Toyota', 'Mercedes-Benz', 'Lexus', 'Honda', 'Hyundai', 'Acura', 'Audi', 'BMW', 'BYD', 'Bentley',
                     'Cadillac', 'Changan', 'Chevrolet', 'Chrysler', 'Dodge', 'Ford', 'GAC', 'Geely', 'GMC', 'Infiniti',
-                    'Isuzu', 'IVM', 'JAC', 'Jaguar', 'Jeep', 'Jetour', 'Kia', 'Lamborghini', 'Land Rover', 'Lincoln',
+                    'Isuzu', 'Innoson (IVM)', 'JAC', 'Jaguar', 'Jeep', 'Jetour', 'Kia', 'Lamborghini', 'Land Rover', 'Lincoln',
                     'Maserati', 'Mazda', 'Mini', 'Mitsubishi', 'Nissan', 'Opel', 'Peugeot', 'Pontiac', 'Porsche',
-                    'Rolls-Royce', 'Subaru', 'Tesla', 'Volkswagen', 'Volvo', 'XPeng', 'Alfa Romeo', 'Aston Martin',
-                    'Baic', 'Bugatti', 'Buick', 'Chery', 'Citroen', 'Dacia', 'Daewoo', 'Daihatsu', 'Dongfeng', 'Ferrari',
-                    'Fiat', 'Foton', 'Genesis', 'Great Wall', 'Haval', 'Hummer', 'Innoson', 'JMC', 'Lotus', 'Mahindra',
-                    'Maybach', 'McLaren', 'MG', 'Pagani', 'Ram', 'Renault', 'Saab', 'Scion', 'Seat', 'Skoda', 'Smart',
-                    'SsangYong', 'Suzuki', 'Tata', 'Zotye', 'Abarth', 'Alpine', 'Baojun', 'Beijing', 'Borgward', 'Brilliance',
-                    'Bristol', 'Caterham', 'Cupra', 'Dadi', 'DFSK', 'Dodge', 'Donkervoort', 'DS', 'Eicher', 'Fisker', 'Force',
-                    'Gonow', 'Gumpert', 'Hafei', 'Haima', 'Higer', 'Holden', 'Huanghai', 'Ineos', 'Invicta', 'Karma', 'KTM',
-                    'Lada', 'Lancia', 'Landwind', 'Lifan', 'Lifan', 'Luxgen', 'Lynk & Co', 'Marussia', 'Maxus', 'Microcar',
-                    'Morgan', 'Nio', 'Noble', 'Oldsmobile', 'Perodua', 'Polestar', 'Proton', 'Qvale', 'Radical', 'Ravon',
-                    'Rimac', 'Rivian', 'Roewe', 'Ruf', 'Saleen', 'Shelby', 'Spyker', 'Tvr', 'Ultima', 'Vauxhall', 'Venturi', 'Wiesmann'
+                    'Rolls-Royce', 'Subaru', 'Tesla', 'Volkswagen', 'Volvo', 'XPeng', 'Abarth', 'Alfa Romeo', 'Alpine',
+                    'Aston Martin', 'Baic', 'Baojun', 'Beijing', 'Borgward', 'Brilliance', 'Bristol', 'Bugatti', 'Buick',
+                    'Caterham', 'Chery', 'Citroen', 'Cupra', 'Dacia', 'Dadi', 'Daewoo', 'Daihatsu', 'DFSK', 'Dongfeng',
+                    'Donkervoort', 'DS', 'Eicher', 'Ferrari', 'Fiat', 'Fisker', 'Force', 'Foton', 'Genesis', 'Gonow',
+                    'Great Wall', 'Gumpert', 'Hafei', 'Haima', 'Haval', 'Higer', 'Holden', 'Huanghai', 'Hummer', 'Ineos',
+                    'Invicta', 'JMC', 'Karma', 'KTM', 'Lada', 'Lancia', 'Landwind', 'Lifan', 'Lotus', 'Luxgen', 'Lynk & Co',
+                    'Mahindra', 'Marussia', 'Maxus', 'Maybach', 'McLaren', 'MG', 'Microcar', 'Morgan', 'Nio', 'Noble',
+                    'Oldsmobile', 'Pagani', 'Perodua', 'Polestar', 'Proton', 'Qvale', 'Radical', 'Ram', 'Ravon', 'Renault',
+                    'Rimac', 'Rivian', 'Roewe', 'Ruf', 'Saab', 'Saleen', 'Scion', 'Seat', 'Shelby', 'Skoda', 'Smart',
+                    'Spyker', 'SsangYong', 'Suzuki', 'Tata', 'Tvr', 'Ultima', 'Vauxhall', 'Venturi', 'Wiesmann', 'Zotye'
                 ]
             ],
             'year' => [
                 'label' => 'Year of Manufacture',
-                'type' => 'number',
+                'type' => 'number_range',
                 'quick_ranges' => [
                     ['label' => '2022-2026', 'min' => 2022, 'max' => 2026],
                     ['label' => '2017-2021', 'min' => 2017, 'max' => 2021],
@@ -68,7 +69,7 @@ function get_category_filters($cat_name) {
             ],
             'mileage' => [
                 'label' => 'Mileage (km)',
-                'type' => 'number'
+                'type' => 'number_range'
             ],
             'registered' => [
                 'label' => 'Registered Car',
@@ -76,14 +77,10 @@ function get_category_filters($cat_name) {
                 'options' => ['Yes', 'No']
             ],
             'body_type' => [
-                'label' => 'Body Type',
-                'type' => 'select',
-                'options' => ['SUV', 'Sedan', 'Hatchback', 'Coupe', 'Convertible', 'Pickup', 'Minivan', 'Station Wagon', 'Van', 'Truck', 'Wagon', 'Panel Van', 'Crossover', 'Convertible Coupe']
-            ],
-            'second_condition' => [
-                'label' => 'Second Condition',
-                'type' => 'select',
-                'options' => ['No faults', 'Original parts', 'Unpainted', 'First owner', 'First registration', 'After crash', 'Engine issue', 'Gear issue', 'Need body repair', 'Need repainting', 'Need repair', 'Wiring problems']
+                'label' => 'Body',
+                'type' => 'multi_select',
+                'searchable' => true,
+                'options' => ['Wagon', 'Van', 'Truck', 'SUV', 'Station Wagon', 'Sedan', 'Pickup', 'Panel Van', 'Minivan', 'Hatchback', 'Crossover', 'Coupe', 'Convertible Coupe', 'Convertible']
             ],
             'color' => [
                 'label' => 'Color',
@@ -113,9 +110,13 @@ function get_category_filters($cat_name) {
                 'options' => ['Petrol', 'Diesel', 'Hybrid', 'Mild Hybrid', 'Electric', 'CNG', 'Plug-in Hybrid']
             ],
             'exchange' => [
-                'label' => 'Exchange Possible',
+                'label' => 'Exchange offers available',
+                'type' => 'checkbox'
+            ],
+            'second_condition' => [
+                'label' => 'Second Condition',
                 'type' => 'select',
-                'options' => ['Yes', 'No']
+                'options' => ['No faults', 'Original parts', 'Unpainted', 'First owner', 'First registration', 'After crash', 'Engine issue', 'Gear issue', 'Need body repair', 'Need repainting', 'Need repair', 'Wiring problems']
             ]
         ];
     }
@@ -143,7 +144,7 @@ function get_category_filters($cat_name) {
             ],
             'screen_size' => [
                 'label' => 'Screen Size (inches)',
-                'type' => 'number'
+                'type' => 'number_range'
             ],
             'storage' => [
                 'label' => 'Storage',
@@ -190,7 +191,7 @@ function get_category_filters($cat_name) {
             ],
             'size' => [
                 'label' => 'Size (sqm)',
-                'type' => 'number'
+                'type' => 'number_range'
             ],
             'bedrooms' => [
                 'label' => 'Bedrooms',
