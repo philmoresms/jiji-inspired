@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('profile.php', 'Ad updated and re-submitted for moderation.');
     } catch (PDOException $e) {
         error_log("Edit Ad Error: " . $e->getMessage());
-        $error = "An error occurred while updating your ad.";
+        $error = "An error occurred while updating your ad. Database Error: " . $e->getMessage();
     }
 }
 

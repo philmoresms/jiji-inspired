@@ -81,6 +81,8 @@ CREATE TABLE IF NOT EXISTS ads (
     views INT DEFAULT 0,
     decline_reason TEXT,
     video_url VARCHAR(255) DEFAULT NULL,
+    expires_at TIMESTAMP NULL DEFAULT NULL,
+    bumped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX (cat_id),
     INDEX (state_id),

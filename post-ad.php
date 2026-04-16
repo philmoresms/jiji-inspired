@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('profile.php', 'Ad posted successfully! It will be live after moderation.');
     } catch (PDOException $e) {
         error_log("Post Ad Error: " . $e->getMessage());
-        $error = "An error occurred while posting your ad. Please ensure all fields are correct.";
+        $error = "An error occurred while posting your ad. Database Error: " . $e->getMessage();
     }
 }
 
