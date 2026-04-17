@@ -200,9 +200,10 @@ include __DIR__ . '/templates/header.php';
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <?php foreach ($featured_ads as $ad): ?>
                     <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition">
-                        <div class="relative h-40">
-                            <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
-                            <span class="absolute top-2 left-2 bg-yellow-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Featured</span>
+                        <?php $ad_img = $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>
+                        <div class="relative h-40 fit-to-frame" style="--bg-image: url('<?php echo $ad_img; ?>')">
+                            <img src="<?php echo $ad_img; ?>">
+                            <span class="absolute top-2 left-2 bg-yellow-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase z-10">Featured</span>
                             <?php if ($ad['listing_type'] !== 'for_sale'): ?>
                                 <span class="absolute top-2 right-2 bg-blue-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase shadow-sm"><i class="fas fa-sync-alt mr-1"></i> Swap</span>
                             <?php endif; ?>
@@ -262,8 +263,9 @@ include __DIR__ . '/templates/header.php';
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <?php foreach ($recommended_ads as $ad): ?>
                     <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition border border-blue-50">
-                        <div class="relative h-40">
-                            <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
+                        <?php $ad_img = $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>
+                        <div class="relative h-40 fit-to-frame" style="--bg-image: url('<?php echo $ad_img; ?>')">
+                            <img src="<?php echo $ad_img; ?>">
                             <?php if ($ad['listing_type'] !== 'for_sale'): ?>
                                 <span class="absolute top-2 right-2 bg-blue-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase shadow-sm"><i class="fas fa-sync-alt mr-1"></i> Swap</span>
                             <?php endif; ?>
@@ -325,8 +327,9 @@ include __DIR__ . '/templates/header.php';
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8" id="trendingContainer">
                     <?php foreach ($recent_ads as $ad): ?>
                     <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 group">
-                        <div class="h-64 overflow-hidden relative">
-                            <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                        <?php $ad_img = $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>
+                        <div class="h-64 overflow-hidden relative fit-to-frame" style="--bg-image: url('<?php echo $ad_img; ?>')">
+                            <img src="<?php echo $ad_img; ?>" class="group-hover:scale-110 transition duration-700">
                             <?php if ($ad['listing_type'] !== 'for_sale'): ?>
                                 <div class="absolute top-4 right-4 bg-blue-600 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-blue-500"><i class="fas fa-sync-alt mr-1"></i> Swap</div>
                             <?php endif; ?>
@@ -476,10 +479,10 @@ function filterTrending(catId, type = 'all') {
             }
             container.innerHTML = data.map(ad => `
                 <a href="${ad.url}" class="bg-white rounded-2xl md:rounded-[2.5rem] shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 group">
-                    <div class="h-48 md:h-64 overflow-hidden relative">
-                        <img src="${ad.image ? '/uploads/ads/'+ad.image : 'https://placehold.co/400x300?text=No+Image'}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
-                        ${ad.is_featured == 1 ? '<div class="absolute top-4 left-4 bg-yellow-400 text-yellow-900 text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-yellow-300">Premium</div>' : ''}
-                        ${ad.listing_type !== 'for_sale' ? '<div class="absolute top-4 right-4 bg-blue-600 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-blue-500"><i class="fas fa-sync-alt mr-1"></i> Swap</div>' : ''}
+                    <div class="h-48 md:h-64 overflow-hidden relative fit-to-frame" style="--bg-image: url('${ad.image ? '/uploads/ads/'+ad.image : 'https://placehold.co/400x300?text=No+Image'}')">
+                        <img src="${ad.image ? '/uploads/ads/'+ad.image : 'https://placehold.co/400x300?text=No+Image'}" class="group-hover:scale-110 transition duration-700">
+                        ${ad.is_featured == 1 ? '<div class="absolute top-4 left-4 bg-yellow-400 text-yellow-900 text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-yellow-300 z-10">Premium</div>' : ''}
+                        ${ad.listing_type !== 'for_sale' ? '<div class="absolute top-4 right-4 bg-blue-600 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-blue-500 z-10"><i class="fas fa-sync-alt mr-1"></i> Swap</div>' : ''}
                     </div>
                     <div class="p-4 md:p-6">
                         <h4 class="text-xs md:text-sm font-black text-gray-800 line-clamp-2 h-8 md:h-10 mb-2 md:mb-4 group-hover:text-primary-600 transition">${ad.title}</h4>

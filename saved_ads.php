@@ -33,9 +33,10 @@ include __DIR__ . '/templates/header.php';
         <?php foreach ($ads as $ad): ?>
         <div class="bg-white rounded-[2rem] shadow-sm overflow-hidden border border-gray-100 group relative">
             <a href="<?php echo generate_ad_url($ad); ?>">
-                <div class="relative h-48 overflow-hidden">
-                    <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
-                    <div class="absolute bottom-4 left-4">
+                <?php $ad_img = $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>
+                <div class="relative h-48 overflow-hidden fit-to-frame" style="--bg-image: url('<?php echo $ad_img; ?>')">
+                    <img src="<?php echo $ad_img; ?>" class="group-hover:scale-110 transition duration-700">
+                    <div class="absolute bottom-4 left-4 z-10">
                         <span class="bg-black/50 backdrop-blur-md text-white text-[9px] font-black px-3 py-1 rounded-full uppercase"><?php echo h($ad['cat_name']); ?></span>
                     </div>
                 </div>

@@ -46,7 +46,7 @@ include __DIR__ . '/templates/header.php';
                     <p class="text-[10px] text-gray-400 font-bold mb-4 uppercase tracking-widest"><?php echo h($user['email']); ?></p>
                     <?php if ($user['is_verified']): ?>
                         <div class="inline-flex items-center gap-2 bg-primary-50 text-primary-700 px-4 py-1.5 rounded-full text-[10px] font-black border border-primary-100 uppercase tracking-widest">
-                            <i class="fas fa-check-circle"></i> <?php echo ($user["verification_tier"] == "business_verified" ? "<?php echo strtoupper(h($settings['site_name'] ?? 'Classifieds')); ?> BUSINESS" : "NIN VERIFIED"); ?>
+                            <i class="fas fa-check-circle"></i> <?php echo ($user["verification_tier"] == "business_verified" ? strtoupper(h($settings['site_name'] ?? 'Classifieds')) . " BUSINESS" : "NIN VERIFIED"); ?>
                         </div>
                     <?php else: ?>
                         <div class="inline-flex items-center gap-2 bg-gray-50 text-gray-500 px-4 py-1.5 rounded-full text-[10px] font-black border border-gray-100 uppercase tracking-widest">
@@ -105,6 +105,59 @@ include __DIR__ . '/templates/header.php';
                         </div>
                         <span class="text-[11px] font-black text-gray-800 uppercase tracking-widest">Logout</span>
                     </a>
+                </div>
+            </div>
+
+            <!-- Seller Reviews Section -->
+            <div class="mb-12">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-2 h-6 bg-yellow-500 rounded-full"></div>
+                    <h3 class="text-[11px] font-black text-gray-800 uppercase tracking-[3px]">My Ratings & Reviews</h3>
+                </div>
+                <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100">
+                    <div class="space-y-6">
+                        <?php
+                        $stmt_reviews = $pdo->prepare("SELECT r.*, u.full_name FROM reviews r JOIN users u ON r.reviewer_id = u.id WHERE r.seller_id = ? ORDER BY r.submitted_at DESC");
+                        $stmt_reviews->execute([$user_id]);
+                        $reviews = $stmt_reviews->fetchAll();
+                        foreach ($reviews as $rev):
+                        ?>
+                            <div class="border-b border-gray-50 pb-6 last:border-0">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex flex-col">
+                                        <h5 class="text-xs font-black text-gray-800 uppercase"><?php echo h($rev['full_name']); ?></h5>
+                                        <span class="text-[9px] text-gray-400 font-bold"><?php echo date('d M, Y', strtotime($rev['submitted_at'])); ?></span>
+                                    </div>
+                                    <div class="flex text-yellow-400 text-[10px]">
+                                        <?php for($i=1; $i<=5; $i++) echo $i <= $rev['stars'] ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>'; ?>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-600 font-medium mb-4"><?php echo h($rev['body']); ?></p>
+
+                                <?php if ($rev['reply_text']): ?>
+                                    <div class="bg-primary-50 p-4 rounded-2xl ml-4 border-l-4 border-primary-500">
+                                        <p class="text-[10px] font-black text-primary-600 uppercase mb-1">Your Reply</p>
+                                        <p class="text-[11px] text-gray-600 italic font-medium"><?php echo h($rev['reply_text']); ?></p>
+                                    </div>
+                                <?php else: ?>
+                                    <button onclick="toggleReplyForm(<?php echo $rev['id']; ?>)" class="text-[9px] font-black text-primary-600 uppercase tracking-widest hover:underline ml-4"><i class="fas fa-reply mr-1"></i> Public Reply</button>
+                                    <form id="replyForm-<?php echo $rev['id']; ?>" class="hidden mt-4 ml-4 space-y-3 bg-gray-50 p-4 rounded-2xl">
+                                        <input type="hidden" name="review_id" value="<?php echo $rev['id']; ?>">
+                                        <textarea name="reply_text" class="w-full p-3 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition" rows="2" placeholder="Write your response..."></textarea>
+                                        <div class="flex gap-2">
+                                            <button type="submit" class="bg-primary-600 text-white px-4 py-2 rounded-lg font-black text-[9px] uppercase tracking-widest hover:bg-primary-700 transition">Post Reply</button>
+                                            <button type="button" onclick="toggleReplyForm(<?php echo $rev['id']; ?>)" class="text-gray-400 font-black text-[9px] uppercase tracking-widest">Cancel</button>
+                                        </div>
+                                    </form>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                        <?php if (empty($reviews)): ?>
+                            <div class="text-center py-4">
+                                <p class="text-xs text-gray-400 font-bold">You haven't received any reviews yet.</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
 
@@ -173,5 +226,25 @@ include __DIR__ . '/templates/header.php';
         </div>
     </div>
 </div>
+
+<script>
+function toggleReplyForm(id) {
+    const form = document.getElementById('replyForm-' + id);
+    form.classList.toggle('hidden');
+}
+
+document.querySelectorAll('[id^="replyForm-"]').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        fetch('/api/reply_review.php', {
+            method: 'POST',
+            body: new FormData(this)
+        }).then(res => res.json()).then(data => {
+            alert(data.message);
+            if(data.success) location.reload();
+        });
+    });
+});
+</script>
 
 <?php include __DIR__ . '/templates/footer.php'; ?>

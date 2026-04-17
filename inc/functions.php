@@ -84,8 +84,19 @@ function process_image_upload($file_tmp, $target_dir, $max_width = 800, $user_id
         }
     }
 
+    // Fetch seller info for watermark
+    $seller_info = "";
+    if ($pdo && $user_id) {
+        $stmt_s = $pdo->prepare("SELECT full_name, (SELECT setting_value FROM users_settings WHERE user_id = ? AND setting_key = 'business_name' LIMIT 1) as biz_name FROM users WHERE id = ?");
+        $stmt_s->execute([$user_id, $user_id]);
+        $s_info = $stmt_s->fetch();
+        if ($s_info) {
+            $seller_info = $s_info['biz_name'] ?: $s_info['full_name'];
+        }
+    }
+
     // Apply Watermark
-    apply_site_watermark($src);
+    apply_site_watermark($src, $seller_info);
 
     $filename = md5(uniqid(rand(), true)) . ".jpg";
     $target_file = $target_dir . "/" . $filename;
@@ -182,9 +193,9 @@ function generate_phash($resource) {
 }
 
 /**
- * Apply Site Watermark (Feature 06) - Enhanced with Bold TTF Font
+ * Apply Site Watermark (Feature 06) - Dynamic with Site and Seller branding
  */
-function apply_site_watermark($resource) {
+function apply_site_watermark($resource, $seller_info = "") {
     global $pdo;
     $width = imagesx($resource);
     $height = imagesy($resource);
@@ -193,33 +204,45 @@ function apply_site_watermark($resource) {
     // Attempt to fetch site name for watermark
     static $site_name = null;
     if ($site_name === null && $pdo) {
-        $stmt = $pdo->query("SELECT setting_value FROM settings WHERE setting_key = 'site_name'");
-        $site_name = $stmt->fetchColumn();
+        try {
+            $stmt = $pdo->query("SELECT setting_value FROM settings WHERE setting_key = 'site_name'");
+            $site_name = $stmt->fetchColumn();
+        } catch (Exception $e) {
+            $site_name = "Classifieds";
+        }
     }
 
-    $text = $site_name ?: "Classifieds";
-    $white = imagecolorallocatealpha($resource, 255, 255, 255, 45); // Semi-transparent white
+    $site_text = $site_name ?: "Classifieds";
+    $white = imagecolorallocatealpha($resource, 255, 255, 255, 35); // Slightly lighter for complex text
 
     if (file_exists($font_path) && function_exists('imagettftext')) {
-        $font_size = $width / 12; // Bolder and larger
+        $font_size = $width / 14;
 
-        // Get bounding box to center accurately
-        $bbox = imagettfbbox($font_size, 0, $font_path, $text);
+        // Main Centered Site Name
+        $bbox = imagettfbbox($font_size, 0, $font_path, $site_text);
         $text_width = $bbox[2] - $bbox[0];
         $text_height = $bbox[7] - $bbox[1];
-
         $x = ($width / 2) - ($text_width / 2);
         $y = ($height / 2) - ($text_height / 2);
+        imagettftext($resource, $font_size, 0, $x, $y, $white, $font_path, $site_text);
 
-        // Draw main centered watermark
-        imagettftext($resource, $font_size, 0, $x, $y, $white, $font_path, $text);
+        // Bottom Right: Site Name + Seller Info (Business name)
+        $seller_text = $site_text . ($seller_info ? " | " . $seller_info : "");
+        $small_size = max(8, $width / 45);
+        $bbox_small = imagettfbbox($small_size, 0, $font_path, $seller_text);
+        $sx = $width - ($bbox_small[2] - $bbox_small[0]) - 20;
+        $sy = $height - 20;
+        imagettftext($resource, $small_size, 0, $sx, $sy, $white, $font_path, $seller_text);
 
-        // Add smaller corner watermark
-        $small_size = $font_size / 4;
-        $bbox_small = imagettfbbox($small_size, 0, $font_path, $text);
-        $sx = $width - ($bbox_small[2] - $bbox_small[0]) - 15;
-        $sy = $height - 15;
-        imagettftext($resource, $small_size, 0, $sx, $sy, $white, $font_path, $text);
+        // Tiled secondary watermarks (Jiji Style)
+        $tile_text = $site_text;
+        $tile_size = $small_size / 1.5;
+        $tile_color = imagecolorallocatealpha($resource, 255, 255, 255, 15);
+        for ($tx = 20; $tx < $width; $tx += ($width/3)) {
+            for ($ty = 30; $ty < $height; $ty += ($height/4)) {
+                imagettftext($resource, $tile_size, 45, $tx, $ty, $tile_color, $font_path, $tile_text);
+            }
+        }
     } else {
         // Fallback to basic GD font
         $font_size = 5;

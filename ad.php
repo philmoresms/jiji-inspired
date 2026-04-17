@@ -288,6 +288,98 @@ include __DIR__ . '/templates/header.php';
                 </div>
             </div>
 
+            <!-- Seller Reviews Section -->
+            <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 mt-8">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-xs font-black text-gray-800 uppercase tracking-[3px] flex items-center gap-3">
+                        <i class="fas fa-star text-yellow-400"></i> Ratings & Reviews
+                    </h3>
+                    <?php
+                    $stmt_rev = $pdo->prepare("SELECT COUNT(*) as count, AVG(stars) as avg FROM reviews WHERE seller_id = ?");
+                    $stmt_rev->execute([$ad['user_id']]);
+                    $rev_stats = $stmt_rev->fetch();
+                    ?>
+                    <span class="text-xs font-bold text-gray-500"><?php echo number_format($rev_stats['avg'], 1); ?>/5 (<?php echo $rev_stats['count']; ?> reviews)</span>
+                </div>
+
+                <div class="space-y-6 mb-10">
+                    <?php
+                    $stmt_reviews = $pdo->prepare("SELECT r.*, u.full_name FROM reviews r JOIN users u ON r.reviewer_id = u.id WHERE r.seller_id = ? ORDER BY r.submitted_at DESC LIMIT 3");
+                    $stmt_reviews->execute([$ad['user_id']]);
+                    $reviews = $stmt_reviews->fetchAll();
+                    foreach ($reviews as $rev):
+                    ?>
+                        <div class="border-b border-gray-50 pb-6 last:border-0">
+                            <div class="flex justify-between items-start mb-2">
+                                <h5 class="text-xs font-black text-gray-800 uppercase"><?php echo h($rev['full_name']); ?></h5>
+                                <div class="flex text-yellow-400 text-[10px]">
+                                    <?php for($i=1; $i<=5; $i++) echo $i <= $rev['stars'] ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>'; ?>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 font-medium mb-3"><?php echo h($rev['body']); ?></p>
+                            <?php if ($rev['reply_text']): ?>
+                                <div class="bg-gray-50 p-4 rounded-2xl ml-4 border-l-4 border-primary-500">
+                                    <p class="text-[10px] font-black text-primary-600 uppercase mb-1">Seller Reply</p>
+                                    <p class="text-[11px] text-gray-600 italic font-medium"><?php echo h($rev['reply_text']); ?></p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                    <?php if (empty($reviews)): ?>
+                        <p class="text-xs text-gray-400 font-bold text-center py-4">No reviews yet for this seller.</p>
+                    <?php endif; ?>
+                </div>
+
+                <?php if (is_user_logged_in() && $_SESSION['user_id'] != $ad['user_id']): ?>
+                    <form id="reviewForm" class="space-y-4 pt-8 border-t border-gray-50">
+                        <div class="bg-red-50 p-4 rounded-2xl border border-red-100 mb-6">
+                            <p class="text-[10px] font-black text-red-600 uppercase tracking-widest leading-relaxed">
+                                <i class="fas fa-exclamation-circle mr-1"></i> Warning: Before you leave a bad review, make sure you have a proof to back it up or risk being banned from the platform completely.
+                            </p>
+                        </div>
+                        <input type="hidden" name="seller_id" value="<?php echo $ad['user_id']; ?>">
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Rating</label>
+                            <div class="flex gap-2 text-2xl text-gray-200 cursor-pointer" id="starRating">
+                                <i class="fas fa-star" data-value="1"></i>
+                                <i class="fas fa-star" data-value="2"></i>
+                                <i class="fas fa-star" data-value="3"></i>
+                                <i class="fas fa-star" data-value="4"></i>
+                                <i class="fas fa-star" data-value="5"></i>
+                            </div>
+                            <input type="hidden" name="stars" id="starsInput" value="0">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Your Comment</label>
+                            <textarea name="body" class="w-full p-4 bg-gray-50 border-none rounded-2xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition" rows="3" placeholder="Share your experience with this seller..."></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-gray-800 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-black transition shadow-lg">Submit Review</button>
+                    </form>
+                    <script>
+                        document.querySelectorAll('#starRating i').forEach(star => {
+                            star.addEventListener('click', function() {
+                                const val = this.dataset.value;
+                                document.getElementById('starsInput').value = val;
+                                document.querySelectorAll('#starRating i').forEach(s => {
+                                    s.classList.toggle('text-yellow-400', s.dataset.value <= val);
+                                    s.classList.toggle('text-gray-200', s.dataset.value > val);
+                                });
+                            });
+                        });
+                        document.getElementById('reviewForm').addEventListener('submit', function(e) {
+                            e.preventDefault();
+                            fetch('/api/submit_review.php', {
+                                method: 'POST',
+                                body: new FormData(this)
+                            }).then(res => res.json()).then(data => {
+                                alert(data.message);
+                                if(data.success) location.reload();
+                            });
+                        });
+                    </script>
+                <?php endif; ?>
+            </div>
+
             <?php if ($ad["listing_type"] !== "for_sale"): ?>
             <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 mt-8">
                 <h3 class="text-xs font-black text-gray-800 uppercase tracking-[3px] mb-8 flex items-center gap-3">
