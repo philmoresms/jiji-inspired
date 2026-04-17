@@ -9,7 +9,6 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    // During local dev/testing, we might not have a real DB,
-    // but the app expects $pdo to be defined or it will crash.
-    $pdo = null;
+    // CRITICAL: Die if connection fails to prevent downstream "member function on null" errors.
+    die("Database connection failed. Please check config/config.php or run the installer.");
 }

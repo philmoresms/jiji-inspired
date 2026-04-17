@@ -25,6 +25,7 @@ $tables = [
         'bumped_at' => "TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
     ],
     'users' => [
+        'business_name' => "VARCHAR(200) DEFAULT NULL AFTER full_name",
         'verification_tier' => "ENUM('phone_verified', 'nin_verified', 'business_verified') DEFAULT 'phone_verified' AFTER is_verified",
         'nin_number' => "VARCHAR(11) DEFAULT NULL AFTER verification_tier",
         'kyc_reference' => "VARCHAR(100) DEFAULT NULL AFTER nin_number",
