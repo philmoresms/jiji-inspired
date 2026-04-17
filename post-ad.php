@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $user_id = $_SESSION["user_id"];
 
-        // Tiki Feature 01: Verification Tiers & Limits
+        // Classifieds Feature 01: Verification Tiers & Limits
         $stmt = $pdo->prepare("SELECT verification_tier FROM users WHERE id = ?");
         $stmt->execute([$user_id]);
         $user_tier = $stmt->fetchColumn();
@@ -26,12 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description = $_POST['description'];
         $listing_type = $_POST["listing_type"] ?? "for_sale";
 
-        // Tiki Feature 02: Swap restricted to NIN Verified
+        // Classifieds Feature 02: Swap restricted to NIN Verified
         if ($listing_type !== "for_sale" && $user_tier === "phone_verified") {
             throw new Exception("Swap listings are only available for NIN Verified sellers. Please verify your identity to continue.");
         }
 
-        // Tiki Feature 03: Velocity Check (Duplicate Listing)
+        // Classifieds Feature 03: Velocity Check (Duplicate Listing)
         if (is_duplicate_listing($pdo, $user_id, $title, $description)) {
             throw new Exception("This listing appears to be a duplicate of another item you have already posted. Please check your inventory.");
         }

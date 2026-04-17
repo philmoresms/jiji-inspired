@@ -34,7 +34,7 @@ if (isset($_POST['complete'])) {
 
         // 3. Set Default Settings
         $default_settings = [
-            'site_name' => 'Tiki.ng',
+            'site_name' => 'Classifieds',
             'brute_force_period' => '15',
             'max_failures_account' => '5',
             'max_failures_ip' => '10',

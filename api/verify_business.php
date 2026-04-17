@@ -19,11 +19,15 @@ if (empty($cac_number) || strlen($director_nin) !== 11) {
     return;
 }
 
+// Fetch site name for response
+$stmt_site = $pdo->query("SELECT setting_value FROM settings WHERE setting_key = 'site_name'");
+$site_name = $stmt_site->fetchColumn() ?: 'Classifieds';
+
 // Simulate CAC/NIMC validation
 $stmt = $pdo->prepare("UPDATE users SET verification_tier = 'business_verified', is_verified = 1 WHERE id = ?");
 $stmt->execute([$user_id]);
 
 echo json_encode([
     'success' => true,
-    'message' => 'Business verification submitted for review. Tiki Business badge will be active shortly.'
+    'message' => 'Business verification submitted for review. ' . $site_name . ' Business badge will be active shortly.'
 ]);

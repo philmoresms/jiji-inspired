@@ -40,7 +40,7 @@ $safety_score = calculate_safety_score(['verification_tier' => $ad['verification
 
 // SEO Meta Data
 $meta = generate_meta_tags($ad['title'], $ad['description'], $ad['cat_name'] . " " . $ad['state_name']);
-$page_title = $meta['title'] . " - Tiki.ng";
+$page_title = $meta['title'] . " - " . ($settings['site_name'] ?? 'Classifieds');
 $page_desc = $meta['description'];
 $page_keywords = $meta['keywords'];
 
@@ -140,7 +140,7 @@ include __DIR__ . '/templates/header.php';
                                 <div class="flex items-center gap-2 bg-<?php echo $p_color; ?>-50 px-4 py-2 rounded-xl border border-<?php echo $p_color; ?>-100 shadow-sm">
                                     <i class="fas <?php echo $p_icon; ?> text-<?php echo $p_color; ?>-500 text-xs"></i>
                                     <span class="text-[10px] font-black text-<?php echo $p_color; ?>-700 uppercase tracking-widest">
-                                        <?php echo $p_verified ? "Tiki Verified" : "Self-Declared"; ?> <?php echo ucfirst($p_role); ?>
+                                        <?php echo $p_verified ? h($settings['site_name'] ?? 'Classifieds') . " Verified" : "Self-Declared"; ?> <?php echo ucfirst($p_role); ?>
                                     </span>
                                 </div>
                                 <?php endif; ?>
@@ -228,10 +228,10 @@ include __DIR__ . '/templates/header.php';
                             $rep = $stmt_rep->fetch();
                             if ($rep && $rep["badge_tier"] == "trusted"): ?>
                                 <div class="inline-flex items-center gap-2 bg-yellow-50 text-yellow-700 px-3 py-1.5 rounded-xl text-[10px] font-black border border-yellow-100 uppercase tracking-widest shadow-sm">
-                                    <i class="fas fa-crown"></i> TIKI TRUSTED
+                                    <i class="fas fa-crown"></i> <?php echo strtoupper(h($settings['site_name'] ?? 'Classifieds')); ?> TRUSTED
                                 </div>
                             <?php endif; ?>
-                                    <i class="fas fa-check-circle"></i> <?php echo ($ad["verification_tier"] == "business_verified" ? "TIKI BUSINESS" : "NIN VERIFIED"); ?>
+                                    <i class="fas fa-check-circle"></i> <?php echo ($ad["verification_tier"] == "business_verified" ? strtoupper(h($settings['site_name'] ?? 'Classifieds')) . " BUSINESS" : "NIN VERIFIED"); ?>
                                 </div>
                             <?php else: ?>
                                 <div class="inline-flex items-center gap-2 bg-gray-50 text-gray-400 px-3 py-1.5 rounded-xl text-[10px] font-black border border-gray-100 uppercase tracking-widest">
@@ -270,7 +270,7 @@ include __DIR__ . '/templates/header.php';
                 <div class="mt-10 border-t border-gray-50 pt-8">
                     <p class="text-[10px] font-black text-gray-400 uppercase mb-6 tracking-[3px] text-center">Share this ad</p>
                     <div class="flex justify-center gap-4">
-                        <a href="https://api.whatsapp.com/send?text=<?php echo urlencode($ad["title"] . " - ₦" . number_format($ad["price"]) . ". View on Tiki: ") . (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on" ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"; ?>" target="_blank" class="w-12 h-12 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center hover:bg-green-600 hover:text-white transition-all shadow-sm">
+                        <a href="https://api.whatsapp.com/send?text=<?php echo urlencode($ad["title"] . " - ₦" . number_format($ad["price"]) . ". View on " . ($settings['site_name'] ?? 'Classifieds') . ": ") . (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on" ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"; ?>" target="_blank" class="w-12 h-12 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center hover:bg-green-600 hover:text-white transition-all shadow-sm">
                             <i class="fab fa-whatsapp text-xl"></i>
                         </a>
                         <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode("http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']); ?>" target="_blank" class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm"><i class="fab fa-facebook-f text-lg"></i></a>
@@ -354,11 +354,11 @@ include __DIR__ . '/templates/header.php';
         <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
             <i class="fas fa-shield-alt text-3xl text-green-600"></i>
         </div>
-        <h3 class="text-xl font-black text-gray-800 uppercase tracking-tighter text-center mb-2">Deal Safely on Tiki</h3>
-        <p class="text-sm text-gray-500 font-bold text-center mb-8">Buyers who chat on Tiki before paying have full dispute support. Use our message feature to keep a record of your deal.</p>
+        <h3 class="text-xl font-black text-gray-800 uppercase tracking-tighter text-center mb-2">Deal Safely on <?php echo h($settings['site_name'] ?? 'Classifieds'); ?></h3>
+        <p class="text-sm text-gray-500 font-bold text-center mb-8">Buyers who chat on <?php echo h($settings['site_name'] ?? 'Classifieds'); ?> before paying have full dispute support. Use our message feature to keep a record of your deal.</p>
 
         <div class="space-y-4">
-            <a href="/chat.php?ad_id=<?php echo $ad["id"]; ?>" class="block w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest text-center hover:bg-green-700 transition shadow-xl">Message on Tiki</a>
+            <a href="/chat.php?ad_id=<?php echo $ad["id"]; ?>" class="block w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest text-center hover:bg-green-700 transition shadow-xl">Message on <?php echo h($settings['site_name'] ?? 'Classifieds'); ?></a>
             <button onclick="revealNumber()" class="block w-full bg-gray-50 text-gray-400 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-center hover:bg-gray-100 transition">Show Number Anyway</button>
             <button onclick="closePhoneModal()" class="block w-full text-gray-300 font-black text-[9px] uppercase tracking-widest mt-4">Maybe Later</button>
         </div>

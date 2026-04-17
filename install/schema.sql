@@ -1,4 +1,4 @@
--- Tiki.ng Database Schema v2 (April 2026)
+-- Classifieds Database Schema v2 (April 2026)
 
 -- Nigerian States
 CREATE TABLE IF NOT EXISTS states (

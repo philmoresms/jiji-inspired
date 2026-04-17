@@ -1,6 +1,6 @@
 <?php
 /**
- * Tiki.ng — Aggressive Schema Sync
+ * Classifieds — Aggressive Schema Sync
  * Ensures all required columns exist by trying to add them.
  */
 

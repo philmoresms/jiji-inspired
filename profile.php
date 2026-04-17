@@ -157,7 +157,6 @@ include __DIR__ . '/templates/header.php';
                     </div>
                 </div>
             </div>
-            </div>
             <?php endforeach; ?>
 
             <?php if (empty($user_ads)): ?>

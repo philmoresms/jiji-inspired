@@ -1,6 +1,6 @@
 <?php
 /**
- * Tiki.ng Common Functions
+ * Classifieds Common Functions
  */
 
 // Check if schema needs update (migration logic)
@@ -85,7 +85,7 @@ function process_image_upload($file_tmp, $target_dir, $max_width = 800, $user_id
     }
 
     // Apply Watermark
-    apply_tiki_watermark($src);
+    apply_site_watermark($src);
 
     $filename = md5(uniqid(rand(), true)) . ".jpg";
     $target_file = $target_dir . "/" . $filename;
@@ -182,12 +182,21 @@ function generate_phash($resource) {
 }
 
 /**
- * Apply Tiki.ng Watermark (Feature 06)
+ * Apply Site Watermark (Feature 06)
  */
-function apply_tiki_watermark($resource) {
+function apply_site_watermark($resource) {
+    global $pdo;
     $width = imagesx($resource);
     $height = imagesy($resource);
-    $text = "Tiki.ng";
+
+    // Attempt to fetch site name for watermark
+    static $site_name = null;
+    if ($site_name === null && $pdo) {
+        $stmt = $pdo->query("SELECT setting_value FROM settings WHERE setting_key = 'site_name'");
+        $site_name = $stmt->fetchColumn();
+    }
+
+    $text = $site_name ?: "Classifieds";
     $font_size = max(10, $width / 20);
     $x = $width / 2 - ($font_size * 2);
     $y = $height / 2;
