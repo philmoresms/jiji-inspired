@@ -41,7 +41,7 @@ include __DIR__ . '/templates/header.php';
 
 <div class="container mx-auto px-4 py-20 flex justify-center">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 class="text-2xl font-bold mb-6 text-green-600 text-center uppercase tracking-wider">Sign In</h1>
+        <h1 class="text-2xl font-bold mb-6 text-primary-600 text-center uppercase tracking-wider">Sign In</h1>
 
         <?php if ($error): ?>
             <div class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm font-bold text-center"><?php echo h($error); ?></div>
@@ -50,14 +50,14 @@ include __DIR__ . '/templates/header.php';
         <form method="POST">
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2">Email Address</label>
-                <input type="email" name="email" class="w-full p-3 border-2 border-gray-100 rounded-lg focus:border-green-500 outline-none transition" placeholder="example@mail.com" required autofocus>
+                <input type="email" name="email" class="w-full p-3 border-2 border-gray-100 rounded-lg focus:border-primary-500 outline-none transition" placeholder="example@mail.com" required autofocus>
             </div>
             <div class="mb-6">
                 <label class="block text-gray-700 font-bold mb-2">Password</label>
-                <input type="password" name="password" class="w-full p-3 border-2 border-gray-100 rounded-lg focus:border-green-500 outline-none transition" placeholder="********" required>
+                <input type="password" name="password" class="w-full p-3 border-2 border-gray-100 rounded-lg focus:border-primary-500 outline-none transition" placeholder="********" required>
             </div>
 
-            <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition shadow-lg uppercase">Sign In</button>
+            <button type="submit" class="w-full bg-primary-600 text-white py-3 rounded-lg font-bold hover:bg-primary-700 transition shadow-lg uppercase">Sign In</button>
         </form>
 
         <div class="mt-8 border-t pt-6">
@@ -73,7 +73,7 @@ include __DIR__ . '/templates/header.php';
         </div>
 
         <div class="mt-6 text-center text-gray-600 font-bold text-sm">
-            Don't have an account? <a href="/register" class="text-green-600 hover:underline">Register Now</a>
+            Don't have an account? <a href="/register" class="text-primary-600 hover:underline">Register Now</a>
         </div>
     </div>
 </div>

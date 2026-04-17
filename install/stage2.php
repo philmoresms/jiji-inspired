@@ -77,7 +77,7 @@ try {
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 class="text-2xl font-bold mb-6 text-green-600">Database Configuration</h1>
+        <h1 class="text-2xl font-bold mb-6 text-primary-600">Database Configuration</h1>
 
         <?php if ($error): ?>
             <div class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm"><?php echo h($error); ?></div>
@@ -90,7 +90,7 @@ try {
             </div>
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2">DB Name</label>
-                <input type="text" name="db_name" value="tiki_ng" class="w-full p-2 border rounded" required>
+                <input type="text" name="db_name" value="classifieds_db" class="w-full p-2 border rounded" required>
             </div>
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2">DB User</label>
@@ -101,7 +101,7 @@ try {
                 <input type="password" name="db_pass" class="w-full p-2 border rounded">
             </div>
 
-            <button type="submit" name="install" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition">Next: Admin & Seeding</button>
+            <button type="submit" name="install" class="w-full bg-primary-600 text-white py-3 rounded-lg font-bold hover:bg-primary-700 transition">Next: Admin & Seeding</button>
         </form>
     </div>
 </body>

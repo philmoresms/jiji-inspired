@@ -1,7 +1,7 @@
 <!-- Mobile Bottom Navigation (Hidden on Desktop) -->
 <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-[90] px-4 py-3 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
     <div class="flex justify-between items-center max-w-lg mx-auto">
-        <a href="/" class="flex flex-col items-center gap-1 <?php echo $_SERVER['PHP_SELF'] == '/index.php' ? 'text-green-600' : 'text-gray-400'; ?>">
+        <a href="/" class="flex flex-col items-center gap-1 <?php echo $_SERVER['PHP_SELF'] == '/index.php' ? 'text-primary-600' : 'text-gray-400'; ?>">
             <i class="fas fa-home text-lg"></i>
             <span class="text-[9px] font-black uppercase">Home</span>
         </a>
@@ -28,12 +28,12 @@
             <span class="text-[9px] font-black text-yellow-600 uppercase mt-1">Sell</span>
         </a>
 
-        <a href="/chat" class="flex flex-col items-center gap-1 <?php echo (strpos($_SERVER['PHP_SELF'], '/chat.php') !== false) ? 'text-green-600' : 'text-gray-400'; ?>">
+        <a href="/chat" class="flex flex-col items-center gap-1 <?php echo (strpos($_SERVER['PHP_SELF'], '/chat.php') !== false) ? 'text-primary-600' : 'text-gray-400'; ?>">
             <i class="fas fa-comments text-lg"></i>
             <span class="text-[9px] font-black uppercase">Chats</span>
         </a>
 
-        <a href="/profile" class="flex flex-col items-center gap-1 <?php echo (strpos($_SERVER['PHP_SELF'], '/profile.php') !== false) ? 'text-green-600' : 'text-gray-400'; ?>">
+        <a href="/profile" class="flex flex-col items-center gap-1 <?php echo (strpos($_SERVER['PHP_SELF'], '/profile.php') !== false) ? 'text-primary-600' : 'text-gray-400'; ?>">
             <i class="fas fa-user text-lg"></i>
             <span class="text-[9px] font-black uppercase">Profile</span>
         </a>

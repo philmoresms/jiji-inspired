@@ -89,7 +89,7 @@ include __DIR__ . '/templates/header.php';
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-gray-700 font-bold mb-2 text-sm">Category</label>
-                    <select name="cat_id" id="cat_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required onchange="loadFilters(this.value)">
+                    <select name="cat_id" id="cat_id" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" required onchange="loadFilters(this.value)">
                         <?php foreach ($categories as $cat): ?>
                             <option value="<?php echo $cat['id']; ?>" <?php echo $ad['cat_id'] == $cat['id'] ? 'selected' : ''; ?>><?php echo h($cat['name']); ?></option>
                         <?php endforeach; ?>
@@ -97,14 +97,14 @@ include __DIR__ . '/templates/header.php';
                 </div>
                 <div>
                     <label class="block text-gray-700 font-bold mb-2 text-sm">Title</label>
-                    <input type="text" name="title" value="<?php echo h($ad['title']); ?>" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required>
+                    <input type="text" name="title" value="<?php echo h($ad['title']); ?>" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" required>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-gray-700 font-bold mb-2 text-sm">State</label>
-                    <select name="state_id" id="state_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required onchange="loadLGAs(this.value)">
+                    <select name="state_id" id="state_id" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" required onchange="loadLGAs(this.value)">
                         <?php foreach ($states as $state): ?>
                             <option value="<?php echo $state['id']; ?>" <?php echo $ad['state_id'] == $state['id'] ? 'selected' : ''; ?>><?php echo h($state['name']); ?></option>
                         <?php endforeach; ?>
@@ -112,7 +112,7 @@ include __DIR__ . '/templates/header.php';
                 </div>
                 <div>
                     <label class="block text-gray-700 font-bold mb-2 text-sm">LGA (City)</label>
-                    <select name="lga_id" id="lga_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required>
+                    <select name="lga_id" id="lga_id" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" required>
                     </select>
                 </div>
             </div>
@@ -120,17 +120,17 @@ include __DIR__ . '/templates/header.php';
             <div class="p-6 bg-gray-50 rounded-2xl border border-gray-100 mb-6">
                 <label class="block text-gray-700 font-black mb-4 text-xs uppercase tracking-widest">Listing Options</label>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-green-200 has-[:checked]:border-green-600 has-[:checked]:bg-green-50 transition">
+                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-primary-200 has-[:checked]:border-primary-600 has-[:checked]:bg-primary-50 transition">
                         <input type="radio" name="listing_type" value="for_sale" <?php echo $ad['listing_type'] == 'for_sale' ? 'checked' : ''; ?> class="absolute opacity-0" onchange="toggleSwapFields()">
                         <span class="text-xs font-bold text-gray-800">For Sale</span>
                         <span class="text-[9px] text-gray-400 mt-1">Direct monetary trade</span>
                     </label>
-                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-green-200 has-[:checked]:border-green-600 has-[:checked]:bg-green-50 transition">
+                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-primary-200 has-[:checked]:border-primary-600 has-[:checked]:bg-primary-50 transition">
                         <input type="radio" name="listing_type" value="for_swap" <?php echo $ad['listing_type'] == 'for_swap' ? 'checked' : ''; ?> class="absolute opacity-0" onchange="toggleSwapFields()">
                         <span class="text-xs font-bold text-gray-800">For Swap</span>
                         <span class="text-[9px] text-gray-400 mt-1">Item-for-item exchange</span>
                     </label>
-                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-green-200 has-[:checked]:border-green-600 has-[:checked]:bg-green-50 transition">
+                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-primary-200 has-[:checked]:border-primary-600 has-[:checked]:bg-primary-50 transition">
                         <input type="radio" name="listing_type" value="for_sale_or_swap" <?php echo $ad['listing_type'] == 'for_sale_or_swap' ? 'checked' : ''; ?> class="absolute opacity-0" onchange="toggleSwapFields()">
                         <span class="text-xs font-bold text-gray-800">Sale or Swap</span>
                         <span class="text-[9px] text-gray-400 mt-1">Accept cash or items</span>
@@ -139,20 +139,20 @@ include __DIR__ . '/templates/header.php';
 
                 <div id="price_field" class="<?php echo $ad['listing_type'] == 'for_swap' ? 'hidden' : ''; ?>">
                     <label class="block text-gray-700 font-bold mb-2 text-sm">Price (₦)</label>
-                    <input type="number" name="price" step="0.01" value="<?php echo (float)$ad['price']; ?>" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none">
+                    <input type="number" name="price" step="0.01" value="<?php echo (float)$ad['price']; ?>" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none">
                 </div>
 
                 <div id="swap_fields" class="<?php echo $ad['listing_type'] == 'for_sale' ? 'hidden' : ''; ?> space-y-4">
                     <div>
                         <label class="block text-gray-700 font-bold mb-2 text-sm">Estimated Market Value (₦)</label>
-                        <input type="number" name="estimated_value" step="0.01" value="<?php echo (float)$ad['estimated_value']; ?>" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="e.g. 50000">
+                        <input type="number" name="estimated_value" step="0.01" value="<?php echo (float)$ad['estimated_value']; ?>" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" placeholder="e.g. 50000">
                     </div>
                     <div>
                         <label class="block text-gray-700 font-bold mb-2 text-sm">Swap Preference (What do you want in exchange?)</label>
-                        <input type="text" name="swap_preference" value="<?php echo h($ad['swap_preference']); ?>" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="e.g. iPhone 13 or equivalent laptop">
+                        <input type="text" name="swap_preference" value="<?php echo h($ad['swap_preference']); ?>" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" placeholder="e.g. iPhone 13 or equivalent laptop">
                     </div>
                     <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" name="allow_cash_topup" value="1" <?php echo $ad['allow_cash_topup'] ? 'checked' : ''; ?> class="w-5 h-5 accent-green-600">
+                        <input type="checkbox" name="allow_cash_topup" value="1" <?php echo $ad['allow_cash_topup'] ? 'checked' : ''; ?> class="w-5 h-5 accent-primary-600">
                         <span class="text-sm font-bold text-gray-700">Allow item + cash top-up</span>
                     </label>
                 </div>
@@ -182,15 +182,15 @@ include __DIR__ . '/templates/header.php';
 
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2 text-sm">Description</label>
-                <textarea name="description" rows="5" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required><?php echo h($ad['description']); ?></textarea>
+                <textarea name="description" rows="5" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" required><?php echo h($ad['description']); ?></textarea>
             </div>
 
             <div id="dropZone" class="mb-4 p-8 border-4 border-dashed border-gray-200 rounded-2xl bg-gray-50 hover:bg-white transition cursor-pointer relative group">
                 <label class="block text-gray-700 font-bold mb-4 text-sm text-center">Update Photos (Optional - Max 10)</label>
                 <input type="file" name="images[]" id="fileInput" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                 <div class="text-center">
-                    <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-camera-retro text-3xl text-green-500"></i>
+                    <div class="w-20 h-20 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-camera-retro text-3xl text-primary-500"></i>
                     </div>
                     <p class="text-sm font-bold text-gray-600 mb-1">Drag or click to replace photos</p>
                 </div>
@@ -199,7 +199,7 @@ include __DIR__ . '/templates/header.php';
             <div id="imagePreviewContainer" class="grid grid-cols-5 gap-4 mb-6 hidden"></div>
 
             <div class="pt-6">
-                <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:bg-green-700 transition shadow-lg text-lg uppercase">Update Ad</button>
+                <button type="submit" class="w-full bg-primary-600 text-white py-4 rounded-xl font-bold hover:bg-primary-700 transition shadow-lg text-lg uppercase">Update Ad</button>
             </div>
         </form>
     </div>
@@ -251,21 +251,21 @@ function loadFilters(catId) {
                 const val = currentExtra[key] || '';
                 if (f.type === 'checkbox') {
                     html += `<label class="flex items-center gap-3 cursor-pointer py-2">
-                        <input type="checkbox" name="extra[${key}]" value="1" ${val == '1' ? 'checked' : ''} class="w-5 h-5 accent-green-600">
+                        <input type="checkbox" name="extra[${key}]" value="1" ${val == '1' ? 'checked' : ''} class="w-5 h-5 accent-primary-600">
                         <span class="text-sm font-bold text-gray-700">${f.label}</span>
                     </label>`;
                 } else if (f.type === 'select' || f.type === 'multi_select') {
                     if (f.searchable) {
                         html += `<div class="relative group">
-                            <input type="text" placeholder="Search ${f.label}..." onkeyup="filterPostOptions(this)" class="w-full p-3 border rounded-t-lg focus:border-green-500 outline-none mb-[1px]">
-                            <select name="extra[${key}]" class="w-full p-3 border rounded-b-lg focus:border-green-500 outline-none" size="5">
+                            <input type="text" placeholder="Search ${f.label}..." onkeyup="filterPostOptions(this)" class="w-full p-3 border rounded-t-lg focus:border-primary-500 outline-none mb-[1px]">
+                            <select name="extra[${key}]" class="w-full p-3 border rounded-b-lg focus:border-primary-500 outline-none" size="5">
                                 <option value="">Select ${f.label}</option>`;
                         f.options.forEach(opt => {
                             html += `<option value="${opt}" ${val == opt ? 'selected' : ''}>${opt}</option>`;
                         });
                         html += `</select></div>`;
                     } else {
-                        html += `<select name="extra[${key}]" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none">`;
+                        html += `<select name="extra[${key}]" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none">`;
                         html += '<option value="">Select option</option>';
                         f.options.forEach(opt => {
                             html += `<option value="${opt}" ${val == opt ? 'selected' : ''}>${opt}</option>`;
@@ -273,7 +273,7 @@ function loadFilters(catId) {
                         html += '</select>';
                     }
                 } else if (f.type === 'number' || f.type === 'number_range' || f.type === 'range') {
-                    html += `<input type="number" name="extra[${key}]" value="${val}" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="Enter value">`;
+                    html += `<input type="number" name="extra[${key}]" value="${val}" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" placeholder="Enter value">`;
                 }
                 html += '</div>';
             }
@@ -316,10 +316,10 @@ let allFiles = new DataTransfer();
 ['dragover', 'dragleave', 'drop'].forEach(ev => {
     dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); });
 });
-dropZone.addEventListener('dragover', () => dropZone.classList.add('bg-green-50', 'border-green-400'));
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('bg-green-50', 'border-green-400'));
+dropZone.addEventListener('dragover', () => dropZone.classList.add('bg-primary-50', 'border-primary-400'));
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('bg-primary-50', 'border-primary-400'));
 dropZone.addEventListener('drop', (e) => {
-    dropZone.classList.remove('bg-green-50', 'border-green-400');
+    dropZone.classList.remove('bg-primary-50', 'border-primary-400');
     const files = e.dataTransfer.files;
     if (files.length > 0) addFiles(files);
 });

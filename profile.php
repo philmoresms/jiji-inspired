@@ -33,7 +33,7 @@ include __DIR__ . '/templates/header.php';
         <aside class="w-full lg:w-1/4">
             <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 mb-8 sticky top-24">
                 <div class="relative w-28 h-28 mx-auto mb-6">
-                    <div class="w-full h-full bg-green-100 rounded-full flex items-center justify-center text-green-600 text-4xl font-black uppercase shadow-inner">
+                    <div class="w-full h-full bg-primary-100 rounded-full flex items-center justify-center text-primary-600 text-4xl font-black uppercase shadow-inner">
                         <?php echo substr($user['full_name'], 0, 1); ?>
                     </div>
                     <div class="absolute bottom-1 right-1 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md">
@@ -45,8 +45,8 @@ include __DIR__ . '/templates/header.php';
                     <h3 class="font-black text-xl text-gray-800 tracking-tight mb-1"><?php echo h($user['full_name']); ?></h3>
                     <p class="text-[10px] text-gray-400 font-bold mb-4 uppercase tracking-widest"><?php echo h($user['email']); ?></p>
                     <?php if ($user['is_verified']): ?>
-                        <div class="inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 py-1.5 rounded-full text-[10px] font-black border border-green-100 uppercase tracking-widest">
-                            <i class="fas fa-check-circle"></i> <?php echo ($user["verification_tier"] == "business_verified" ? "TIKI BUSINESS" : "NIN VERIFIED"); ?>
+                        <div class="inline-flex items-center gap-2 bg-primary-50 text-primary-700 px-4 py-1.5 rounded-full text-[10px] font-black border border-primary-100 uppercase tracking-widest">
+                            <i class="fas fa-check-circle"></i> <?php echo ($user["verification_tier"] == "business_verified" ? "<?php echo strtoupper(h($settings['site_name'] ?? 'Classifieds')); ?> BUSINESS" : "NIN VERIFIED"); ?>
                         </div>
                     <?php else: ?>
                         <div class="inline-flex items-center gap-2 bg-gray-50 text-gray-500 px-4 py-1.5 rounded-full text-[10px] font-black border border-gray-100 uppercase tracking-widest">
@@ -56,7 +56,7 @@ include __DIR__ . '/templates/header.php';
                 </div>
 
                 <div class="mt-10 pt-8 border-t border-gray-50 space-y-2">
-                    <a href="/profile" class="flex items-center gap-3 p-4 rounded-2xl bg-green-600 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-green-200 transition transform hover:-translate-y-0.5">
+                    <a href="/profile" class="flex items-center gap-3 p-4 rounded-2xl bg-primary-600 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-primary-200 transition transform hover:-translate-y-0.5">
                         <i class="fas fa-th-large"></i>
                         <span>My Inventory</span>
                     </a>
@@ -77,11 +77,11 @@ include __DIR__ . '/templates/header.php';
             <!-- Seller Hub Quick Access -->
             <div class="mb-12">
                 <div class="flex items-center gap-3 mb-6">
-                    <div class="w-2 h-6 bg-green-600 rounded-full"></div>
+                    <div class="w-2 h-6 bg-primary-600 rounded-full"></div>
                     <h3 class="text-[11px] font-black text-gray-800 uppercase tracking-[3px]">Seller Dashboard</h3>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <a href="/post-ad" class="group bg-gradient-to-br from-green-600 to-green-700 p-6 rounded-[2rem] shadow-xl shadow-green-100 border border-green-500 flex flex-col items-center text-white hover:scale-105 transition-all duration-300">
+                    <a href="/post-ad" class="group bg-gradient-to-br from-primary-600 to-primary-700 p-6 rounded-[2rem] shadow-xl shadow-primary-100 border border-primary-500 flex flex-col items-center text-white hover:scale-105 transition-all duration-300">
                         <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mb-3 group-hover:rotate-12 transition-transform">
                             <i class="fas fa-plus text-xl"></i>
                         </div>
@@ -109,7 +109,7 @@ include __DIR__ . '/templates/header.php';
             </div>
 
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-                <h1 class="text-4xl font-black text-gray-800 uppercase tracking-tighter italic">My Marketplace <span class="text-green-600 ml-2">Listing</span></h1>
+                <h1 class="text-4xl font-black text-gray-800 uppercase tracking-tighter italic">My Marketplace <span class="text-primary-600 ml-2">Listing</span></h1>
                 <a href="/post-ad" class="bg-yellow-500 text-white px-10 py-4 rounded-2xl font-black hover:bg-yellow-600 transition shadow-2xl flex items-center gap-3 active:scale-95">
                     <i class="fas fa-plus-circle"></i>
                     <span>SELL SOMETHING</span>
@@ -122,7 +122,7 @@ include __DIR__ . '/templates/header.php';
                 <div class="relative h-48">
                     <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
                     <span class="absolute top-4 left-4 text-[10px] font-bold px-3 py-1 rounded-full uppercase shadow-md <?php
-                        echo $ad['status'] == 'active' ? 'bg-green-500 text-white' : ($ad['status'] == 'pending' ? 'bg-yellow-400 text-white' : ($ad['status'] == 'expired' ? 'bg-gray-700 text-white' : 'bg-red-500 text-white'));
+                        echo $ad['status'] == 'active' ? 'bg-primary-500 text-white' : ($ad['status'] == 'pending' ? 'bg-yellow-400 text-white' : ($ad['status'] == 'expired' ? 'bg-gray-700 text-white' : 'bg-red-500 text-white'));
                     ?>">
                         <?php echo $ad['status']; ?>
                     </span>
@@ -131,8 +131,8 @@ include __DIR__ . '/templates/header.php';
                     <?php endif; ?>
                 </div>
                 <div class="p-5">
-                    <h4 class="font-bold text-gray-800 mb-3 truncate group-hover:text-green-600 transition"><?php echo h($ad['title']); ?></h4>
-                    <p class="text-green-600 font-extrabold text-lg mb-4">₦<?php echo number_format($ad['price']); ?></p>
+                    <h4 class="font-bold text-gray-800 mb-3 truncate group-hover:text-primary-600 transition"><?php echo h($ad['title']); ?></h4>
+                    <p class="text-primary-600 font-extrabold text-lg mb-4">₦<?php echo number_format($ad['price']); ?></p>
 
                     <div class="flex flex-col gap-2">
                         <?php if ($ad['last_payment_status'] == 'failed'): ?>
@@ -144,7 +144,7 @@ include __DIR__ . '/templates/header.php';
 
                         <div class="flex gap-2">
                         <?php if (!$ad['is_featured'] && $ad['status'] == 'active'): ?>
-                            <a href="boost.php?ad_id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-green-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-green-700 transition uppercase shadow-md tracking-wider">
+                            <a href="boost.php?ad_id=<?php echo $ad['id']; ?>" class="flex-1 text-center bg-primary-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-primary-700 transition uppercase shadow-md tracking-wider">
                                 <?php echo ($ad['last_payment_status'] == 'failed') ? 'Retry Boost' : 'Boost Ad'; ?>
                             </a>
                         <?php endif; ?>
@@ -166,7 +166,7 @@ include __DIR__ . '/templates/header.php';
                 </div>
                 <h2 class="text-xl font-bold text-gray-400 mb-2">You haven't posted any ads yet</h2>
                 <p class="text-gray-300 font-bold mb-8">Start selling today and reach millions of buyers!</p>
-                <a href="/post-ad" class="bg-green-600 text-white px-10 py-4 rounded-xl font-bold hover:bg-green-700 transition uppercase shadow-lg tracking-widest inline-block">POST YOUR FIRST AD</a>
+                <a href="/post-ad" class="bg-primary-600 text-white px-10 py-4 rounded-xl font-bold hover:bg-primary-700 transition uppercase shadow-lg tracking-widest inline-block">POST YOUR FIRST AD</a>
             </div>
             <?php endif; ?>
             </div>

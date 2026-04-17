@@ -112,11 +112,11 @@ include __DIR__ . '/../templates/admin_header.php';
 <div class="container mx-auto px-4 py-8">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
         <div>
-            <h2 class="text-3xl font-black text-gray-800 uppercase tracking-tighter italic">Manage <span class="text-green-600">Categories</span></h2>
+            <h2 class="text-3xl font-black text-gray-800 uppercase tracking-tighter italic">Manage <span class="text-primary-600">Categories</span></h2>
             <div class="flex items-center gap-4 mt-1">
                 <p class="text-gray-400 font-bold text-sm">Organize your marketplace hierarchy and mobile grid.</p>
                 <form method="POST" onsubmit="return confirm('This will reset ALL categories to defaults. Proceed?')">
-                    <button type="submit" name="seed_defaults" class="text-[10px] font-black text-green-600 uppercase tracking-widest bg-green-50 px-3 py-1 rounded-full hover:bg-green-600 hover:text-white transition">
+                    <button type="submit" name="seed_defaults" class="text-[10px] font-black text-primary-600 uppercase tracking-widest bg-primary-50 px-3 py-1 rounded-full hover:bg-primary-600 hover:text-white transition">
                         <i class="fas fa-magic mr-1"></i> Auto-Add Defaults
                     </button>
                 </form>
@@ -135,7 +135,7 @@ include __DIR__ . '/../templates/admin_header.php';
     </div>
 
     <?php if ($success): ?>
-        <div class="bg-green-100 text-green-700 p-4 rounded-2xl mb-8 font-bold flex items-center gap-3">
+        <div class="bg-primary-100 text-primary-700 p-4 rounded-2xl mb-8 font-bold flex items-center gap-3">
             <i class="fas fa-check-circle"></i> <?php echo h($success); ?>
         </div>
     <?php endif; ?>
@@ -152,7 +152,7 @@ include __DIR__ . '/../templates/admin_header.php';
                 <div class="w-full md:w-1/2">
                     <label class="block text-[10px] font-black text-gray-500 uppercase mb-3 ml-2 tracking-widest">Select Main Category to Manage Subcategories</label>
                     <div class="relative">
-                        <select id="mainCatSelector" class="w-full p-5 bg-white border-2 border-gray-100 rounded-2xl font-black text-gray-800 focus:ring-4 focus:ring-green-500/10 focus:border-green-500 transition appearance-none cursor-pointer pr-12">
+                        <select id="mainCatSelector" class="w-full p-5 bg-white border-2 border-gray-100 rounded-2xl font-black text-gray-800 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition appearance-none cursor-pointer pr-12">
                             <option value="">-- Choose a category --</option>
                             <?php
                             $main_cats = $pdo->query("SELECT * FROM categories WHERE parent_id = 0 ORDER BY sort_order ASC, name ASC")->fetchAll();
@@ -169,7 +169,7 @@ include __DIR__ . '/../templates/admin_header.php';
                     </div>
                 </div>
                 <div class="flex gap-3">
-                    <button onclick="openAddModal(0)" class="bg-green-600 text-white px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition shadow-xl shadow-green-100 flex items-center gap-2">
+                    <button onclick="openAddModal(0)" class="bg-primary-600 text-white px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary-700 transition shadow-xl shadow-primary-100 flex items-center gap-2">
                         <i class="fas fa-plus"></i> New Main Category
                     </button>
                 </div>
@@ -188,7 +188,7 @@ include __DIR__ . '/../templates/admin_header.php';
                         </div>
                     </div>
                 </div>
-                <button id="addSubBtn" class="bg-white border-2 border-green-600 text-green-600 px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-green-600 hover:text-white transition flex items-center gap-2">
+                <button id="addSubBtn" class="bg-white border-2 border-primary-600 text-primary-600 px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary-600 hover:text-white transition flex items-center gap-2">
                     <i class="fas fa-plus"></i> Add Subcategory
                 </button>
             </div>
@@ -205,7 +205,7 @@ include __DIR__ . '/../templates/admin_header.php';
 
         <!-- Initial Placeholder -->
         <div id="explorerPlaceholder" class="p-20 text-center">
-            <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600 text-3xl">
+            <div class="w-20 h-20 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-6 text-primary-600 text-3xl">
                 <i class="fas fa-sitemap"></i>
             </div>
             <h4 class="text-xl font-black text-gray-800 uppercase tracking-tighter mb-2">Category Explorer</h4>
@@ -218,7 +218,7 @@ include __DIR__ . '/../templates/admin_header.php';
 <div id="catModal" class="fixed inset-0 bg-black/60 z-[100] hidden items-center justify-center backdrop-blur-sm p-4">
     <div class="bg-white w-full max-w-lg rounded-[2.5rem] p-10 shadow-2xl animate-slide-up" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center mb-8">
-            <h3 id="modalTitle" class="text-2xl font-black text-gray-800 uppercase tracking-tighter italic">Add <span class="text-green-600">Category</span></h3>
+            <h3 id="modalTitle" class="text-2xl font-black text-gray-800 uppercase tracking-tighter italic">Add <span class="text-primary-600">Category</span></h3>
             <button onclick="closeModal()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-400"><i class="fas fa-times"></i></button>
         </div>
         <form method="POST" class="space-y-6">
@@ -226,16 +226,16 @@ include __DIR__ . '/../templates/admin_header.php';
             <input type="hidden" name="parent_id" id="form_parent">
             <div>
                 <label id="nameLabel" class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-2">Name</label>
-                <textarea name="name" id="form_name" class="w-full p-4 bg-gray-50 border-none rounded-2xl font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition" required rows="1"></textarea>
+                <textarea name="name" id="form_name" class="w-full p-4 bg-gray-50 border-none rounded-2xl font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition" required rows="1"></textarea>
             </div>
             <div id="iconAndOrder" class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-2">Icon (FontAwesome)</label>
-                    <input type="text" name="icon" id="form_icon" class="w-full p-4 bg-gray-50 border-none rounded-2xl font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition" placeholder="fa-tv">
+                    <input type="text" name="icon" id="form_icon" class="w-full p-4 bg-gray-50 border-none rounded-2xl font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition" placeholder="fa-tv">
                 </div>
                 <div>
                     <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 ml-2">Sort Order</label>
-                    <input type="number" name="sort_order" id="form_order" class="w-full p-4 bg-gray-50 border-none rounded-2xl font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition" value="0">
+                    <input type="number" name="sort_order" id="form_order" class="w-full p-4 bg-gray-50 border-none rounded-2xl font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition" value="0">
                 </div>
             </div>
             <div id="parentDisplayBox" class="p-4 bg-blue-50 rounded-2xl border border-blue-100 hidden">
@@ -243,7 +243,7 @@ include __DIR__ . '/../templates/admin_header.php';
                 <p id="parentNameDisplay" class="font-bold text-blue-900"></p>
             </div>
 
-            <button type="submit" name="add_cat" id="submitBtn" class="w-full bg-green-600 text-white p-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition shadow-xl shadow-green-100">Create Category</button>
+            <button type="submit" name="add_cat" id="submitBtn" class="w-full bg-primary-600 text-white p-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary-700 transition shadow-xl shadow-primary-100">Create Category</button>
         </form>
     </div>
 </div>
@@ -275,7 +275,7 @@ async function loadSubcategories(parentId) {
     subGrid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400 font-bold"><i class="fas fa-spinner fa-spin mr-2"></i> Loading...</div>';
 
     const option = mainCatSelector.options[mainCatSelector.selectedIndex];
-    selectedCatName.innerHTML = `Subcategories for <span class="text-green-600">${option.text}</span>`;
+    selectedCatName.innerHTML = `Subcategories for <span class="text-primary-600">${option.text}</span>`;
 
     // Update main cat actions
     mainCatActions.innerHTML = `
@@ -302,7 +302,7 @@ async function loadSubcategories(parentId) {
 
             subs.forEach(sub => {
                 const card = document.createElement('div');
-                card.className = "group bg-white p-5 rounded-3xl border-2 border-gray-50 hover:border-green-100 hover:shadow-lg hover:shadow-green-500/5 transition-all flex items-center justify-between";
+                card.className = "group bg-white p-5 rounded-3xl border-2 border-gray-50 hover:border-primary-100 hover:shadow-lg hover:shadow-primary-500/5 transition-all flex items-center justify-between";
                 card.innerHTML = `
                     <div class="overflow-hidden">
                         <p class="font-black text-gray-800 truncate text-sm uppercase tracking-tighter">${sub.name}</p>
@@ -342,7 +342,7 @@ function editMainCat(id) {
 function openAddModal(parentId) {
     resetForm();
     document.getElementById('form_parent').value = parentId;
-    document.getElementById('modalTitle').innerHTML = parentId == 0 ? 'New <span class="text-green-600">Main Category</span>' : 'New <span class="text-green-600">Subcategories</span>';
+    document.getElementById('modalTitle').innerHTML = parentId == 0 ? 'New <span class="text-primary-600">Main Category</span>' : 'New <span class="text-primary-600">Subcategories</span>';
     document.getElementById('submitBtn').name = 'add_cat';
     document.getElementById('submitBtn').innerText = parentId == 0 ? 'Create Category' : 'Create Subcategories';
 
@@ -399,7 +399,7 @@ function resetForm() {
     document.getElementById('form_icon').value = '';
     document.getElementById('form_order').value = '0';
     document.getElementById('form_name').rows = 1;
-    document.getElementById('submitBtn').className = "w-full bg-green-600 text-white p-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition shadow-xl shadow-green-100";
+    document.getElementById('submitBtn').className = "w-full bg-primary-600 text-white p-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary-700 transition shadow-xl shadow-primary-100";
 }
 
 function showModal() {

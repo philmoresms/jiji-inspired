@@ -61,14 +61,14 @@ include __DIR__ . '/../templates/admin_header.php';
                     <td class="p-4">₦<?php echo number_format($ad['price'], 2); ?></td>
                     <td class="p-4">
                         <span class="px-2 py-1 rounded text-xs font-bold uppercase <?php
-                            echo $ad['status'] == 'active' ? 'bg-green-100 text-green-700' : ($ad['status'] == 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700');
+                            echo $ad['status'] == 'active' ? 'bg-primary-100 text-primary-700' : ($ad['status'] == 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700');
                         ?>">
                             <?php echo $ad['status']; ?>
                         </span>
                     </td>
                     <td class="p-4 space-x-2">
                         <?php if ($ad['status'] == 'pending'): ?>
-                            <a href="ads.php?action=approve&id=<?php echo $ad['id']; ?>" class="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition">Approve</a>
+                            <a href="ads.php?action=approve&id=<?php echo $ad['id']; ?>" class="bg-primary-500 text-white px-2 py-1 rounded text-xs hover:bg-primary-600 transition">Approve</a>
                             <button onclick="openDeclineModal(<?php echo $ad['id']; ?>)" class="bg-yellow-500 text-white px-2 py-1 rounded text-xs hover:bg-yellow-600 transition">Decline</button>
                         <?php endif; ?>
                         <a href="ads.php?action=delete&id=<?php echo $ad['id']; ?>" class="text-red-500 hover:text-red-700 transition" onclick="return confirm('Permanently delete this ad?')"><i class="fas fa-trash"></i></a>

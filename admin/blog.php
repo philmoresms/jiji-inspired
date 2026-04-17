@@ -64,7 +64,7 @@ include __DIR__ . '/../templates/admin_header.php';
 
                 <div>
                     <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Featured Image</label>
-                    <input type="file" name="image" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 transition">
+                    <input type="file" name="image" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 transition">
                 </div>
 
                 <div>
@@ -88,7 +88,7 @@ include __DIR__ . '/../templates/admin_header.php';
                     </div>
                 </div>
 
-                <button type="submit" class="bg-green-600 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-green-700 transition shadow-xl">Publish Post</button>
+                <button type="submit" class="bg-primary-600 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-primary-700 transition shadow-xl">Publish Post</button>
             </form>
         </div>
     </div>
@@ -101,7 +101,7 @@ include __DIR__ . '/../templates/admin_header.php';
                 $posts = $pdo->query("SELECT id, title, created_at FROM blog_posts ORDER BY created_at DESC")->fetchAll();
                 foreach ($posts as $bp):
                 ?>
-                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-green-200 transition group">
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-primary-200 transition group">
                     <div class="flex-1 pr-4">
                         <p class="text-xs font-black text-gray-700 line-clamp-2"><?php echo h($bp['title']); ?></p>
                         <p class="text-[9px] text-gray-400 font-bold mt-1"><?php echo date('M d, Y', strtotime($bp['created_at'])); ?></p>
@@ -114,7 +114,7 @@ include __DIR__ . '/../templates/admin_header.php';
                 <?php endforeach; ?>
             </div>
             <?php if ($edit_post): ?>
-                <a href="blog.php" class="block text-center mt-6 text-[10px] font-black text-green-600 uppercase tracking-widest underline">Write New Instead</a>
+                <a href="blog.php" class="block text-center mt-6 text-[10px] font-black text-primary-600 uppercase tracking-widest underline">Write New Instead</a>
             <?php endif; ?>
         </div>
     </div>

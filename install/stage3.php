@@ -75,7 +75,7 @@ if (isset($_POST['complete'])) {
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 class="text-2xl font-bold mb-6 text-green-600">Admin Account Setup</h1>
+        <h1 class="text-2xl font-bold mb-6 text-primary-600">Admin Account Setup</h1>
 
         <?php if ($error): ?>
             <div class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm"><?php echo h($error); ?></div>
@@ -99,7 +99,7 @@ if (isset($_POST['complete'])) {
                 <input type="password" name="admin_pass" class="w-full p-2 border rounded" required>
             </div>
 
-            <button type="submit" name="complete" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition">Complete Installation</button>
+            <button type="submit" name="complete" class="w-full bg-primary-600 text-white py-3 rounded-lg font-bold hover:bg-primary-700 transition">Complete Installation</button>
         </form>
     </div>
 </body>

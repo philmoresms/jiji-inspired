@@ -66,7 +66,7 @@ include __DIR__ . '/../templates/admin_header.php';
                         <textarea name="meta_keys" rows="3" class="w-full p-3 border rounded-xl text-xs"><?php echo h($edit_page['meta_keys'] ?? ''); ?></textarea>
                     </div>
                 </div>
-                <button type="submit" class="bg-green-600 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-green-700 transition shadow-xl">Save CMS Page</button>
+                <button type="submit" class="bg-primary-600 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-primary-700 transition shadow-xl">Save CMS Page</button>
             </form>
         </div>
     </div>
@@ -79,7 +79,7 @@ include __DIR__ . '/../templates/admin_header.php';
                 $pages = $pdo->query("SELECT id, title, slug FROM pages ORDER BY title ASC")->fetchAll();
                 foreach ($pages as $p):
                 ?>
-                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-green-200 transition group">
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-primary-200 transition group">
                     <div>
                         <p class="text-sm font-black text-gray-700"><?php echo h($p['title']); ?></p>
                         <p class="text-[10px] text-gray-400 font-bold">/p/<?php echo $p['slug']; ?></p>
@@ -92,7 +92,7 @@ include __DIR__ . '/../templates/admin_header.php';
                 <?php endforeach; ?>
             </div>
             <?php if ($edit_page): ?>
-                <a href="pages.php" class="block text-center mt-6 text-[10px] font-black text-green-600 uppercase tracking-widest underline">Create New Instead</a>
+                <a href="pages.php" class="block text-center mt-6 text-[10px] font-black text-primary-600 uppercase tracking-widest underline">Create New Instead</a>
             <?php endif; ?>
         </div>
     </div>

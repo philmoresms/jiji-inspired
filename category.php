@@ -142,7 +142,7 @@ include __DIR__ . '/templates/header.php';
             <!-- Category Navigation (Jiji Focused Style) -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
                 <div class="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
-                    <a href="/" class="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-green-600 transition">All Categories</a>
+                    <a href="/" class="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-primary-600 transition">All Categories</a>
                     <i class="fas fa-chevron-right text-[8px] text-gray-300"></i>
                 </div>
                 <div class="py-2">
@@ -164,9 +164,9 @@ include __DIR__ . '/templates/header.php';
                         if ($mcat['id'] != $current_main_id) continue;
                     ?>
                         <div class="px-2">
-                            <a href="/category/<?php echo $mcat['slug']; ?>" class="flex items-center justify-between p-3 rounded-lg bg-green-50 text-green-600 transition-all">
+                            <a href="/category/<?php echo $mcat['slug']; ?>" class="flex items-center justify-between p-3 rounded-lg bg-primary-50 text-primary-600 transition-all">
                                 <div class="flex items-center gap-3">
-                                    <i class="fas <?php echo h($mcat['icon_class']); ?> text-sm text-green-600"></i>
+                                    <i class="fas <?php echo h($mcat['icon_class']); ?> text-sm text-primary-600"></i>
                                     <span class="text-sm font-bold"><?php echo h($mcat['name']); ?></span>
                                 </div>
                                 <span class="text-[10px] font-bold opacity-50"><?php echo number_format($mcat['ad_count']); ?></span>
@@ -186,7 +186,7 @@ include __DIR__ . '/templates/header.php';
                                     foreach ($display_subs as $sub):
                                         $is_active_sub = ($sub['id'] == $cat_id);
                                     ?>
-                                        <a href="/category/<?php echo $sub['slug']; ?>" class="block py-1.5 text-xs font-bold <?php echo $is_active_sub ? 'text-green-600' : 'text-gray-500 hover:text-green-600'; ?> transition">
+                                        <a href="/category/<?php echo $sub['slug']; ?>" class="block py-1.5 text-xs font-bold <?php echo $is_active_sub ? 'text-primary-600' : 'text-gray-500 hover:text-primary-600'; ?> transition">
                                             <?php echo h($sub['name']); ?> <span class="text-[9px] opacity-40">(<?php echo $sub['ad_count']; ?>)</span>
                                         </a>
                                     <?php endforeach; ?>
@@ -203,15 +203,15 @@ include __DIR__ . '/templates/header.php';
                 <form action="" method="GET" class="space-y-6">
                     <div class="mb-6">
                         <label class="flex items-center gap-3 cursor-pointer group">
-                            <input type="checkbox" name="extra[verified_seller]" value="Verified sellers only" <?php echo ($extra["verified_seller"] ?? "") === "Verified sellers only" ? "checked" : ""; ?> onchange="this.form.submit()" class="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500">
-                            <span class="text-xs font-black text-gray-700 uppercase tracking-widest group-hover:text-green-600 transition">NIN Verified Sellers Only</span>
+                            <input type="checkbox" name="extra[verified_seller]" value="Verified sellers only" <?php echo ($extra["verified_seller"] ?? "") === "Verified sellers only" ? "checked" : ""; ?> onchange="this.form.submit()" class="w-5 h-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                            <span class="text-xs font-black text-gray-700 uppercase tracking-widest group-hover:text-primary-600 transition">NIN Verified Sellers Only</span>
                         </label>
                     </div>
                     <input type="hidden" name="type" value="<?php echo h($type); ?>">
 
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">State</label>
-                        <select name="state_id" onchange="loadLGAs(this.value); this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                        <select name="state_id" onchange="loadLGAs(this.value); this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">
                             <option value="">All Nigeria</option>
                             <?php foreach ($states as $s): ?>
                                 <option value="<?php echo $s['id']; ?>" <?php echo $state_id == $s['id'] ? 'selected' : ''; ?>><?php echo h($s['name']); ?></option>
@@ -221,7 +221,7 @@ include __DIR__ . '/templates/header.php';
 
                     <div id="lga_filter_container" class="<?php echo !$state_id ? 'hidden' : ''; ?>">
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">City / LGA</label>
-                        <select name="lga_id" id="lga_filter" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                        <select name="lga_id" id="lga_filter" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">
                             <option value="">All Cities</option>
                             <?php
                             if ($state_id) {
@@ -239,8 +239,8 @@ include __DIR__ . '/templates/header.php';
                     <div id="price_range_container">
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Price Range (₦)</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="number" name="min_price" value="<?php echo $min_price ?: ''; ?>" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
-                            <input type="number" name="max_price" value="<?php echo $max_price ?: ''; ?>" placeholder="Max" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                            <input type="number" name="min_price" value="<?php echo $min_price ?: ''; ?>" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">
+                            <input type="number" name="max_price" value="<?php echo $max_price ?: ''; ?>" placeholder="Max" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">
                         </div>
                         <div id="price_quick_ranges" class="flex flex-wrap gap-1 mt-3">
                             <!-- Quick ranges injected by JS -->
@@ -251,7 +251,7 @@ include __DIR__ . '/templates/header.php';
                         <!-- Filters here -->
                     </div>
 
-                    <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition shadow-lg shadow-green-100">Apply Filters</button>
+                    <button type="submit" class="w-full bg-primary-600 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-primary-700 transition shadow-lg shadow-primary-100">Apply Filters</button>
 
                     <?php if ($state_id || $min_price || $max_price || $extra): ?>
                         <a href="/category/<?php echo $slug; ?>" class="block text-center text-[10px] font-black text-red-400 uppercase tracking-widest mt-4 hover:text-red-600 transition">Clear All Filters</a>
@@ -262,12 +262,12 @@ include __DIR__ . '/templates/header.php';
 
         <!-- Main Content -->
         <div class="flex-1">
-            <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-3xl p-8 text-white mb-8 shadow-xl relative overflow-hidden">
+            <div class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-3xl p-8 text-white mb-8 shadow-xl relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
                 <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div>
                         <h1 class="text-3xl font-black mb-2 uppercase tracking-tighter"><?php echo h($category['name']); ?></h1>
-                        <p class="text-green-100 font-bold opacity-80 text-sm">Showing verified listings in <?php echo h($category['name']); ?></p>
+                        <p class="text-primary-100 font-bold opacity-80 text-sm">Showing verified listings in <?php echo h($category['name']); ?></p>
                     </div>
                     <a href="/post-ad?cat_id=<?php echo $cat_id; ?>" class="bg-yellow-500 text-white px-8 py-4 rounded-2xl font-black hover:bg-yellow-400 transition shadow-lg text-xs uppercase tracking-widest">SELL HERE</a>
                 </div>
@@ -275,8 +275,8 @@ include __DIR__ . '/templates/header.php';
 
             <!-- Horizontal Filter Bar (Type Selection) -->
             <div class="flex flex-wrap gap-3 mb-8">
-                <a href="?type=all&state_id=<?php echo $state_id; ?>&min_price=<?php echo $min_price; ?>&max_price=<?php echo $max_price; ?>" class="px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition <?php echo $type == 'all' ? 'bg-green-600 text-white shadow-xl' : 'bg-white text-gray-500 hover:bg-green-50'; ?> border border-gray-100">All Items</a>
-                <a href="?type=sale&state_id=<?php echo $state_id; ?>&min_price=<?php echo $min_price; ?>&max_price=<?php echo $max_price; ?>" class="px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition <?php echo $type == 'sale' ? 'bg-green-600 text-white shadow-xl' : 'bg-white text-gray-500 hover:bg-green-50'; ?> border border-gray-100">For Sale</a>
+                <a href="?type=all&state_id=<?php echo $state_id; ?>&min_price=<?php echo $min_price; ?>&max_price=<?php echo $max_price; ?>" class="px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition <?php echo $type == 'all' ? 'bg-primary-600 text-white shadow-xl' : 'bg-white text-gray-500 hover:bg-primary-50'; ?> border border-gray-100">All Items</a>
+                <a href="?type=sale&state_id=<?php echo $state_id; ?>&min_price=<?php echo $min_price; ?>&max_price=<?php echo $max_price; ?>" class="px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition <?php echo $type == 'sale' ? 'bg-primary-600 text-white shadow-xl' : 'bg-white text-gray-500 hover:bg-primary-50'; ?> border border-gray-100">For Sale</a>
                 <a href="?type=swap&state_id=<?php echo $state_id; ?>&min_price=<?php echo $min_price; ?>&max_price=<?php echo $max_price; ?>" class="px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition <?php echo $type == 'swap' ? 'bg-blue-600 text-white shadow-xl' : 'bg-white text-gray-500 hover:bg-blue-50'; ?> border border-gray-100">Swap/Barter</a>
             </div>
 
@@ -296,11 +296,11 @@ include __DIR__ . '/templates/header.php';
                         </div>
                     </div>
                     <div class="p-4 md:p-5">
-                        <h4 class="text-xs md:text-sm font-black text-gray-800 line-clamp-2 h-8 md:h-10 mb-2 md:mb-4 group-hover:text-green-600 transition"><?php echo h($ad['title']); ?></h4>
+                        <h4 class="text-xs md:text-sm font-black text-gray-800 line-clamp-2 h-8 md:h-10 mb-2 md:mb-4 group-hover:text-primary-600 transition"><?php echo h($ad['title']); ?></h4>
                         <div class="flex justify-between items-end">
                             <div>
-                                <p class="text-green-600 font-black text-base md:text-xl">₦<?php echo number_format($ad['price']); ?></p>
-                                <p class="text-[8px] md:text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-map-marker-alt text-green-500 mr-1"></i> <?php echo h($ad['state_name']); ?></p>
+                                <p class="text-primary-600 font-black text-base md:text-xl">₦<?php echo number_format($ad['price']); ?></p>
+                                <p class="text-[8px] md:text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-map-marker-alt text-primary-500 mr-1"></i> <?php echo h($ad['state_name']); ?></p>
                             </div>
                             <div class="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-red-50 group-hover:text-red-500 transition-colors duration-300">
                                 <i class="far fa-heart text-sm"></i>
@@ -317,7 +317,7 @@ include __DIR__ . '/templates/header.php';
                         </div>
                         <h2 class="text-2xl font-black text-gray-800 mb-2 tracking-tighter">No results found</h2>
                         <p class="text-gray-400 font-bold">Try adjusting your filters or be the first to sell here!</p>
-                        <a href="/post-ad?cat_id=<?php echo $cat_id; ?>" class="bg-green-600 text-white px-10 py-5 rounded-2xl font-black hover:bg-green-700 transition uppercase shadow-2xl inline-block mt-10 tracking-widest text-xs">POST AN AD NOW</a>
+                        <a href="/post-ad?cat_id=<?php echo $cat_id; ?>" class="bg-primary-600 text-white px-10 py-5 rounded-2xl font-black hover:bg-primary-700 transition uppercase shadow-2xl inline-block mt-10 tracking-widest text-xs">POST AN AD NOW</a>
                     </div>
                 <?php endif; ?>
             </div>
@@ -352,7 +352,7 @@ function loadFilters(catId) {
                         const min_val = '<?php echo $min_price ?: ''; ?>';
                         const max_val = '<?php echo $max_price ?: ''; ?>';
                         f.quick_ranges.forEach(range => {
-                            const active = (min_val == range.min && max_val == range.max) ? 'bg-green-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-100 hover:bg-green-50';
+                            const active = (min_val == range.min && max_val == range.max) ? 'bg-primary-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-100 hover:bg-primary-50';
                             phtml += `<button type="button" onclick="setQuickRange('price', ${range.min}, ${range.max})" class="px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all ${active}">${range.label}</button>`;
                         });
                         priceQuick.innerHTML = phtml;
@@ -363,20 +363,20 @@ function loadFilters(catId) {
                 if (f.type === 'select') {
                     if (f.searchable) {
                         html += `<div class="relative searchable-select group">
-                            <div class="flex items-center bg-gray-50 rounded-xl px-3 focus-within:ring-2 focus-within:ring-green-500 transition shadow-sm">
+                            <div class="flex items-center bg-gray-50 rounded-xl px-3 focus-within:ring-2 focus-within:ring-primary-500 transition shadow-sm">
                                 <i class="fas fa-search text-gray-300 text-[10px]"></i>
                                 <input type="text" placeholder="Search ${f.label}..." onkeyup="filterSelectOptions(this)" class="w-full p-3 bg-transparent border-none text-xs font-bold text-gray-700 outline-none">
                                 <button type="button" onclick="clearSearch(this)" class="hidden text-gray-300 hover:text-gray-500"><i class="fas fa-times-circle"></i></button>
                             </div>
-                            <select name="extra[${key}]" onchange="this.form.submit()" size="5" class="w-full mt-2 p-2 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition custom-scrollbar shadow-inner">
+                            <select name="extra[${key}]" onchange="this.form.submit()" size="5" class="w-full mt-2 p-2 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition custom-scrollbar shadow-inner">
                                 <option value="" ${val === '' ? 'selected' : ''} class="py-2 px-3">All ${f.label}</option>`;
                         f.options.forEach(opt => {
                             const sel = (val == opt) ? 'selected' : '';
-                            html += `<option value="${opt}" ${sel} class="py-2 px-3 rounded-lg hover:bg-green-100">${opt}</option>`;
+                            html += `<option value="${opt}" ${sel} class="py-2 px-3 rounded-lg hover:bg-primary-100">${opt}</option>`;
                         });
                         html += `</select></div>`;
                     } else {
-                        html += `<select name="extra[${key}]" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">`;
+                        html += `<select name="extra[${key}]" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">`;
                         html += '<option value="">All</option>';
                         f.options.forEach(opt => {
                             const sel = (val == opt) ? 'selected' : '';
@@ -388,23 +388,23 @@ function loadFilters(catId) {
                     html += `<div class="bg-gray-50 rounded-xl p-3 max-h-48 overflow-y-auto custom-scrollbar space-y-2">`;
                     if (f.searchable) {
                         html += `<div class="relative flex items-center mb-2">
-                            <input type="text" placeholder="Search..." onkeyup="filterCheckboxes(this)" class="w-full p-2 bg-white border border-gray-100 rounded-lg text-[10px] font-bold text-gray-700 focus:ring-1 focus:ring-green-500 outline-none pr-7">
+                            <input type="text" placeholder="Search..." onkeyup="filterCheckboxes(this)" class="w-full p-2 bg-white border border-gray-100 rounded-lg text-[10px] font-bold text-gray-700 focus:ring-1 focus:ring-primary-500 outline-none pr-7">
                             <button type="button" onclick="clearCheckboxSearch(this)" class="hidden absolute right-2 text-gray-300 hover:text-gray-500 text-xs"><i class="fas fa-times-circle"></i></button>
                         </div>`;
                     }
                     f.options.forEach(opt => {
                         const isChecked = Array.isArray(val) ? val.includes(opt) : (val == opt);
                         html += `<label class="flex items-center gap-2 cursor-pointer group checkbox-item">
-                            <input type="checkbox" name="extra[${key}][]" value="${opt}" ${isChecked ? 'checked' : ''} onchange="this.form.submit()" class="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500">
-                            <span class="text-[11px] font-bold text-gray-600 group-hover:text-green-600 transition">${opt}</span>
+                            <input type="checkbox" name="extra[${key}][]" value="${opt}" ${isChecked ? 'checked' : ''} onchange="this.form.submit()" class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                            <span class="text-[11px] font-bold text-gray-600 group-hover:text-primary-600 transition">${opt}</span>
                         </label>`;
                     });
                     html += `</div>`;
                 } else if (f.type === 'checkbox') {
                     const isChecked = val == '1' ? 'checked' : '';
                     html += `<label class="flex items-center gap-2 cursor-pointer group">
-                        <input type="checkbox" name="extra[${key}]" value="1" ${isChecked} onchange="this.form.submit()" class="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500">
-                        <span class="text-[11px] font-bold text-gray-600 group-hover:text-green-600 transition">${f.label}</span>
+                        <input type="checkbox" name="extra[${key}]" value="1" ${isChecked} onchange="this.form.submit()" class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                        <span class="text-[11px] font-bold text-gray-600 group-hover:text-primary-600 transition">${f.label}</span>
                     </label>`;
                 } else if (f.type === 'range' || f.type === 'number' || f.type === 'number_range') {
                     let min_val = currentExtra['min_' + key] || '';
@@ -413,14 +413,14 @@ function loadFilters(catId) {
                     let max_name = `extra[max_${key}]`;
 
                     html += `<div class="grid grid-cols-2 gap-2 mb-3">
-                        <input type="number" name="${min_name}" value="${min_val}" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
-                        <input type="number" name="${max_name}" value="${max_val}" placeholder="Max" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                        <input type="number" name="${min_name}" value="${min_val}" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">
+                        <input type="number" name="${max_name}" value="${max_val}" placeholder="Max" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">
                     </div>`;
 
                     if (f.quick_ranges) {
                         html += '<div class="flex flex-wrap gap-1 mt-2">';
                         f.quick_ranges.forEach(range => {
-                            const active = (min_val == range.min && max_val == range.max) ? 'bg-green-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-100 hover:bg-green-50';
+                            const active = (min_val == range.min && max_val == range.max) ? 'bg-primary-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-100 hover:bg-primary-50';
                             html += `<button type="button" onclick="setQuickRange('${key}', ${range.min}, ${range.max})" class="px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all ${active}">${range.label}</button>`;
                         });
                         html += '</div>';

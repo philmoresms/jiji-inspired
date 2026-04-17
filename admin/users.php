@@ -57,7 +57,7 @@ include __DIR__ . '/../templates/admin_header.php';
                     <td class="p-4"><?php echo h($user['phone']); ?></td>
                     <td class="p-4">
                         <?php if ($user['is_verified']): ?>
-                            <span class="text-green-600 font-bold"><i class="fas fa-check-circle mr-1"></i> Yes</span>
+                            <span class="text-primary-600 font-bold"><i class="fas fa-check-circle mr-1"></i> Yes</span>
                         <?php else: ?>
                             <a href="users.php?action=verify&id=<?php echo $user['id']; ?>" class="text-blue-500 hover:underline">Verify Now</a>
                         <?php endif; ?>
@@ -66,12 +66,12 @@ include __DIR__ . '/../templates/admin_header.php';
                         <?php if ($user['is_suspended']): ?>
                             <span class="text-red-600 font-bold">Suspended</span>
                         <?php else: ?>
-                            <span class="text-green-600 font-bold">Active</span>
+                            <span class="text-primary-600 font-bold">Active</span>
                         <?php endif; ?>
                     </td>
                     <td class="p-4 space-x-2">
                         <?php if ($user['is_suspended']): ?>
-                            <a href="users.php?action=reactivate&id=<?php echo $user['id']; ?>" class="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition">Reactivate</a>
+                            <a href="users.php?action=reactivate&id=<?php echo $user['id']; ?>" class="bg-primary-500 text-white px-2 py-1 rounded text-xs hover:bg-primary-600 transition">Reactivate</a>
                         <?php else: ?>
                             <a href="users.php?action=suspend&id=<?php echo $user['id']; ?>" class="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition" onclick="return confirm('Suspend this user and hide all their ads?')">Suspend</a>
                         <?php endif; ?>

@@ -57,7 +57,7 @@ include __DIR__ . '/templates/header.php';
                 $is_me = ($msg['sender_id'] == $user_id);
             ?>
             <div class="flex <?php echo $is_me ? 'justify-end' : 'justify-start'; ?>">
-                <div class="<?php echo $is_me ? 'bg-green-600 text-white rounded-br-none' : 'bg-gray-200 text-gray-800 rounded-bl-none'; ?> p-3 rounded-lg max-w-[80%] text-sm font-bold shadow-sm">
+                <div class="<?php echo $is_me ? 'bg-primary-600 text-white rounded-br-none' : 'bg-gray-200 text-gray-800 rounded-bl-none'; ?> p-3 rounded-lg max-w-[80%] text-sm font-bold shadow-sm">
                     <?php echo h($msg['message']); ?>
                     <div class="text-[10px] mt-1 opacity-70"><?php echo date('H:i', strtotime($msg['created_at'])); ?></div>
                 </div>
@@ -66,8 +66,8 @@ include __DIR__ . '/templates/header.php';
         </div>
 
         <form method="POST" class="flex gap-2">
-            <input type="text" name="message" class="flex-1 p-3 border-2 border-gray-100 rounded-lg focus:border-green-500 outline-none" placeholder="Type your message..." required autofocus>
-            <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700 transition uppercase shadow-md">Send</button>
+            <input type="text" name="message" class="flex-1 p-3 border-2 border-gray-100 rounded-lg focus:border-primary-500 outline-none" placeholder="Type your message..." required autofocus>
+            <button type="submit" class="bg-primary-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-primary-700 transition uppercase shadow-md">Send</button>
         </form>
     </div>
 </div>

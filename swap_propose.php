@@ -45,7 +45,7 @@ include __DIR__ . '/templates/header.php';
 
 <div class="container mx-auto px-4 py-10 flex justify-center">
     <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-xl border border-blue-100">
-        <h1 class="text-2xl font-black mb-6 text-blue-800 uppercase tracking-tighter italic">Propose a <span class="text-green-600">Swap</span></h1>
+        <h1 class="text-2xl font-black mb-6 text-blue-800 uppercase tracking-tighter italic">Propose a <span class="text-primary-600">Swap</span></h1>
 
         <div class="bg-blue-50 p-4 rounded-2xl mb-8 flex items-center gap-4">
             <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
@@ -64,7 +64,7 @@ include __DIR__ . '/templates/header.php';
         <?php if (empty($my_ads)): ?>
             <div class="text-center py-10">
                 <p class="text-gray-500 font-bold mb-6">You need to have an active ad to propose a swap.</p>
-                <a href="post-ad.php" class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-700 transition uppercase shadow-lg">Post an Ad Now</a>
+                <a href="post-ad.php" class="bg-primary-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-primary-700 transition uppercase shadow-lg">Post an Ad Now</a>
             </div>
         <?php else: ?>
             <form method="POST" class="space-y-6">

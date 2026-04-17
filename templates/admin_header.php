@@ -10,20 +10,20 @@
 <body class="bg-gray-100 min-h-screen">
     <div class="flex">
         <!-- Sidebar -->
-        <aside class="w-64 bg-green-800 text-white min-h-screen">
-            <div class="p-6 font-bold text-2xl border-b border-green-700"><?php echo h($settings['site_name'] ?? 'Classifieds'); ?> Admin</div>
+        <aside class="w-64 bg-primary-800 text-white min-h-screen">
+            <div class="p-6 font-bold text-2xl border-b border-primary-700"><?php echo h($settings['site_name'] ?? 'Classifieds'); ?> Admin</div>
             <nav class="p-4">
                 <ul class="space-y-2">
-                    <li><a href="/" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a></li>
-                    <li><a href="ads.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-ad mr-2"></i> Ad Moderation</a></li>
-                    <li><a href="users.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-users mr-2"></i> User Management</a></li>
-                    <li><a href="pages.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-file-alt mr-2"></i> CMS Pages</a></li>
-                    <li><a href="blog.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-newspaper mr-2"></i> Blog Posts</a></li>
-                    <li><a href="categories.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-list mr-2"></i> Categories</a></li>
-                    <li><a href="locations.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-map-marker-alt mr-2"></i> Locations</a></li>
-                    <li><a href="security.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-shield-alt mr-2"></i> Security & Firewall</a></li>
-                    <li><a href="payments.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-receipt mr-2"></i> Revenue & Payments</a></li>
-                    <li><a href="settings.php" class="block p-2 hover:bg-green-700 rounded transition"><i class="fas fa-cog mr-2"></i> Global Settings</a></li>
+                    <li><a href="/" class="block p-2 hover:bg-primary-700 rounded transition"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a></li>
+                    <li><a href="ads.php" class="block p-2 hover:bg-primary-700 rounded transition"><i class="fas fa-ad mr-2"></i> Ad Moderation</a></li>
+                    <li><a href="users.php" class="block p-2 hover:bg-primary-700 rounded transition"><i class="fas fa-users mr-2"></i> User Management</a></li>
+                    <li><a href="pages.php" class="block p-2 hover:bg-primary-700 rounded transition"><i class="fas fa-file-alt mr-2"></i> CMS Pages</a></li>
+                    <li><a href="blog.php" class="block p-2 hover:bg-primary-700 rounded transition"><i class="fas fa-newspaper mr-2"></i> Blog Posts</a></li>
+                    <li><a href="categories.php" class="block p-2 hover:bg-primary-700 rounded transition"><i class="fas fa-list mr-2"></i> Categories</a></li>
+                    <li><a href="locations.php" class="block p-2 hover:bg-primary-700 rounded transition"><i class="fas fa-map-marker-alt mr-2"></i> Locations</a></li>
+                    <li><a href="security.php" class="block p-2 hover:bg-primary-700 rounded transition"><i class="fas fa-shield-alt mr-2"></i> Security & Firewall</a></li>
+                    <li><a href="payments.php" class="block p-2 hover:bg-primary-700 rounded transition"><i class="fas fa-receipt mr-2"></i> Revenue & Payments</a></li>
+                    <li><a href="settings.php" class="block p-2 hover:bg-primary-700 rounded transition"><i class="fas fa-cog mr-2"></i> Global Settings</a></li>
                     <li><a href="/logout" class="block p-2 hover:bg-red-700 rounded transition text-red-200 mt-8"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a></li>
                 </ul>
             </nav>
@@ -41,9 +41,9 @@
                     $stmt_ip->execute([$my_ip]);
                     if ($stmt_ip->fetchColumn() === 'whitelisted'):
                     ?>
-                        <div class="flex items-center gap-1 bg-green-50 px-3 py-1 rounded-full border border-green-200">
-                            <i class="fas fa-crown text-green-500 text-xs"></i>
-                            <span class="text-[9px] font-black text-green-600 uppercase tracking-tighter">Trusted IP</span>
+                        <div class="flex items-center gap-1 bg-primary-50 px-3 py-1 rounded-full border border-primary-200">
+                            <i class="fas fa-crown text-primary-500 text-xs"></i>
+                            <span class="text-[9px] font-black text-primary-600 uppercase tracking-tighter">Trusted IP</span>
                         </div>
                     <?php endif; ?>
                 </div>

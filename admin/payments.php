@@ -57,7 +57,7 @@ include __DIR__ . '/../templates/admin_header.php';
                     <td class="p-4 font-bold">₦<?php echo number_format($payment['amount'], 2); ?></td>
                     <td class="p-4">
                         <span class="px-2 py-1 rounded text-[10px] font-bold uppercase <?php
-                            echo $payment['status'] == 'successful' ? 'bg-green-100 text-green-700' : ($payment['status'] == 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700');
+                            echo $payment['status'] == 'successful' ? 'bg-primary-100 text-primary-700' : ($payment['status'] == 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700');
                         ?>">
                             <?php echo $payment['status']; ?>
                         </span>
@@ -71,7 +71,7 @@ include __DIR__ . '/../templates/admin_header.php';
                     </td>
                     <td class="p-4 space-x-2">
                         <?php if ($payment['status'] == 'pending' && $payment['method'] == 'bank_transfer'): ?>
-                            <a href="payments.php?action=approve&id=<?php echo $payment['id']; ?>" class="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition shadow-sm font-bold">Approve</a>
+                            <a href="payments.php?action=approve&id=<?php echo $payment['id']; ?>" class="bg-primary-500 text-white px-2 py-1 rounded text-xs hover:bg-primary-600 transition shadow-sm font-bold">Approve</a>
                             <button onclick="openPaymentDeclineModal(<?php echo $payment['id']; ?>)" class="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition shadow-sm font-bold">Decline</button>
                         <?php endif; ?>
                     </td>

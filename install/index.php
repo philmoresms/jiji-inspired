@@ -71,7 +71,7 @@ if (isset($_POST['next']) && $can_proceed) {
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
-        <h1 class="text-2xl font-bold mb-6 text-green-600">Marketplace Installation</h1>
+        <h1 class="text-2xl font-bold mb-6 text-primary-600">Marketplace Installation</h1>
 
         <h2 class="text-xl font-semibold mb-4 border-b pb-2">Stage 1: Welcome & Requirements Check</h2>
 
@@ -80,7 +80,7 @@ if (isset($_POST['next']) && $can_proceed) {
             <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
                 <span>Current: <?php echo $php_version; ?></span>
                 <?php if ($php_version_ok): ?>
-                    <span class="text-green-600 font-bold">✓ OK</span>
+                    <span class="text-primary-600 font-bold">✓ OK</span>
                 <?php else: ?>
                     <span class="text-red-600 font-bold">✗ Failed</span>
                 <?php endif; ?>
@@ -94,7 +94,7 @@ if (isset($_POST['next']) && $can_proceed) {
                     <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
                         <span><?php echo $ext; ?></span>
                         <?php if ($ok): ?>
-                            <span class="text-green-600 font-bold">✓ OK</span>
+                            <span class="text-primary-600 font-bold">✓ OK</span>
                         <?php else: ?>
                             <span class="text-red-600 font-bold">✗ Missing</span>
                         <?php endif; ?>
@@ -110,7 +110,7 @@ if (isset($_POST['next']) && $can_proceed) {
                     <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
                         <span class="text-sm"><?php echo $dir; ?></span>
                         <?php if ($ok): ?>
-                            <span class="text-green-600 font-bold text-sm">✓ Writable</span>
+                            <span class="text-primary-600 font-bold text-sm">✓ Writable</span>
                         <?php else: ?>
                             <span class="text-red-600 font-bold text-sm">✗ No Write Access</span>
                         <?php endif; ?>
@@ -121,7 +121,7 @@ if (isset($_POST['next']) && $can_proceed) {
 
         <form method="POST">
             <?php if ($can_proceed): ?>
-                <button type="submit" name="next" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition">Next: Database Configuration</button>
+                <button type="submit" name="next" class="w-full bg-primary-600 text-white py-3 rounded-lg font-bold hover:bg-primary-700 transition">Next: Database Configuration</button>
             <?php else: ?>
                 <div class="p-4 bg-red-100 text-red-700 rounded mb-4">
                     Please fix the issues above to proceed with the installation.

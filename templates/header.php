@@ -31,6 +31,29 @@ if (isset($pdo)) {
     <meta name="keywords" content="<?php echo h($page_keywords ?? ($settings['meta_keywords'] ?? '')); ?>">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            200: '#bae0fd',
+                            300: '#7cc7fb',
+                            400: '#38a9f8',
+                            500: '#1a7fe8',
+                            600: '#0966ce',
+                            700: '#0a52a6',
+                            800: '#0d4687',
+                            900: '#103b71',
+                            950: '#0b264b',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="manifest" href="/manifest.json">
     <style>
@@ -50,20 +73,20 @@ if (isset($pdo)) {
     <meta property="og:url" content="<?php echo (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on" ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"; ?>">
     <meta property="og:title" content="<?php echo h($page_title ?? ($settings["site_name"] ?? "Classifieds")); ?>">
     <meta property="og:description" content="<?php echo h($page_desc ?? ($settings["meta_description"] ?? "")); ?>">
-    <meta property="og:image" content="<?php echo isset($ad["image"]) ? "/uploads/ads/".$ad["image"] : "/assets/img/og-tiki.png"; ?>">
+    <meta property="og:image" content="<?php echo isset($ad["image"]) ? "/uploads/ads/".$ad["image"] : "/assets/img/og-image.png"; ?>">
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
     <nav class="bg-white shadow-sm border-b sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <a href="/" class="flex flex-col">
-                <span class="text-lg md:text-2xl font-black text-green-600 leading-none"><?php echo h($settings['site_name'] ?? 'Classifieds'); ?></span>
+                <span class="text-lg md:text-2xl font-black text-primary-600 leading-none"><?php echo h($settings['site_name'] ?? 'Classifieds'); ?></span>
                 <span class="text-[8px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest">Buy, Sell & Swap</span>
             </a>
 
             <div class="flex-1 max-w-2xl mx-8 hidden md:block">
-                <form action="/search.php" method="GET" class="flex items-center bg-gray-100 rounded-xl overflow-hidden border-2 border-transparent focus-within:border-green-500 focus-within:bg-white transition-all shadow-sm">
+                <form action="/search.php" method="GET" class="flex items-center bg-gray-100 rounded-xl overflow-hidden border-2 border-transparent focus-within:border-primary-500 focus-within:bg-white transition-all shadow-sm">
                     <div class="flex items-center px-4 border-r border-gray-200 gap-2">
-                        <i class="fas fa-map-marker-alt text-green-600 text-sm"></i>
+                        <i class="fas fa-map-marker-alt text-primary-600 text-sm"></i>
                         <select name="state_id" class="bg-transparent text-xs font-bold text-gray-600 outline-none py-3 cursor-pointer">
                             <option value="">All Nigeria</option>
                             <?php
@@ -73,7 +96,7 @@ if (isset($pdo)) {
                         </select>
                     </div>
                     <input type="text" name="q" placeholder="Search for anything..." class="flex-1 bg-transparent p-3 text-sm font-bold text-gray-700 outline-none" required>
-                    <button type="submit" class="bg-green-600 text-white px-6 py-3 hover:bg-green-700 transition">
+                    <button type="submit" class="bg-primary-600 text-white px-6 py-3 hover:bg-primary-700 transition">
                         <i class="fas fa-search"></i>
                     </button>
                 </form>
@@ -81,7 +104,7 @@ if (isset($pdo)) {
 
             <div class="flex items-center space-x-2 md:space-x-4">
                 <?php if (is_user_logged_in()): ?>
-                    <a href="/profile" class="text-gray-600 hover:text-green-600 font-bold flex flex-col items-center">
+                    <a href="/profile" class="text-gray-600 hover:text-primary-600 font-bold flex flex-col items-center">
                         <i class="fas fa-user text-xl md:text-base md:mr-1"></i>
                         <span class="hidden md:inline">Profile</span>
                     </a>
@@ -90,11 +113,11 @@ if (isset($pdo)) {
                         <span class="hidden md:inline">SELL</span>
                     </a>
                 <?php else: ?>
-                    <a href="/login" class="text-gray-600 hover:text-green-600 font-bold flex flex-col items-center">
+                    <a href="/login" class="text-gray-600 hover:text-primary-600 font-bold flex flex-col items-center">
                         <i class="fas fa-sign-in-alt text-xl md:text-base md:mr-1"></i>
                         <span class="hidden md:inline">Sign In</span>
                     </a>
-                    <a href="/register" class="text-green-600 font-bold md:border-2 md:border-green-600 p-2 md:px-4 md:py-1 rounded-lg hover:bg-green-600 hover:text-white transition flex items-center justify-center">
+                    <a href="/register" class="text-primary-600 font-bold md:border-2 md:border-primary-600 p-2 md:px-4 md:py-1 rounded-lg hover:bg-primary-600 hover:text-white transition flex items-center justify-center">
                         <i class="fas fa-user-plus text-xl md:text-base md:mr-1"></i>
                         <span class="hidden md:inline">Registration</span>
                     </a>
@@ -106,7 +129,7 @@ if (isset($pdo)) {
             </div>
         </div>
     </nav>
-<div class="bg-green-600 text-white py-3 shadow-inner">
+<div class="bg-primary-600 text-white py-3 shadow-inner">
     <div class="container mx-auto px-4 flex items-center justify-center gap-3">
         <i class="fas fa-shield-check text-xl"></i>
         <p class="text-[10px] md:text-xs font-black uppercase tracking-[2px]"><?php echo h($settings['site_name'] ?? 'Classifieds'); ?> Verified Sellers have completed NIN + live identity verification. Always look for the <span class="text-yellow-400">Verified Badge</span>.</p>

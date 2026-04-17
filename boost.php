@@ -44,13 +44,13 @@ include __DIR__ . '/templates/header.php';
 
 <div class="container mx-auto px-4 py-10 flex justify-center">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-xl">
-        <h1 class="text-2xl font-bold mb-8 text-green-600 border-b pb-4"><i class="fas fa-rocket mr-2"></i> Boost Your Ad</h1>
-        <p class="mb-8 font-bold text-gray-700">Get 10x more views for <span class="text-green-600">"<?php echo h($ad['title']); ?>"</span> by upgrading to a <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Premium Boost</span>.</p>
+        <h1 class="text-2xl font-bold mb-8 text-primary-600 border-b pb-4"><i class="fas fa-rocket mr-2"></i> Boost Your Ad</h1>
+        <p class="mb-8 font-bold text-gray-700">Get 10x more views for <span class="text-primary-600">"<?php echo h($ad['title']); ?>"</span> by upgrading to a <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Premium Boost</span>.</p>
 
         <div class="space-y-6">
             <!-- Online Payment -->
-            <div class="bg-gray-50 p-6 rounded-xl border-2 border-green-100">
-                <h2 class="font-bold text-lg mb-4 text-gray-800"><i class="fas fa-credit-card mr-2 text-green-600"></i> Pay Online</h2>
+            <div class="bg-gray-50 p-6 rounded-xl border-2 border-primary-100">
+                <h2 class="font-bold text-lg mb-4 text-gray-800"><i class="fas fa-credit-card mr-2 text-primary-600"></i> Pay Online</h2>
                 <div class="grid grid-cols-2 gap-4">
                     <button onclick="payWithPaystack()" class="bg-yellow-500 text-white py-3 rounded-lg font-bold hover:bg-yellow-600 transition shadow-md uppercase text-sm">Paystack</button>
                     <button onclick="payWithFlutterwave()" class="bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-md uppercase text-sm">Flutterwave</button>

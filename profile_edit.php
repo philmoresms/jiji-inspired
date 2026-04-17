@@ -18,7 +18,7 @@ include __DIR__ . '/templates/header.php';
 
 <div class="container mx-auto px-4 py-10 flex justify-center">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-        <h1 class="text-2xl font-bold mb-8 text-green-600 border-b pb-4"><i class="fas fa-user-edit mr-2"></i> Edit Profile</h1>
+        <h1 class="text-2xl font-bold mb-8 text-primary-600 border-b pb-4"><i class="fas fa-user-edit mr-2"></i> Edit Profile</h1>
 
         <?php
         $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
@@ -29,14 +29,14 @@ include __DIR__ . '/templates/header.php';
         <form method="POST" class="space-y-6">
             <div>
                 <label class="block text-gray-700 font-bold mb-2">Full Name</label>
-                <input type="text" name="full_name" value="<?php echo h($user['full_name']); ?>" class="w-full p-3 border-2 border-gray-100 rounded-lg focus:border-green-500 outline-none" required>
+                <input type="text" name="full_name" value="<?php echo h($user['full_name']); ?>" class="w-full p-3 border-2 border-gray-100 rounded-lg focus:border-primary-500 outline-none" required>
             </div>
             <div>
                 <label class="block text-gray-700 font-bold mb-2">Phone Number</label>
-                <input type="text" name="phone" value="<?php echo h($user['phone']); ?>" class="w-full p-3 border-2 border-gray-100 rounded-lg focus:border-green-500 outline-none" required>
+                <input type="text" name="phone" value="<?php echo h($user['phone']); ?>" class="w-full p-3 border-2 border-gray-100 rounded-lg focus:border-primary-500 outline-none" required>
             </div>
             <div class="pt-6">
-                <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition shadow-lg uppercase">Save Changes</button>
+                <button type="submit" class="w-full bg-primary-600 text-white py-3 rounded-lg font-bold hover:bg-primary-700 transition shadow-lg uppercase">Save Changes</button>
             </div>
         </form>
     </div>

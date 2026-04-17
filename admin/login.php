@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
-        <h1 class="text-2xl font-bold mb-6 text-green-600 text-center">Admin Access</h1>
+        <h1 class="text-2xl font-bold mb-6 text-primary-600 text-center">Admin Access</h1>
 
         <?php if ($error): ?>
             <div class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm"><?php echo h($error); ?></div>
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="password" name="password" class="w-full p-2 border rounded" required>
             </div>
 
-            <button type="submit" class="w-full bg-green-600 text-white py-2 rounded font-bold hover:bg-green-700 transition">Login</button>
+            <button type="submit" class="w-full bg-primary-600 text-white py-2 rounded font-bold hover:bg-primary-700 transition">Login</button>
         </form>
     </div>
 </body>

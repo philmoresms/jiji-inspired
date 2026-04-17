@@ -23,7 +23,7 @@ include __DIR__ . '/templates/header.php';
 <div class="container mx-auto px-4 py-16 flex-1">
     <div class="max-w-4xl mx-auto">
         <div class="mb-10">
-            <a href="/blog" class="text-xs font-black text-gray-400 hover:text-green-600 transition uppercase tracking-widest flex items-center gap-2 mb-6"><i class="fas fa-arrow-left"></i> Back to Blog</a>
+            <a href="/blog" class="text-xs font-black text-gray-400 hover:text-primary-600 transition uppercase tracking-widest flex items-center gap-2 mb-6"><i class="fas fa-arrow-left"></i> Back to Blog</a>
             <h1 class="text-5xl font-black text-gray-800 leading-tight mb-6"><?php echo h($post['title']); ?></h1>
             <div class="flex items-center gap-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">
                 <span class="bg-gray-100 px-3 py-1 rounded-full text-gray-600">Journalist</span>
@@ -46,7 +46,7 @@ include __DIR__ . '/templates/header.php';
                 <div class="flex justify-center gap-4">
                     <a href="#" class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-gray-400 hover:text-blue-600 shadow-sm transition"><i class="fab fa-facebook-f"></i></a>
                     <a href="#" class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-gray-400 hover:text-black shadow-sm transition"><i class="fab fa-x-twitter"></i></a>
-                    <a href="#" class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-gray-400 hover:text-green-600 shadow-sm transition"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#" class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-gray-400 hover:text-primary-600 shadow-sm transition"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
         </div>

@@ -24,13 +24,13 @@ if (!isset($_SESSION['install_stage']) || $_SESSION['install_stage'] < 4) {
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-10 rounded-lg shadow-md w-full max-w-2xl text-center">
         <div class="mb-6 flex justify-center">
-            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-                <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center">
+                <svg class="w-12 h-12 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
             </div>
         </div>
-        <h1 class="text-3xl font-bold mb-4 text-green-600">Congratulations!</h1>
+        <h1 class="text-3xl font-bold mb-4 text-primary-600">Congratulations!</h1>
         <p class="text-xl text-gray-600 mb-8">Marketplace has been successfully installed on your server.</p>
 
         <div class="bg-blue-50 p-6 rounded-lg text-left mb-8">
@@ -55,7 +55,7 @@ if (!isset($_SESSION['install_stage']) || $_SESSION['install_stage'] < 4) {
             </ul>
         </div>
 
-        <a href="../index.php" class="inline-block bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition">Go to Homepage</a>
+        <a href="../index.php" class="inline-block bg-primary-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-primary-700 transition">Go to Homepage</a>
     </div>
 </body>
 </html>

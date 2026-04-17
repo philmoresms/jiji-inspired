@@ -99,7 +99,7 @@ include __DIR__ . '/templates/header.php';
 
 <div class="container mx-auto px-4 py-10 flex justify-center">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
-        <h1 class="text-2xl font-black mb-8 text-green-600 border-b pb-4 uppercase tracking-tighter"><i class="fas fa-plus-circle mr-2"></i> Create Listing</h1>
+        <h1 class="text-2xl font-black mb-8 text-primary-600 border-b pb-4 uppercase tracking-tighter"><i class="fas fa-plus-circle mr-2"></i> Create Listing</h1>
 
         <?php if (isset($error)): ?>
             <div class="bg-red-100 text-red-700 p-4 rounded-lg mb-6 font-bold text-sm"><?php echo h($error); ?></div>
@@ -109,7 +109,7 @@ include __DIR__ . '/templates/header.php';
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-gray-700 font-bold mb-2 text-sm">Category</label>
-                    <select id="parent_cat_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required onchange="loadSubcategories(this.value)">
+                    <select id="parent_cat_id" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" required onchange="loadSubcategories(this.value)">
                         <option value="">Select Category</option>
                         <?php foreach ($categories as $cat): ?>
                             <option value="<?php echo $cat['id']; ?>"><?php echo h($cat['name']); ?></option>
@@ -118,7 +118,7 @@ include __DIR__ . '/templates/header.php';
                 </div>
                 <div>
                     <label class="block text-gray-700 font-bold mb-2 text-sm">Subcategory</label>
-                    <select name="cat_id" id="cat_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required onchange="loadFilters(this.value)">
+                    <select name="cat_id" id="cat_id" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" required onchange="loadFilters(this.value)">
                         <option value="">Select Subcategory</option>
                     </select>
                 </div>
@@ -126,13 +126,13 @@ include __DIR__ . '/templates/header.php';
 
             <div>
                 <label class="block text-gray-700 font-bold mb-2 text-sm">Title</label>
-                <input type="text" name="title" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="What are you selling?" required>
+                <input type="text" name="title" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" placeholder="What are you selling?" required>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-gray-700 font-bold mb-2 text-sm">State</label>
-                    <select name="state_id" id="state_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required onchange="loadLGAs(this.value)">
+                    <select name="state_id" id="state_id" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" required onchange="loadLGAs(this.value)">
                         <option value="">Select State</option>
                         <?php foreach ($states as $state): ?>
                             <option value="<?php echo $state['id']; ?>"><?php echo h($state['name']); ?></option>
@@ -141,7 +141,7 @@ include __DIR__ . '/templates/header.php';
                 </div>
                 <div>
                     <label class="block text-gray-700 font-bold mb-2 text-sm">LGA (City)</label>
-                    <select name="lga_id" id="lga_id" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" required>
+                    <select name="lga_id" id="lga_id" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" required>
                         <option value="">Select LGA</option>
                     </select>
                 </div>
@@ -150,17 +150,17 @@ include __DIR__ . '/templates/header.php';
             <div class="p-6 bg-gray-50 rounded-2xl border border-gray-100 mb-6">
                 <label class="block text-gray-700 font-black mb-4 text-xs uppercase tracking-widest">Listing Options</label>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-green-200 has-[:checked]:border-green-600 has-[:checked]:bg-green-50 transition">
+                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-primary-200 has-[:checked]:border-primary-600 has-[:checked]:bg-primary-50 transition">
                         <input type="radio" name="listing_type" value="for_sale" checked class="absolute opacity-0" onchange="toggleSwapFields()">
                         <span class="text-xs font-bold text-gray-800">For Sale</span>
                         <span class="text-[9px] text-gray-400 mt-1">Direct monetary trade</span>
                     </label>
-                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-green-200 has-[:checked]:border-green-600 has-[:checked]:bg-green-50 transition">
+                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-primary-200 has-[:checked]:border-primary-600 has-[:checked]:bg-primary-50 transition">
                         <input type="radio" name="listing_type" value="for_swap" class="absolute opacity-0" onchange="toggleSwapFields()">
                         <span class="text-xs font-bold text-gray-800">For Swap</span>
                         <span class="text-[9px] text-gray-400 mt-1">Item-for-item exchange</span>
                     </label>
-                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-green-200 has-[:checked]:border-green-600 has-[:checked]:bg-green-50 transition">
+                    <label class="relative flex flex-col p-4 bg-white rounded-xl border-2 border-transparent cursor-pointer hover:border-primary-200 has-[:checked]:border-primary-600 has-[:checked]:bg-primary-50 transition">
                         <input type="radio" name="listing_type" value="for_sale_or_swap" class="absolute opacity-0" onchange="toggleSwapFields()">
                         <span class="text-xs font-bold text-gray-800">Sale or Swap</span>
                         <span class="text-[9px] text-gray-400 mt-1">Accept cash or items</span>
@@ -169,20 +169,20 @@ include __DIR__ . '/templates/header.php';
 
                 <div id="price_field">
                     <label class="block text-gray-700 font-bold mb-2 text-sm">Price (₦)</label>
-                    <input type="number" name="price" step="0.01" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="10000">
+                    <input type="number" name="price" step="0.01" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" placeholder="10000">
                 </div>
 
                 <div id="swap_fields" class="hidden space-y-4">
                     <div>
                         <label class="block text-gray-700 font-bold mb-2 text-sm">Estimated Market Value (₦)</label>
-                        <input type="number" name="estimated_value" step="0.01" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="e.g. 50000">
+                        <input type="number" name="estimated_value" step="0.01" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" placeholder="e.g. 50000">
                     </div>
                     <div>
                         <label class="block text-gray-700 font-bold mb-2 text-sm">Swap Preference (What do you want in exchange?)</label>
-                        <input type="text" name="swap_preference" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="e.g. iPhone 13 or equivalent laptop">
+                        <input type="text" name="swap_preference" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" placeholder="e.g. iPhone 13 or equivalent laptop">
                     </div>
                     <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" name="allow_cash_topup" value="1" class="w-5 h-5 accent-green-600">
+                        <input type="checkbox" name="allow_cash_topup" value="1" class="w-5 h-5 accent-primary-600">
                         <span class="text-sm font-bold text-gray-700">Allow item + cash top-up</span>
                     </label>
                 </div>
@@ -210,15 +210,15 @@ include __DIR__ . '/templates/header.php';
 
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2 text-sm">Description</label>
-                <textarea name="description" rows="5" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="Provide details about the item..." required></textarea>
+                <textarea name="description" rows="5" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" placeholder="Provide details about the item..." required></textarea>
             </div>
 
             <div id="dropZone" class="mb-4 p-8 border-4 border-dashed border-gray-200 rounded-2xl bg-gray-50 hover:bg-white transition cursor-pointer relative group">
                 <label class="block text-gray-700 font-bold mb-4 text-sm text-center">Upload Ad Photos (Maximum 10)</label>
                 <input type="file" name="images[]" id="fileInput" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
                 <div class="text-center">
-                    <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-100 transition">
-                        <i class="fas fa-camera text-3xl text-green-500"></i>
+                    <div class="w-20 h-20 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary-100 transition">
+                        <i class="fas fa-camera text-3xl text-primary-500"></i>
                     </div>
                     <p class="text-sm font-bold text-gray-600 mb-1">Drag & drop up to 10 images</p>
                     <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">or click to browse</p>
@@ -230,7 +230,7 @@ include __DIR__ . '/templates/header.php';
             </div>
 
             <div class="pt-6">
-                <button type="submit" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black hover:bg-green-700 transition shadow-xl text-lg uppercase tracking-widest">Post My Ad</button>
+                <button type="submit" class="w-full bg-primary-600 text-white py-5 rounded-2xl font-black hover:bg-primary-700 transition shadow-xl text-lg uppercase tracking-widest">Post My Ad</button>
             </div>
         </form>
     </div>
@@ -280,21 +280,21 @@ function loadFilters(catId) {
 
                 if (f.type === 'checkbox') {
                     html += `<label class="flex items-center gap-3 cursor-pointer py-2">
-                        <input type="checkbox" name="extra[${key}]" value="1" class="w-5 h-5 accent-green-600">
+                        <input type="checkbox" name="extra[${key}]" value="1" class="w-5 h-5 accent-primary-600">
                         <span class="text-sm font-bold text-gray-700">${f.label}</span>
                     </label>`;
                 } else if (f.type === 'select' || f.type === 'multi_select') {
                     if (f.searchable) {
                         html += `<div class="relative group">
-                            <input type="text" placeholder="Search ${f.label}..." onkeyup="filterPostOptions(this)" class="w-full p-3 border rounded-t-lg focus:border-green-500 outline-none mb-[1px]">
-                            <select name="extra[${key}]" class="w-full p-3 border rounded-b-lg focus:border-green-500 outline-none custom-select-list" size="5">
+                            <input type="text" placeholder="Search ${f.label}..." onkeyup="filterPostOptions(this)" class="w-full p-3 border rounded-t-lg focus:border-primary-500 outline-none mb-[1px]">
+                            <select name="extra[${key}]" class="w-full p-3 border rounded-b-lg focus:border-primary-500 outline-none custom-select-list" size="5">
                                 <option value="">Select ${f.label}</option>`;
                         f.options.forEach(opt => {
                             html += `<option value="${opt}">${opt}</option>`;
                         });
                         html += `</select></div>`;
                     } else {
-                        html += `<select name="extra[${key}]" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none">`;
+                        html += `<select name="extra[${key}]" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none">`;
                         html += '<option value="">Select option</option>';
                         f.options.forEach(opt => {
                             html += `<option value="${opt}">${opt}</option>`;
@@ -302,7 +302,7 @@ function loadFilters(catId) {
                         html += '</select>';
                     }
                 } else if (f.type === 'number' || f.type === 'number_range' || f.type === 'range') {
-                    html += `<input type="number" name="extra[${key}]" class="w-full p-3 border rounded-lg focus:border-green-500 outline-none" placeholder="Enter value">`;
+                    html += `<input type="number" name="extra[${key}]" class="w-full p-3 border rounded-lg focus:border-primary-500 outline-none" placeholder="Enter value">`;
                 }
                 html += '</div>';
             }
@@ -362,10 +362,10 @@ let allFiles = new DataTransfer();
 ['dragover', 'dragleave', 'drop'].forEach(eventName => {
     dropZone.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); });
 });
-dropZone.addEventListener('dragover', () => dropZone.classList.add('bg-green-50', 'border-green-400'));
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('bg-green-50', 'border-green-400'));
+dropZone.addEventListener('dragover', () => dropZone.classList.add('bg-primary-50', 'border-primary-400'));
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('bg-primary-50', 'border-primary-400'));
 dropZone.addEventListener('drop', (e) => {
-    dropZone.classList.remove('bg-green-50', 'border-green-400');
+    dropZone.classList.remove('bg-primary-50', 'border-primary-400');
     if (e.dataTransfer.files.length > 0) addFiles(e.dataTransfer.files);
 });
 fileInput.addEventListener('change', () => addFiles(fileInput.files));

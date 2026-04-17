@@ -122,9 +122,9 @@ include __DIR__ . '/templates/header.php';
                 <div class="py-2">
                     <?php foreach ($main_categories as $mcat): ?>
                         <div class="px-2">
-                            <a href="search.php?q=<?php echo h($q); ?>&cat_id=<?php echo $mcat['id']; ?>&state_id=<?php echo $state_id; ?>&type=<?php echo $type; ?>" class="flex items-center justify-between p-3 rounded-lg hover:bg-green-50 transition-all <?php echo $mcat['id'] == $cat_id ? 'bg-green-50 text-green-600' : 'text-gray-700'; ?>">
+                            <a href="search.php?q=<?php echo h($q); ?>&cat_id=<?php echo $mcat['id']; ?>&state_id=<?php echo $state_id; ?>&type=<?php echo $type; ?>" class="flex items-center justify-between p-3 rounded-lg hover:bg-primary-50 transition-all <?php echo $mcat['id'] == $cat_id ? 'bg-primary-50 text-primary-600' : 'text-gray-700'; ?>">
                                 <div class="flex items-center gap-3">
-                                    <i class="fas <?php echo h($mcat['icon_class']); ?> text-sm opacity-50 <?php echo $mcat['id'] == $cat_id ? 'text-green-600 opacity-100' : ''; ?>"></i>
+                                    <i class="fas <?php echo h($mcat['icon_class']); ?> text-sm opacity-50 <?php echo $mcat['id'] == $cat_id ? 'text-primary-600 opacity-100' : ''; ?>"></i>
                                     <span class="text-sm font-bold"><?php echo h($mcat['name']); ?></span>
                                 </div>
                                 <span class="text-[10px] font-bold opacity-50"><?php echo number_format($mcat['ad_count']); ?></span>
@@ -143,7 +143,7 @@ include __DIR__ . '/templates/header.php';
 
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">State</label>
-                        <select name="state_id" onchange="loadLGAs(this.value); this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                        <select name="state_id" onchange="loadLGAs(this.value); this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">
                             <option value="">All Nigeria</option>
                             <?php foreach ($states as $s): ?>
                                 <option value="<?php echo $s['id']; ?>" <?php echo $state_id == $s['id'] ? 'selected' : ''; ?>><?php echo h($s['name']); ?></option>
@@ -153,7 +153,7 @@ include __DIR__ . '/templates/header.php';
 
                     <div id="lga_filter_container" class="<?php echo !$state_id ? 'hidden' : ''; ?>">
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">City / LGA</label>
-                        <select name="lga_id" id="lga_filter" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                        <select name="lga_id" id="lga_filter" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">
                             <option value="">All Cities</option>
                             <?php
                             if ($state_id) {
@@ -170,7 +170,7 @@ include __DIR__ . '/templates/header.php';
 
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Listing Type</label>
-                        <select name="type" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                        <select name="type" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">
                             <option value="all" <?php echo $type == 'all' ? 'selected' : ''; ?>>All Types</option>
                             <option value="sale" <?php echo $type == 'sale' ? 'selected' : ''; ?>>For Sale</option>
                             <option value="swap" <?php echo $type == 'swap' ? 'selected' : ''; ?>>For Swap</option>
@@ -180,8 +180,8 @@ include __DIR__ . '/templates/header.php';
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Price Range (₦)</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="number" name="min_price" value="<?php echo $min_price ?: ''; ?>" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
-                            <input type="number" name="max_price" value="<?php echo $max_price ?: ''; ?>" placeholder="Max" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                            <input type="number" name="min_price" value="<?php echo $min_price ?: ''; ?>" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">
+                            <input type="number" name="max_price" value="<?php echo $max_price ?: ''; ?>" placeholder="Max" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">
                         </div>
                     </div>
 
@@ -189,7 +189,7 @@ include __DIR__ . '/templates/header.php';
                         <!-- Filters here -->
                     </div>
 
-                    <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition shadow-lg shadow-green-100">Apply Filters</button>
+                    <button type="submit" class="w-full bg-primary-600 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-primary-700 transition shadow-lg shadow-primary-100">Apply Filters</button>
 
                     <?php if ($cat_id || $state_id || $min_price || $max_price || $q || $extra): ?>
                         <a href="search.php" class="block text-center text-[10px] font-black text-red-400 uppercase tracking-widest mt-4 hover:text-red-600 transition">Clear All Filters</a>
@@ -223,11 +223,11 @@ include __DIR__ . '/templates/header.php';
                         </div>
                     </div>
                     <div class="p-4 md:p-5">
-                        <h4 class="text-xs md:text-sm font-black text-gray-800 line-clamp-2 h-8 md:h-10 mb-2 md:mb-4 group-hover:text-green-600 transition"><?php echo h($ad['title']); ?></h4>
+                        <h4 class="text-xs md:text-sm font-black text-gray-800 line-clamp-2 h-8 md:h-10 mb-2 md:mb-4 group-hover:text-primary-600 transition"><?php echo h($ad['title']); ?></h4>
                         <div class="flex justify-between items-end">
                             <div>
-                                <p class="text-green-600 font-black text-base md:text-xl">₦<?php echo number_format($ad['price']); ?></p>
-                                <p class="text-[8px] md:text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-map-marker-alt text-green-500 mr-1"></i> <?php echo h($ad['state_name']); ?></p>
+                                <p class="text-primary-600 font-black text-base md:text-xl">₦<?php echo number_format($ad['price']); ?></p>
+                                <p class="text-[8px] md:text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-map-marker-alt text-primary-500 mr-1"></i> <?php echo h($ad['state_name']); ?></p>
                             </div>
                             <?php
                             $is_saved = false;
@@ -253,7 +253,7 @@ include __DIR__ . '/templates/header.php';
                     </div>
                     <h2 class="text-2xl font-black text-gray-800 mb-2 tracking-tighter">No matching results</h2>
                     <p class="text-gray-400 font-bold">We couldn't find anything matching your search. Try different keywords or filters.</p>
-                    <a href="search.php" class="bg-green-600 text-white px-10 py-5 rounded-2xl font-black hover:bg-green-700 transition uppercase shadow-2xl inline-block mt-10 tracking-widest text-xs">VIEW ALL LISTINGS</a>
+                    <a href="search.php" class="bg-primary-600 text-white px-10 py-5 rounded-2xl font-black hover:bg-primary-700 transition uppercase shadow-2xl inline-block mt-10 tracking-widest text-xs">VIEW ALL LISTINGS</a>
                 </div>
             <?php endif; ?>
         </div>
@@ -315,7 +315,7 @@ function loadFilters(catId) {
                 const val = currentExtra[key] || '';
 
                 if (f.type === 'select') {
-                    html += `<select name="extra[${key}]" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">`;
+                    html += `<select name="extra[${key}]" onchange="this.form.submit()" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">`;
                     html += '<option value="">All</option>';
                     f.options.forEach(opt => {
                         const sel = (val == opt) ? 'selected' : '';
@@ -323,20 +323,20 @@ function loadFilters(catId) {
                     });
                     html += '</select>';
                 } else if (f.type === 'number') {
-                    html += `<input type="number" name="extra[${key}]" value="${val}" placeholder="Value" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">`;
+                    html += `<input type="number" name="extra[${key}]" value="${val}" placeholder="Value" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">`;
                 } else if (f.type === 'range' || f.type === 'number_range') {
                     const min_val = currentExtra['min_' + key] || '';
                     const max_val = currentExtra['max_' + key] || '';
 
                     html += `<div class="grid grid-cols-2 gap-2 mb-3">
-                        <input type="number" name="extra[min_${key}]" value="${min_val}" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
-                        <input type="number" name="extra[max_${key}]" value="${max_val}" placeholder="Max" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                        <input type="number" name="extra[min_${key}]" value="${min_val}" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">
+                        <input type="number" name="extra[max_${key}]" value="${max_val}" placeholder="Max" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">
                     </div>`;
 
                     if (f.quick_ranges) {
                         html += '<div class="flex flex-wrap gap-1 mt-2">';
                         f.quick_ranges.forEach(range => {
-                            const active = (min_val == range.min && max_val == range.max) ? 'bg-green-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-100 hover:bg-green-50';
+                            const active = (min_val == range.min && max_val == range.max) ? 'bg-primary-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-100 hover:bg-primary-50';
                             html += `<button type="button" onclick="setQuickRange('${key}', ${range.min}, ${range.max})" class="px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all ${active}">${range.label}</button>`;
                         });
                         html += '</div>';

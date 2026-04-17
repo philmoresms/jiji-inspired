@@ -59,7 +59,7 @@ function send_recommendations_email($user_id, $pdo, $settings) {
 
     $message = "
     <div style='font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px;'>
-        <h2 style='color: #16a34a; text-align: center;'>$site_name Recommendations</h2>
+        <h2 style='color: #1A7FE8; text-align: center;'>$site_name Recommendations</h2>
         <p>Hi {$user['full_name']}, we found some items you might like based on your recent activity:</p>
         <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 20px;'>";
 
@@ -71,8 +71,8 @@ function send_recommendations_email($user_id, $pdo, $settings) {
                 <img src='$img' style='width: 100%; height: 150px; object-fit: cover;'>
                 <div style='padding: 10px;'>
                     <h4 style='margin: 0 0 5px 0; font-size: 14px;'>{$ad['title']}</h4>
-                    <p style='color: #16a34a; font-weight: bold; margin: 0;'>₦".number_format($ad['price'])."</p>
-                    <a href='$url' style='display: inline-block; margin-top: 10px; padding: 5px 10px; background: #16a34a; color: #fff; text-decoration: none; border-radius: 5px; font-size: 12px;'>View Details</a>
+                    <p style='color: #1A7FE8; font-weight: bold; margin: 0;'>₦".number_format($ad['price'])."</p>
+                    <a href='$url' style='display: inline-block; margin-top: 10px; padding: 5px 10px; background: #1A7FE8; color: #fff; text-decoration: none; border-radius: 5px; font-size: 12px;'>View Details</a>
                 </div>
             </div>";
     }

@@ -41,11 +41,11 @@ include __DIR__ . '/templates/header.php';
                 </div>
             </a>
             <div class="p-5">
-                <h4 class="text-sm font-black text-gray-800 line-clamp-2 h-10 mb-4 group-hover:text-green-600 transition"><?php echo h($ad['title']); ?></h4>
+                <h4 class="text-sm font-black text-gray-800 line-clamp-2 h-10 mb-4 group-hover:text-primary-600 transition"><?php echo h($ad['title']); ?></h4>
                 <div class="flex justify-between items-end">
                     <div>
-                        <p class="text-green-600 font-black text-xl">₦<?php echo number_format($ad['price']); ?></p>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-map-marker-alt text-green-500 mr-1"></i> <?php echo h($ad['state_name']); ?></p>
+                        <p class="text-primary-600 font-black text-xl">₦<?php echo number_format($ad['price']); ?></p>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-map-marker-alt text-primary-500 mr-1"></i> <?php echo h($ad['state_name']); ?></p>
                     </div>
                     <button onclick="toggleSave(<?php echo $ad['id']; ?>, this)" class="w-10 h-10 rounded-2xl bg-red-50 flex items-center justify-center text-red-500 transition-colors duration-300">
                         <i class="fas fa-heart text-sm"></i>
@@ -62,7 +62,7 @@ include __DIR__ . '/templates/header.php';
                 </div>
                 <h2 class="text-2xl font-black text-gray-800 mb-2 tracking-tighter">Your wishlist is empty</h2>
                 <p class="text-gray-400 font-bold">Save items you like to keep track of them!</p>
-                <a href="/" class="bg-green-600 text-white px-10 py-5 rounded-2xl font-black hover:bg-green-700 transition uppercase shadow-2xl inline-block mt-10 tracking-widest text-xs">START BROWSING</a>
+                <a href="/" class="bg-primary-600 text-white px-10 py-5 rounded-2xl font-black hover:bg-primary-700 transition uppercase shadow-2xl inline-block mt-10 tracking-widest text-xs">START BROWSING</a>
             </div>
         <?php endif; ?>
     </div>

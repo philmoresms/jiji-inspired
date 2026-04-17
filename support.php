@@ -19,7 +19,7 @@ include __DIR__ . '/templates/header.php';
 
 <div class="container mx-auto px-4 py-10 flex justify-center">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-xl">
-        <h1 class="text-2xl font-bold mb-8 text-green-600 border-b pb-4"><i class="fas fa-headset mr-2"></i> Contact Support</h1>
+        <h1 class="text-2xl font-bold mb-8 text-primary-600 border-b pb-4"><i class="fas fa-headset mr-2"></i> Contact Support</h1>
 
         <div id="supportChat" class="h-96 overflow-y-auto mb-6 p-4 bg-gray-50 rounded-lg space-y-4">
             <?php
@@ -30,7 +30,7 @@ include __DIR__ . '/templates/header.php';
                 $is_me = ($msg['sender_id'] == $user_id);
             ?>
             <div class="flex <?php echo $is_me ? 'justify-end' : 'justify-start'; ?>">
-                <div class="<?php echo $is_me ? 'bg-green-600 text-white' : 'bg-blue-600 text-white'; ?> p-4 rounded-xl max-w-[85%] text-sm font-bold shadow-md">
+                <div class="<?php echo $is_me ? 'bg-primary-600 text-white' : 'bg-blue-600 text-white'; ?> p-4 rounded-xl max-w-[85%] text-sm font-bold shadow-md">
                     <p><?php echo h($msg['message']); ?></p>
                     <div class="text-[10px] mt-2 opacity-70 flex justify-between">
                         <span><?php echo $is_me ? 'You' : 'Admin'; ?></span>
@@ -42,8 +42,8 @@ include __DIR__ . '/templates/header.php';
         </div>
 
         <form method="POST" class="space-y-4">
-            <textarea name="message" class="w-full p-4 border-2 border-gray-100 rounded-xl focus:border-green-500 outline-none transition" placeholder="How can we help you today?" required></textarea>
-            <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:bg-green-700 transition uppercase shadow-lg">Send Support Message</button>
+            <textarea name="message" class="w-full p-4 border-2 border-gray-100 rounded-xl focus:border-primary-500 outline-none transition" placeholder="How can we help you today?" required></textarea>
+            <button type="submit" class="w-full bg-primary-600 text-white py-4 rounded-xl font-bold hover:bg-primary-700 transition uppercase shadow-lg">Send Support Message</button>
         </form>
     </div>
 </div>

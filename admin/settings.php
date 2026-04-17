@@ -31,7 +31,7 @@ include __DIR__ . '/../templates/admin_header.php';
         <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
             <!-- General Settings -->
             <div>
-                <h3 class="font-bold text-lg mb-4 text-green-700">General Information</h3>
+                <h3 class="font-bold text-lg mb-4 text-primary-700">General Information</h3>
                 <div class="space-y-4">
                     <div>
                         <label class="block text-gray-700 font-bold mb-2">Site Name</label>
@@ -39,7 +39,7 @@ include __DIR__ . '/../templates/admin_header.php';
                     </div>
                 </div>
 
-                <h3 class="font-bold text-lg mt-8 mb-4 text-green-700">SEO & Meta Configuration</h3>
+                <h3 class="font-bold text-lg mt-8 mb-4 text-primary-700">SEO & Meta Configuration</h3>
                 <div class="space-y-4">
                     <div>
                         <label class="block text-gray-700 font-bold mb-2">Default Meta Description</label>
@@ -51,7 +51,7 @@ include __DIR__ . '/../templates/admin_header.php';
                     </div>
                 </div>
 
-                <h3 class="font-bold text-lg mt-8 mb-4 text-green-700">Email (SMTP) Configuration</h3>
+                <h3 class="font-bold text-lg mt-8 mb-4 text-primary-700">Email (SMTP) Configuration</h3>
                 <div class="space-y-4">
                     <div>
                         <label class="block text-gray-700 font-bold mb-2">SMTP Host</label>
@@ -83,12 +83,12 @@ include __DIR__ . '/../templates/admin_header.php';
 
             <!-- Payment Settings -->
             <div>
-                <h3 class="font-bold text-lg mb-4 text-green-700">Ad Boosting & Payments</h3>
+                <h3 class="font-bold text-lg mb-4 text-primary-700">Ad Boosting & Payments</h3>
                 <div class="space-y-4">
-                    <div class="p-4 bg-green-50 rounded border border-green-200 mb-4">
-                        <label class="block text-sm font-bold text-green-800 mb-2">Boost Ad Price (₦)</label>
-                        <input type="number" name="s[boost_price]" value="<?php echo h($settings['boost_price'] ?? '2000'); ?>" class="w-full p-2 border rounded font-bold text-green-700" step="0.01">
-                        <p class="text-[10px] text-green-600 mt-1 uppercase font-bold tracking-widest">Amount users pay to feature their ads</p>
+                    <div class="p-4 bg-primary-50 rounded border border-primary-200 mb-4">
+                        <label class="block text-sm font-bold text-primary-800 mb-2">Boost Ad Price (₦)</label>
+                        <input type="number" name="s[boost_price]" value="<?php echo h($settings['boost_price'] ?? '2000'); ?>" class="w-full p-2 border rounded font-bold text-primary-700" step="0.01">
+                        <p class="text-[10px] text-primary-600 mt-1 uppercase font-bold tracking-widest">Amount users pay to feature their ads</p>
                     </div>
 
                     <div class="p-4 bg-purple-50 rounded border border-purple-200 mb-4">
@@ -153,7 +153,7 @@ include __DIR__ . '/../templates/admin_header.php';
                     </div>
                 </div>
 
-                <h3 class="font-bold text-lg mt-8 mb-4 text-green-700">Social Login (OAuth)</h3>
+                <h3 class="font-bold text-lg mt-8 mb-4 text-primary-700">Social Login (OAuth)</h3>
                 <div class="space-y-6">
                     <div class="p-4 bg-red-50 rounded border border-red-200">
                         <p class="text-sm text-red-800 font-bold mb-3 flex items-center">
@@ -200,14 +200,14 @@ include __DIR__ . '/../templates/admin_header.php';
             </div>
         </div>
 
-        <div class="mt-10 bg-gray-900 text-green-400 p-6 rounded-xl font-mono text-xs overflow-x-auto">
+        <div class="mt-10 bg-gray-900 text-primary-400 p-6 rounded-xl font-mono text-xs overflow-x-auto">
             <p class="mb-2 font-bold uppercase text-gray-400">// Automation Cron Job Path</p>
             <p>php <?php echo realpath(__DIR__ . '/../inc/cron.php'); ?></p>
             <p class="mt-4 text-gray-500 italic">Set this to run every hour via your cPanel Cron Jobs</p>
         </div>
 
         <div class="mt-10 border-t pt-6 flex justify-end">
-            <button type="submit" name="save_settings" class="bg-green-600 text-white px-10 py-3 rounded-lg font-bold hover:bg-green-700 transition shadow-lg">Save All Configurations</button>
+            <button type="submit" name="save_settings" class="bg-primary-600 text-white px-10 py-3 rounded-lg font-bold hover:bg-primary-700 transition shadow-lg">Save All Configurations</button>
         </div>
     </form>
 </div>

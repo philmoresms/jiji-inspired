@@ -9,6 +9,9 @@ if (!isset($pdo)) {
 }
 if (!isset($pdo)) return;
 
+// Simple guard to prevent running on every page load after first successful run in a session
+if (isset($_SESSION['schema_verified'])) return;
+
 $tables = [
     'ads' => [
         'ad_data' => "JSON DEFAULT NULL AFTER description",
@@ -213,3 +216,5 @@ foreach ($indexes as $idx) {
         $pdo->exec("ALTER TABLE `{$idx['table']}` ADD INDEX `{$idx['name']}` (`{$idx['col']}`)");
     } catch (Exception $e) {}
 }
+
+$_SESSION['schema_verified'] = true;

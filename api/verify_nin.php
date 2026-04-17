@@ -29,7 +29,7 @@ if ($user['locked_until'] && strtotime($user['locked_until']) > time()) {
 }
 
 // Simulate NIMC API call (Prembly / Smile Identity)
-$kyc_reference = 'TIKI-'.uniqid();
+$kyc_reference = 'KYC-'.uniqid();
 $id_photo_token = 'TOK-'.md5($nin);
 
 $stmt = $pdo->prepare("UPDATE users SET nin_number = ?, kyc_reference = ? WHERE id = ?");

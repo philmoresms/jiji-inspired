@@ -76,7 +76,7 @@ include __DIR__ . '/../templates/admin_header.php';
                     <option value="one_month" <?php echo ($settings['ip_block_duration'] ?? '') == 'one_month' ? 'selected' : ''; ?>>One Month</option>
                 </select>
             </div>
-            <button type="submit" name="save_security" class="bg-green-600 text-white px-6 py-2 rounded font-bold hover:bg-green-700 transition w-full">Save Protection Settings</button>
+            <button type="submit" name="save_security" class="bg-primary-600 text-white px-6 py-2 rounded font-bold hover:bg-primary-700 transition w-full">Save Protection Settings</button>
         </form>
     </div>
 
@@ -87,7 +87,7 @@ include __DIR__ . '/../templates/admin_header.php';
         <form method="POST" class="mb-6 flex gap-2">
             <input type="text" name="ip" placeholder="Enter IP Address" class="flex-1 p-2 border rounded" required>
             <button type="submit" name="blacklist_ip" class="bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-700 transition">Blacklist</button>
-            <button type="submit" name="whitelist_ip" class="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-700 transition">Whitelist</button>
+            <button type="submit" name="whitelist_ip" class="bg-primary-600 text-white px-4 py-2 rounded font-bold hover:bg-primary-700 transition">Whitelist</button>
         </form>
 
         <div class="overflow-x-auto">
@@ -108,7 +108,7 @@ include __DIR__ . '/../templates/admin_header.php';
                         <td class="p-3 font-mono"><?php echo h($ip_row['ip_address']); ?></td>
                         <td class="p-3">
                             <?php if ($ip_row['status'] == 'whitelisted'): ?>
-                                <span class="text-green-600 font-bold">Whitelisted <i class="fas fa-crown"></i></span>
+                                <span class="text-primary-600 font-bold">Whitelisted <i class="fas fa-crown"></i></span>
                             <?php else: ?>
                                 <span class="text-red-600 font-bold">Blacklisted</span>
                             <?php endif; ?>
@@ -143,7 +143,7 @@ include __DIR__ . '/../templates/admin_header.php';
             <form method="POST" class="flex gap-1">
                 <input type="hidden" name="country_id" value="<?php echo $country['id']; ?>">
                 <select name="status" onchange="this.form.submit()" class="text-xs p-1 border rounded <?php
-                    echo $country['status'] == 'blacklisted' ? 'bg-red-50 text-red-700' : ($country['status'] == 'whitelisted' ? 'bg-green-50 text-green-700' : '');
+                    echo $country['status'] == 'blacklisted' ? 'bg-red-50 text-red-700' : ($country['status'] == 'whitelisted' ? 'bg-primary-50 text-primary-700' : '');
                 ?>">
                     <option name="country_action" value="not_specified" <?php echo $country['status'] == 'not_specified' ? 'selected' : ''; ?>>Not Specified</option>
                     <option name="country_action" value="whitelisted" <?php echo $country['status'] == 'whitelisted' ? 'selected' : ''; ?>>Whitelisted</option>

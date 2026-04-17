@@ -24,11 +24,11 @@ include __DIR__ . '/../templates/admin_header.php';
 ?>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-    <div class="bg-white p-6 rounded-lg shadow-sm border border-green-50">
-        <h2 class="text-xl font-bold mb-6 text-gray-800 border-b pb-2"><i class="fas fa-map mr-2 text-green-600"></i> Nigerian States</h2>
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-primary-50">
+        <h2 class="text-xl font-bold mb-6 text-gray-800 border-b pb-2"><i class="fas fa-map mr-2 text-primary-600"></i> Nigerian States</h2>
         <form method="POST" class="mb-6 flex gap-2">
             <input type="text" name="name" placeholder="New State Name" class="flex-1 p-2 border rounded" required>
-            <button type="submit" name="add_state" class="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-700 transition">Add State</button>
+            <button type="submit" name="add_state" class="bg-primary-600 text-white px-4 py-2 rounded font-bold hover:bg-primary-700 transition">Add State</button>
         </form>
         <div class="h-96 overflow-y-auto space-y-2 p-2 bg-gray-50 rounded-lg">
             <?php
