@@ -76,13 +76,14 @@ include __DIR__ . '/templates/header.php';
         <div class="lg:w-2/3">
             <div class="bg-white rounded-3xl shadow-sm overflow-hidden mb-8 border border-gray-100">
                 <!-- Gallery -->
-                <div class="relative h-[500px] bg-gray-900 flex items-center justify-center group">
-                    <img id="mainImage" src="<?php echo isset($images[0]) ? '/uploads/ads/'.$images[0]['image_path'] : 'https://placehold.co/800x600?text=No+Image'; ?>" class="max-h-full max-w-full object-contain">
+                <?php $main_img = isset($images[0]) ? '/uploads/ads/'.$images[0]['image_path'] : 'https://placehold.co/800x600?text=No+Image'; ?>
+                <div id="mainImageContainer" class="relative h-[500px] overflow-hidden group fit-to-frame" style="--bg-image: url('<?php echo $main_img; ?>')">
+                    <img id="mainImage" src="<?php echo $main_img; ?>">
 
                     <?php if (count($images) > 1): ?>
-                        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto p-3 bg-black/40 rounded-2xl backdrop-blur-md max-w-[90%] scrollbar-hide">
+                        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto p-3 bg-black/40 rounded-2xl backdrop-blur-md max-w-[90%] scrollbar-hide z-[10]">
                             <?php foreach ($images as $index => $img): ?>
-                                <img src="/uploads/ads/<?php echo $img['image_path']; ?>" class="w-14 h-14 rounded-xl object-cover cursor-pointer border-2 border-transparent hover:border-primary-500 transition-all shadow-lg" onclick="document.getElementById('mainImage').src=this.src">
+                                <img src="/uploads/ads/<?php echo $img['image_path']; ?>" class="w-14 h-14 rounded-xl object-cover cursor-pointer border-2 border-transparent hover:border-primary-500 transition-all shadow-lg" onclick="updateMainImage(this.src)">
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
@@ -366,6 +367,11 @@ include __DIR__ . '/templates/header.php';
 </div>
 
 <script>
+function updateMainImage(src) {
+    document.getElementById('mainImage').src = src;
+    document.getElementById('mainImageContainer').style.setProperty('--bg-image', `url('${src}')`);
+}
+
 function showPhoneModal() {
     document.getElementById("phoneModal").classList.remove("hidden");
     document.getElementById("phoneModal").classList.add("flex");

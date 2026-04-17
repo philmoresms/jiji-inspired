@@ -121,7 +121,7 @@ function get_category_filters($cat_name) {
         ];
     }
     // Electronics
-    elseif (strpos($cat_name, 'ELECTRONICS') !== false || strpos($cat_name, 'LAPTOPS') !== false || strpos($cat_name, 'TV') !== false || strpos($cat_name, 'COMPUTERS') !== false) {
+    elseif (strpos($cat_name, 'ELECTRONICS') !== false || strpos($cat_name, 'LAPTOPS') !== false || strpos($cat_name, 'TV') !== false || strpos($cat_name, 'COMPUTERS') !== false || strpos($cat_name, 'PHONES') !== false) {
         $filters = [
             'price' => [
                 'label' => 'Price Range (₦)',
@@ -135,23 +135,39 @@ function get_category_filters($cat_name) {
             'brand' => [
                 'label' => 'Brand',
                 'type' => 'select',
-                'options' => ['Dell', 'HP', 'Lenovo', 'Apple', 'Sony', 'LG', 'Samsung', 'Acer', 'Asus', 'Toshiba', 'Panasonic', 'Hisense', 'TCL', 'Huawei', 'Xiaomi', 'Tecno', 'Infinix', 'Microsoft', 'Google', 'Nintendo', 'Sega', 'Canon', 'Nikon', 'Fujifilm']
+                'searchable' => true,
+                'options' => ['Dell', 'HP', 'Lenovo', 'Apple', 'Sony', 'LG', 'Samsung', 'Acer', 'Asus', 'Toshiba', 'Panasonic', 'Hisense', 'TCL', 'Huawei', 'Xiaomi', 'Tecno', 'Infinix', 'Itel', 'Oppo', 'Vivo', 'Realme', 'Microsoft', 'Google', 'Nintendo', 'Sega', 'Canon', 'Nikon', 'Fujifilm']
             ],
             'type' => [
                 'label' => 'Type',
                 'type' => 'select',
-                'options' => ['Laptop', 'Desktop', 'Tablet', 'Monitor', 'Television', 'Audio System', 'Camera', 'Game Console', 'Headphones', 'Speaker', 'Projector']
-            ],
-            'screen_size' => [
+                'options' => [
+                    'Laptops', 'Desktops', 'Tablets', 'Monitors', 'Televisions', 'Smart Watches', 'Audio Equipment', 'Cameras',
+                    'Game Consoles', 'Video Games', 'Computer Hardware', 'Computer Accessories', 'Software', 'Networking Products',
+                    'Printers & Scanners', 'Projectors', 'Security & Surveillance', 'Storage Devices'
+                ]
+            ]
+        ];
+
+        if (strpos($cat_name, 'TV') !== false || strpos($cat_name, 'MONITOR') !== false) {
+            $filters['screen_size'] = [
                 'label' => 'Screen Size (inches)',
                 'type' => 'number_range'
-            ],
-            'storage' => [
+            ];
+        }
+
+        if (strpos($cat_name, 'LAPTOP') !== false || strpos($cat_name, 'COMPUTER') !== false) {
+            $filters['storage'] = [
                 'label' => 'Storage',
                 'type' => 'select',
                 'options' => ['128GB SSD', '256GB SSD', '512GB SSD', '1TB SSD', '2TB SSD', '500GB HDD', '1TB HDD', '2TB HDD', '64GB', '128GB', '256GB']
-            ]
-        ];
+            ];
+            $filters['ram'] = [
+                'label' => 'RAM (GB)',
+                'type' => 'select',
+                'options' => ['2GB', '4GB', '8GB', '12', '16GB', '24GB', '32GB', '64GB']
+            ];
+        }
     }
     // Property
     elseif (strpos($cat_name, 'PROPERTY') !== false || strpos($cat_name, 'HOUSES') !== false || strpos($cat_name, 'LAND') !== false) {

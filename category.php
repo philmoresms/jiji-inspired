@@ -92,16 +92,15 @@ if ($extra) {
         if (isset($valid_filters[$key])) {
             if ($key === 'verified_seller') {
                 if ($value === 'Verified sellers only') {
-                    $query .= " AND u.is_verified = 1";
+                    $query .= " AND (u.is_verified = 1 OR u.verification_tier IN ('nin_verified', 'business_verified'))";
                 }
             } elseif ($key === 'trusted_agent') {
                 if ($value === 'Yes') {
-                    $query .= " AND u.is_verified = 1";
+                    $query .= " AND (u.is_verified = 1 OR u.verification_tier IN ('nin_verified', 'business_verified'))";
                 }
             } elseif ($key === 'discount') {
                 if ($value === 'With discount') {
-                    $query .= " AND JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"discount\"')) = ?";
-                    $params[] = $value;
+                    $query .= " AND JSON_UNQUOTE(JSON_EXTRACT(a.ad_data, '$.\"discount\"')) = '1'";
                 }
             } else {
                 if (is_array($value)) {
@@ -236,15 +235,8 @@ include __DIR__ . '/templates/header.php';
                         </select>
                     </div>
 
-                    <div id="price_range_container">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Price Range (₦)</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="number" name="min_price" value="<?php echo $min_price ?: ''; ?>" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">
-                            <input type="number" name="max_price" value="<?php echo $max_price ?: ''; ?>" placeholder="Max" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">
-                        </div>
-                        <div id="price_quick_ranges" class="flex flex-wrap gap-1 mt-3">
-                            <!-- Quick ranges injected by JS -->
-                        </div>
+                    <div id="price_range_container" class="hidden">
+                        <!-- Replaced by dynamic filters to avoid duplication -->
                     </div>
 
                     <div id="dynamic_filters" class="space-y-6 pt-6 border-t border-gray-100">
@@ -283,8 +275,9 @@ include __DIR__ . '/templates/header.php';
             <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                 <?php foreach ($ads as $ad): ?>
                 <a href="<?php echo generate_ad_url($ad); ?>" class="bg-white rounded-2xl md:rounded-3xl shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-500 border border-gray-100 group">
-                    <div class="relative h-40 md:h-48 overflow-hidden">
-                        <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                    <?php $ad_img = $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>
+                    <div class="relative h-40 md:h-48 overflow-hidden fit-to-frame" style="--bg-image: url('<?php echo $ad_img; ?>')">
+                        <img src="<?php echo $ad_img; ?>" class="group-hover:scale-110 transition duration-700">
                         <?php if ($ad['is_featured']): ?>
                             <div class="absolute top-4 left-4 bg-yellow-400 text-yellow-900 text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-xl border border-yellow-300">Premium</div>
                         <?php endif; ?>
@@ -407,10 +400,10 @@ function loadFilters(catId) {
                         <span class="text-[11px] font-bold text-gray-600 group-hover:text-primary-600 transition">${f.label}</span>
                     </label>`;
                 } else if (f.type === 'range' || f.type === 'number' || f.type === 'number_range') {
-                    let min_val = currentExtra['min_' + key] || '';
-                    let max_val = currentExtra['max_' + key] || '';
-                    let min_name = `extra[min_${key}]`;
-                    let max_name = `extra[max_${key}]`;
+                    let min_val = (key === 'price') ? '<?php echo $min_price ?: ""; ?>' : (currentExtra['min_' + key] || '');
+                    let max_val = (key === 'price') ? '<?php echo $max_price ?: ""; ?>' : (currentExtra['max_' + key] || '');
+                    let min_name = (key === 'price') ? 'min_price' : `extra[min_${key}]`;
+                    let max_name = (key === 'price') ? 'max_price' : `extra[max_${key}]`;
 
                     html += `<div class="grid grid-cols-2 gap-2 mb-3">
                         <input type="number" name="${min_name}" value="${min_val}" placeholder="Min" class="w-full p-3 bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-700 focus:ring-2 focus:ring-primary-500 transition">

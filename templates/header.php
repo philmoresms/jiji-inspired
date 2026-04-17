@@ -66,6 +66,39 @@ if (isset($pdo)) {
         .animate-slide-up {
             animation: slideUp 0.3s ease-out forwards;
         }
+
+        /* Jiji-style Fit-to-Frame Image Containers */
+        .fit-to-frame {
+            position: relative;
+            background-color: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .fit-to-frame img {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            position: relative;
+            z-index: 2;
+        }
+        .fit-to-frame::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: var(--bg-image);
+            background-size: cover;
+            background-position: center;
+            filter: blur(20px) brightness(0.9);
+            opacity: 0.3;
+            z-index: 1;
+        }
     </style>
 
     <!-- Open Graph / WhatsApp Integration (Feature 10) -->

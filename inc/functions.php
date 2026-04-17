@@ -182,12 +182,13 @@ function generate_phash($resource) {
 }
 
 /**
- * Apply Site Watermark (Feature 06)
+ * Apply Site Watermark (Feature 06) - Enhanced with Bold TTF Font
  */
 function apply_site_watermark($resource) {
     global $pdo;
     $width = imagesx($resource);
     $height = imagesy($resource);
+    $font_path = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf';
 
     // Attempt to fetch site name for watermark
     static $site_name = null;
@@ -197,11 +198,35 @@ function apply_site_watermark($resource) {
     }
 
     $text = $site_name ?: "Classifieds";
-    $font_size = max(10, $width / 20);
-    $x = $width / 2 - ($font_size * 2);
-    $y = $height / 2;
-    $white = imagecolorallocatealpha($resource, 255, 255, 255, 60);
-    imagestring($resource, 5, $x, $y, $text, $white);
+    $white = imagecolorallocatealpha($resource, 255, 255, 255, 45); // Semi-transparent white
+
+    if (file_exists($font_path) && function_exists('imagettftext')) {
+        $font_size = $width / 12; // Bolder and larger
+
+        // Get bounding box to center accurately
+        $bbox = imagettfbbox($font_size, 0, $font_path, $text);
+        $text_width = $bbox[2] - $bbox[0];
+        $text_height = $bbox[7] - $bbox[1];
+
+        $x = ($width / 2) - ($text_width / 2);
+        $y = ($height / 2) - ($text_height / 2);
+
+        // Draw main centered watermark
+        imagettftext($resource, $font_size, 0, $x, $y, $white, $font_path, $text);
+
+        // Add smaller corner watermark
+        $small_size = $font_size / 4;
+        $bbox_small = imagettfbbox($small_size, 0, $font_path, $text);
+        $sx = $width - ($bbox_small[2] - $bbox_small[0]) - 15;
+        $sy = $height - 15;
+        imagettftext($resource, $small_size, 0, $sx, $sy, $white, $font_path, $text);
+    } else {
+        // Fallback to basic GD font
+        $font_size = 5;
+        $x = ($width / 2) - (strlen($text) * imagefontwidth($font_size) / 2);
+        $y = ($height / 2) - (imagefontheight($font_size) / 2);
+        imagestring($resource, $font_size, $x, $y, $text, $white);
+    }
 }
 
 /**
