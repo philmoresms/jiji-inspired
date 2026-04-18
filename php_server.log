@@ -1,7 +1,0 @@
-[Fri Apr 17 11:22:48 2026] PHP 8.3.6 Development Server (http://localhost:8000) started
-[Fri Apr 17 11:29:58 2026] [::1]:45184 Accepted
-[Fri Apr 17 11:29:58 2026] [::1]:45184 [302]: GET /
-[Fri Apr 17 11:29:58 2026] [::1]:45184 Closing
-[Fri Apr 17 11:29:58 2026] [::1]:45186 Accepted
-[Fri Apr 17 11:29:58 2026] [::1]:45186 [200]: GET /install/index.php
-[Fri Apr 17 11:29:58 2026] [::1]:45186 Closing

@@ -246,9 +246,9 @@ function apply_site_watermark($resource, $seller_info = "") {
     } else {
         // Fallback to basic GD font
         $font_size = 5;
-        $x = ($width / 2) - (strlen($text) * imagefontwidth($font_size) / 2);
+        $x = ($width / 2) - (strlen($site_text) * imagefontwidth($font_size) / 2);
         $y = ($height / 2) - (imagefontheight($font_size) / 2);
-        imagestring($resource, $font_size, $x, $y, $text, $white);
+        imagestring($resource, $font_size, $x, $y, $site_text, $white);
     }
 }
 
