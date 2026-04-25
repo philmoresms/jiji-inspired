@@ -77,13 +77,20 @@ include __DIR__ . '/templates/header.php';
             <div class="bg-white rounded-3xl shadow-sm overflow-hidden mb-8 border border-gray-100">
                 <!-- Gallery -->
                 <?php $main_img = isset($images[0]) ? '/uploads/ads/'.$images[0]['image_path'] : 'https://placehold.co/800x600?text=No+Image'; ?>
-                <div id="mainImageContainer" class="relative h-[500px] overflow-hidden group fit-to-frame" style="--bg-image: url('<?php echo $main_img; ?>')">
+                <div id="mainImageContainer" class="relative h-[500px] overflow-hidden group fit-to-frame cursor-zoom-in" style="--bg-image: url('<?php echo $main_img; ?>')" onclick="openLightbox()">
                     <img id="mainImage" src="<?php echo $main_img; ?>">
 
                     <?php if (count($images) > 1): ?>
-                        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto p-3 bg-black/40 rounded-2xl backdrop-blur-md max-w-[90%] scrollbar-hide z-[10]">
+                        <button onclick="prevImage(event)" class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 backdrop-blur-sm">
+                            <i class="fas fa-chevron-left text-xl"></i>
+                        </button>
+                        <button onclick="nextImage(event)" class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 backdrop-blur-sm">
+                            <i class="fas fa-chevron-right text-xl"></i>
+                        </button>
+
+                        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto p-3 bg-black/40 rounded-2xl backdrop-blur-md max-w-[90%] scrollbar-hide z-[10]" onclick="event.stopPropagation()">
                             <?php foreach ($images as $index => $img): ?>
-                                <img src="/uploads/ads/<?php echo $img['image_path']; ?>" class="w-14 h-14 rounded-xl object-cover cursor-pointer border-2 border-transparent hover:border-primary-500 transition-all shadow-lg" onclick="updateMainImage(this.src)">
+                                <img src="/uploads/ads/<?php echo $img['image_path']; ?>" class="thumbnail-item w-14 h-14 rounded-xl object-cover cursor-pointer border-2 <?php echo $index === 0 ? 'border-primary-500' : 'border-transparent'; ?> hover:border-primary-500 transition-all shadow-lg" onclick="updateMainImage(<?php echo $index; ?>)">
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
@@ -441,6 +448,30 @@ include __DIR__ . '/templates/header.php';
     <?php endif; ?>
 </div>
 
+<!-- Lightbox Modal -->
+<div id="lightboxModal" class="fixed inset-0 bg-black/95 z-[200] hidden flex-col items-center justify-center backdrop-blur-xl p-4">
+    <button onclick="closeLightbox()" class="absolute top-6 right-6 text-white text-2xl w-12 h-12 flex items-center justify-center hover:bg-white/10 rounded-full transition z-[210]">
+        <i class="fas fa-times"></i>
+    </button>
+
+    <div id="lightboxContainer" class="relative w-full max-w-6xl h-[75vh] flex items-center justify-center fit-to-frame group shadow-2xl rounded-3xl overflow-hidden" style="--bg-image: none">
+        <img id="lightboxImage" src="" class="max-w-full max-h-full object-contain transition-transform duration-500">
+
+        <button onclick="prevImage(event)" class="absolute left-4 top-1/2 -translate-y-1/2 w-16 h-16 text-white text-3xl flex items-center justify-center hover:bg-white/10 rounded-full transition opacity-0 group-hover:opacity-100 z-30">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button onclick="nextImage(event)" class="absolute right-4 top-1/2 -translate-y-1/2 w-16 h-16 text-white text-3xl flex items-center justify-center hover:bg-white/10 rounded-full transition opacity-0 group-hover:opacity-100 z-30">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <div id="lightboxThumbnails" class="mt-8 flex gap-3 overflow-x-auto p-4 max-w-full scrollbar-hide">
+        <?php foreach ($images as $index => $img): ?>
+            <img src="/uploads/ads/<?php echo $img['image_path']; ?>" class="lightbox-thumb w-20 h-20 rounded-2xl object-cover cursor-pointer border-4 border-transparent hover:border-primary-500 transition-all shadow-xl opacity-60 hover:opacity-100" onclick="updateMainImage(<?php echo $index; ?>)">
+        <?php endforeach; ?>
+    </div>
+</div>
+
 <!-- Phone Safety Modal (Feature 04) -->
 <div id="phoneModal" class="fixed inset-0 bg-black/60 z-[100] hidden items-center justify-center backdrop-blur-sm p-4">
     <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 animate-slide-up shadow-2xl border border-gray-100">
@@ -459,10 +490,78 @@ include __DIR__ . '/templates/header.php';
 </div>
 
 <script>
-function updateMainImage(src) {
+const adImages = <?php echo json_encode(array_map(function($img) { return '/uploads/ads/' . $img['image_path']; }, $images)); ?>;
+let currentImageIndex = 0;
+
+function updateMainImage(index) {
+    if (index < 0 || index >= adImages.length) return;
+    currentImageIndex = index;
+    const src = adImages[index];
+
+    // Update main display
     document.getElementById('mainImage').src = src;
     document.getElementById('mainImageContainer').style.setProperty('--bg-image', `url('${src}')`);
+
+    // Update thumbnails active state
+    document.querySelectorAll('.thumbnail-item').forEach((el, i) => {
+        el.classList.toggle('border-primary-500', i === index);
+        el.classList.toggle('border-transparent', i !== index);
+    });
+
+    // Update lightbox if open
+    if (!document.getElementById('lightboxModal').classList.contains('hidden')) {
+        const lbImg = document.getElementById('lightboxImage');
+        lbImg.style.opacity = '0';
+        setTimeout(() => {
+            lbImg.src = src;
+            document.getElementById('lightboxContainer').style.setProperty('--bg-image', `url('${src}')`);
+            lbImg.style.opacity = '1';
+        }, 200);
+
+        document.querySelectorAll('.lightbox-thumb').forEach((el, i) => {
+            el.classList.toggle('border-primary-500', i === index);
+            el.classList.toggle('opacity-100', i === index);
+            el.classList.toggle('opacity-60', i !== index);
+        });
+    }
 }
+
+function nextImage(e) {
+    if(e) e.stopPropagation();
+    let next = currentImageIndex + 1;
+    if (next >= adImages.length) next = 0;
+    updateMainImage(next);
+}
+
+function prevImage(e) {
+    if(e) e.stopPropagation();
+    let prev = currentImageIndex - 1;
+    if (prev < 0) prev = adImages.length - 1;
+    updateMainImage(prev);
+}
+
+function openLightbox() {
+    const modal = document.getElementById('lightboxModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    updateMainImage(currentImageIndex);
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    const modal = document.getElementById('lightboxModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = 'auto';
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+    if (document.getElementById('lightboxModal').classList.contains('hidden')) return;
+    if (e.key === 'ArrowRight') nextImage();
+    if (e.key === 'ArrowLeft') prevImage();
+    if (e.key === 'Escape') closeLightbox();
+});
 
 function showPhoneModal() {
     document.getElementById("phoneModal").classList.remove("hidden");

@@ -29,7 +29,7 @@ function get_category_filters($cat_name) {
                 'options' => [
                     'Toyota', 'Mercedes-Benz', 'Lexus', 'Honda', 'Hyundai', 'Acura', 'Audi', 'BMW', 'BYD', 'Bentley',
                     'Cadillac', 'Changan', 'Chevrolet', 'Chrysler', 'Dodge', 'Ford', 'GAC', 'Geely', 'GMC', 'Infiniti',
-                    'Isuzu', 'Innoson (IVM)', 'JAC', 'Jaguar', 'Jeep', 'Jetour', 'Kia', 'Lamborghini', 'Land Rover', 'Lincoln',
+                    'Isuzu', 'IVM', 'JAC', 'Jaguar', 'Jeep', 'Jetour', 'Kia', 'Lamborghini', 'Land Rover', 'Lincoln',
                     'Maserati', 'Mazda', 'Mini', 'Mitsubishi', 'Nissan', 'Opel', 'Peugeot', 'Pontiac', 'Porsche',
                     'Rolls-Royce', 'Subaru', 'Tesla', 'Volkswagen', 'Volvo', 'XPeng', 'Abarth', 'Alfa Romeo', 'Alpine',
                     'Aston Martin', 'Baic', 'Baojun', 'Beijing', 'Borgward', 'Brilliance', 'Bristol', 'Bugatti', 'Buick',
