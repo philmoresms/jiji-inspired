@@ -87,11 +87,11 @@ function process_image_upload($file_tmp, $target_dir, $max_width = 800, $user_id
     // Fetch seller info for watermark
     $seller_info = "";
     if ($pdo && $user_id) {
-        $stmt_s = $pdo->prepare("SELECT full_name, (SELECT setting_value FROM users_settings WHERE user_id = ? AND setting_key = 'business_name' LIMIT 1) as biz_name FROM users WHERE id = ?");
-        $stmt_s->execute([$user_id, $user_id]);
+        $stmt_s = $pdo->prepare("SELECT full_name, business_name FROM users WHERE id = ?");
+        $stmt_s->execute([$user_id]);
         $s_info = $stmt_s->fetch();
         if ($s_info) {
-            $seller_info = $s_info['biz_name'] ?: $s_info['full_name'];
+            $seller_info = $s_info['business_name'] ?: $s_info['full_name'];
         }
     }
 

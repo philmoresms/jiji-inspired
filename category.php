@@ -339,7 +339,18 @@ function loadFilters(catId) {
                 const val = currentExtra[key] || '';
 
                 if (key === 'price') {
-                    // Logic handled in the range/number_range block below to avoid skipping
+                    if (f.quick_ranges) {
+                        const priceQuick = document.getElementById('price_quick_ranges');
+                        let phtml = '';
+                        const min_val = '<?php echo $min_price ?: ''; ?>';
+                        const max_val = '<?php echo $max_price ?: ''; ?>';
+                        f.quick_ranges.forEach(range => {
+                            const active = (min_val == range.min && max_val == range.max) ? 'bg-primary-600 text-white shadow-md' : 'bg-white text-gray-500 border border-gray-100 hover:bg-primary-50';
+                            phtml += `<button type="button" onclick="setQuickRange('price', ${range.min}, ${range.max})" class="px-2 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all ${active}">${range.label}</button>`;
+                        });
+                        priceQuick.innerHTML = phtml;
+                    }
+                    continue;
                 }
 
                 if (f.type === 'select') {
