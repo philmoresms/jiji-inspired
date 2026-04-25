@@ -35,8 +35,8 @@ $total_revenue = $pdo->query("SELECT SUM(amount) FROM payments WHERE status = 's
                 <p class="text-[9px] text-gray-400 font-bold">Manager</p>
             </div>
         </a>
-        <a href="categories.php" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-lg hover:border-primary-400 transition group">
-            <div class="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 group-hover:bg-primary-600 group-hover:text-white transition">
+        <a href="categories.php" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-lg hover:border-green-400 transition group">
+            <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition">
                 <i class="fas fa-list-alt text-sm"></i>
             </div>
             <div>
@@ -74,7 +74,7 @@ $total_revenue = $pdo->query("SELECT SUM(amount) FROM payments WHERE status = 's
         <h2 class="text-gray-500 font-bold uppercase text-xs mb-1">Pending Moderation</h2>
         <p class="text-3xl font-bold text-gray-800"><?php echo number_format($pending_ad_count); ?></p>
     </div>
-    <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-primary-500">
+    <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500">
         <h2 class="text-gray-500 font-bold uppercase text-xs mb-1">Total Users</h2>
         <p class="text-3xl font-bold text-gray-800"><?php echo number_format($user_count); ?></p>
     </div>
@@ -115,7 +115,7 @@ $total_revenue = $pdo->query("SELECT SUM(amount) FROM payments WHERE status = 's
                         </td>
                         <td class="px-6 py-4">
                             <?php if ($log['is_success']): ?>
-                                <span class="text-primary-600 font-black uppercase text-[9px]">Success <?php if($ip_status === 'whitelisted') echo '<i class="fas fa-crown text-yellow-500 ml-1"></i>'; ?></span>
+                                <span class="text-green-600 font-black uppercase text-[9px]">Success <?php if($ip_status === 'whitelisted') echo '<i class="fas fa-crown text-yellow-500 ml-1"></i>'; ?></span>
                             <?php else: ?>
                                 <span class="text-red-500 font-black uppercase text-[9px]">Failed</span>
                             <?php endif; ?>
@@ -133,8 +133,8 @@ $total_revenue = $pdo->query("SELECT SUM(amount) FROM payments WHERE status = 's
     <!-- Recent Ads Posted Section -->
     <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="bg-gray-50/50 p-6 border-b border-gray-100 flex justify-between items-center">
-            <h2 class="font-black text-gray-800 uppercase text-[10px] tracking-[2px]"><i class="fas fa-ad mr-2 text-primary-600"></i> Recent Submissions</h2>
-            <a href="ads.php" class="text-[10px] font-black text-primary-600 uppercase tracking-widest hover:underline">Moderation Queue</a>
+            <h2 class="font-black text-gray-800 uppercase text-[10px] tracking-[2px]"><i class="fas fa-ad mr-2 text-green-600"></i> Recent Submissions</h2>
+            <a href="ads.php" class="text-[10px] font-black text-green-600 uppercase tracking-widest hover:underline">Moderation Queue</a>
         </div>
         <div class="p-0 overflow-x-auto">
             <table class="w-full text-left text-xs">
@@ -157,7 +157,7 @@ $total_revenue = $pdo->query("SELECT SUM(amount) FROM payments WHERE status = 's
                         </td>
                         <td class="px-6 py-4">
                             <span class="px-2 py-0.5 rounded text-[8px] font-black uppercase <?php
-                                echo $radmin['status'] == 'active' ? 'bg-primary-100 text-primary-600' : ($radmin['status'] == 'pending' ? 'bg-yellow-100 text-yellow-600' : 'bg-red-100 text-red-600');
+                                echo $radmin['status'] == 'active' ? 'bg-green-100 text-green-600' : ($radmin['status'] == 'pending' ? 'bg-yellow-100 text-yellow-600' : 'bg-red-100 text-red-600');
                             ?>">
                                 <?php echo $radmin['status']; ?>
                             </span>
