@@ -20,6 +20,29 @@ if (!isset($_SESSION['install_stage']) || $_SESSION['install_stage'] < 4) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Marketplace Installer - Success!</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: "#f0f7ff",
+                            100: "#e0effe",
+                            200: "#bae0fd",
+                            300: "#7cc7fb",
+                            400: "#38a9f8",
+                            500: "#1a7fe8",
+                            600: "#0966ce",
+                            700: "#0a52a6",
+                            800: "#0d4687",
+                            900: "#103b71",
+                            950: "#0b264b",
+                        },
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-10 rounded-lg shadow-md w-full max-w-2xl text-center">
