@@ -27,7 +27,8 @@ $user_ads = $stmt->fetchAll();
 include __DIR__ . '/templates/header.php';
 ?>
 
-<div class="container mx-auto px-4 py-8 flex-1">
+<main class="flex-1">
+<div class="container mx-auto px-4 py-8">
     <div class="flex flex-col lg:flex-row gap-10">
         <!-- Profile Sidebar -->
         <aside class="w-full lg:w-1/4">
@@ -169,10 +170,10 @@ include __DIR__ . '/templates/header.php';
                 </a>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
             <?php foreach ($user_ads as $ad): ?>
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 group">
-                <div class="relative h-48">
+                <div class="relative aspect-square overflow-hidden rounded-xl">
                     <img src="<?php echo $ad['image'] ? '/uploads/ads/'.$ad['image'] : 'https://placehold.co/400x300?text=No+Image'; ?>" class="w-full h-full object-cover">
                     <span class="absolute top-4 left-4 text-[10px] font-bold px-3 py-1 rounded-full uppercase shadow-md <?php
                         echo $ad['status'] == 'active' ? 'bg-primary-500 text-white' : ($ad['status'] == 'pending' ? 'bg-yellow-400 text-white' : ($ad['status'] == 'expired' ? 'bg-gray-700 text-white' : 'bg-red-500 text-white'));
@@ -208,6 +209,7 @@ include __DIR__ . '/templates/header.php';
                         <?php endif; ?>
                         <a href="<?php echo generate_ad_url($ad); ?>" class="flex-1 text-center bg-gray-100 text-gray-600 py-2 rounded-lg text-xs font-bold hover:bg-gray-200 transition uppercase tracking-wider border border-gray-200">View</a>
                     </div>
+                    </div>
                 </div>
             </div>
             <?php endforeach; ?>
@@ -226,6 +228,7 @@ include __DIR__ . '/templates/header.php';
         </div>
     </div>
 </div>
+</main>
 
 <script>
 function toggleReplyForm(id) {

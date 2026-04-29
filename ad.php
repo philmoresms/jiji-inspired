@@ -78,9 +78,9 @@ include __DIR__ . '/templates/header.php';
                 <!-- Gallery -->
                 <div class="product-gallery-wrapper mb-8">
                     <?php $main_img = isset($images[0]) ? '/uploads/ads/'.$images[0]['image_path'] : 'https://placehold.co/800x600?text=No+Image'; ?>
-                    <div id="mainImageContainer" class="main-image-container relative aspect-[4/3] w-full bg-gray-100 overflow-hidden group flex items-center justify-center rounded-2xl cursor-zoom-in shadow-inner" style="--bg-image: url('<?php echo $main_img; ?>')" onclick="openLightbox()">
+                    <div id="mainImageContainer" class="main-image-container relative h-[500px] w-full bg-gray-100 overflow-hidden group flex items-center justify-center rounded-2xl cursor-zoom-in shadow-inner" style="--bg-image: url('<?php echo $main_img; ?>')" onclick="openLightbox()">
                         <div class="absolute inset-0 bg-cover bg-center blur-2xl brightness-[0.8] opacity-50 transition-all duration-500 scale-110" style="background-image: var(--bg-image)"></div>
-                        <img id="mainImage" src="<?php echo $main_img; ?>" class="relative z-10 max-w-full max-h-full object-contain transition-all duration-300 shadow-2xl">
+                        <img id="mainImage" src="<?php echo $main_img; ?>" class="relative z-10 w-full h-auto object-cover transition-all duration-300 shadow-2xl">
 
                         <?php if (count($images) > 1): ?>
                             <button onclick="prevImage(event)" class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/20 hover:bg-black/40 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 backdrop-blur-sm">
