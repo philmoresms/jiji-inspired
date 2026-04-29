@@ -116,9 +116,15 @@ if (isset($pdo)) {
 <body class="bg-gray-100 min-h-screen flex flex-col">
     <nav class="bg-white shadow-sm border-b sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <a href="/" class="flex flex-col">
-                <span class="text-lg md:text-2xl font-black text-primary-600 leading-none"><?php echo h($settings['site_name'] ?? 'Classifieds'); ?></span>
-                <span class="text-[8px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest">Buy, Sell & Swap</span>
+            <a href="/" class="flex items-center gap-3">
+                <?php if (!empty($settings['site_logo'])): ?>
+                    <img src="/uploads/branding/<?php echo h($settings['site_logo']); ?>" alt="<?php echo h($settings['site_name'] ?? 'Logo'); ?>" class="h-8 md:h-12 w-auto object-contain">
+                <?php else: ?>
+                    <div class="flex flex-col">
+                        <span class="text-lg md:text-2xl font-black text-primary-600 leading-none"><?php echo h($settings['site_name'] ?? 'Classifieds'); ?></span>
+                        <span class="text-[8px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest">Buy, Sell & Swap</span>
+                    </div>
+                <?php endif; ?>
             </a>
 
             <div class="flex-1 max-w-2xl mx-8 hidden md:block">

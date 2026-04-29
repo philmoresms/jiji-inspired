@@ -6,6 +6,15 @@ require_admin();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['save_settings'])) {
+        // Handle Logo Upload
+        if (!empty($_FILES['site_logo']['name'])) {
+            $target_dir = __DIR__ . "/../uploads/branding";
+            $logo_name = process_image_upload($_FILES['site_logo']['tmp_name'], $target_dir, 400);
+            if ($logo_name && $logo_name !== "DUPLICATE") {
+                $_POST['s']['site_logo'] = $logo_name;
+            }
+        }
+
         $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
         foreach ($_POST['s'] as $key => $value) {
             $stmt->execute([$key, $value]);
@@ -27,7 +36,7 @@ include __DIR__ . '/../templates/admin_header.php';
 <div class="bg-white p-8 rounded-lg shadow-sm">
     <h2 class="text-2xl font-bold mb-8 text-gray-800 border-b pb-4">Global System Settings</h2>
 
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
             <!-- General Settings -->
             <div>
@@ -36,6 +45,17 @@ include __DIR__ . '/../templates/admin_header.php';
                     <div>
                         <label class="block text-gray-700 font-bold mb-2">Site Name</label>
                         <input type="text" name="s[site_name]" value="<?php echo h($settings['site_name'] ?? ''); ?>" class="w-full p-2 border rounded">
+                    </div>
+
+                    <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                        <label class="block text-gray-700 font-bold mb-2 text-sm">Site Logo</label>
+                        <?php if (!empty($settings['site_logo'])): ?>
+                            <div class="mb-3">
+                                <img src="/uploads/branding/<?php echo h($settings['site_logo']); ?>" class="h-12 w-auto object-contain bg-white p-2 border rounded-lg">
+                            </div>
+                        <?php endif; ?>
+                        <input type="file" name="site_logo" class="text-xs">
+                        <p class="text-[10px] text-gray-400 mt-2">Recommended: PNG or JPG with transparent background. Max 400px wide.</p>
                     </div>
                 </div>
 

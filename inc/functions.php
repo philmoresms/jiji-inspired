@@ -12,6 +12,7 @@ require_once __DIR__ . '/marketing.php';
 
 // Initialize project directories
 $required_dirs = [
+    __DIR__ . "/../uploads/branding",
     __DIR__ . '/../config',
     __DIR__ . '/../uploads',
     __DIR__ . '/../uploads/ads',
