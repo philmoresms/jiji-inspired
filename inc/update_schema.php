@@ -168,7 +168,7 @@ $missing_tables = [
     "CREATE TABLE IF NOT EXISTS pages (
         id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(150) NOT NULL,
-        slug VARCHAR(100) UNIQUE NOT NULL,
+        slug VARCHAR(255) UNIQUE NOT NULL,
         content LONGTEXT,
         meta_desc TEXT,
         meta_keys TEXT,
@@ -177,7 +177,7 @@ $missing_tables = [
     "CREATE TABLE IF NOT EXISTS blog_posts (
         id INT AUTO_INCREMENT PRIMARY KEY,
         title VARCHAR(200) NOT NULL,
-        slug VARCHAR(150) UNIQUE NOT NULL,
+        slug VARCHAR(255) UNIQUE NOT NULL,
         summary TEXT,
         content LONGTEXT,
         image VARCHAR(255) DEFAULT NULL,

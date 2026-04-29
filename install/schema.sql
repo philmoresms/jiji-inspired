@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS categories (
     name VARCHAR(50) NOT NULL,
     parent_id INT DEFAULT 0,
     icon_class VARCHAR(50),
-    slug VARCHAR(50) UNIQUE,
+    slug VARCHAR(255) UNIQUE,
     is_top TINYINT(1) DEFAULT 0,
     sort_order INT DEFAULT 0
 );
@@ -217,7 +217,7 @@ CREATE TABLE IF NOT EXISTS seller_analytics (
 CREATE TABLE IF NOT EXISTS blog_posts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(200) NOT NULL,
-    slug VARCHAR(150) UNIQUE NOT NULL,
+    slug VARCHAR(255) UNIQUE NOT NULL,
     summary TEXT,
     content LONGTEXT,
     image VARCHAR(255) DEFAULT NULL,
@@ -230,7 +230,7 @@ CREATE TABLE IF NOT EXISTS blog_posts (
 CREATE TABLE IF NOT EXISTS pages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(150) NOT NULL,
-    slug VARCHAR(100) UNIQUE NOT NULL,
+    slug VARCHAR(255) UNIQUE NOT NULL,
     content LONGTEXT,
     meta_desc TEXT,
     meta_keys TEXT,
