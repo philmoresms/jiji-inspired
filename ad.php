@@ -76,21 +76,25 @@ include __DIR__ . '/templates/header.php';
         <div class="lg:w-2/3">
             <div class="bg-white rounded-3xl shadow-sm overflow-hidden mb-8 border border-gray-100">
                 <!-- Gallery -->
-                <?php $main_img = isset($images[0]) ? '/uploads/ads/'.$images[0]['image_path'] : 'https://placehold.co/800x600?text=No+Image'; ?>
-                <div id="mainImageContainer" class="relative h-[500px] overflow-hidden group fit-to-frame cursor-zoom-in" style="--bg-image: url('<?php echo $main_img; ?>')" onclick="openLightbox()">
-                    <img id="mainImage" src="<?php echo $main_img; ?>">
+                <div class="product-gallery-wrapper mb-8">
+                    <?php $main_img = isset($images[0]) ? '/uploads/ads/'.$images[0]['image_path'] : 'https://placehold.co/800x600?text=No+Image'; ?>
+                    <div id="mainImageContainer" class="main-image-container relative h-[450px] md:h-[500px] bg-gray-50 overflow-hidden group flex items-center justify-center rounded-2xl cursor-zoom-in" onclick="openLightbox()">
+                        <img id="mainImage" src="<?php echo $main_img; ?>" class="max-w-full max-h-full object-contain transition-all duration-300">
+
+                        <?php if (count($images) > 1): ?>
+                            <button onclick="prevImage(event)" class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/20 hover:bg-black/40 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 backdrop-blur-sm">
+                                <i class="fas fa-chevron-left text-xl"></i>
+                            </button>
+                            <button onclick="nextImage(event)" class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/20 hover:bg-black/40 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 backdrop-blur-sm">
+                                <i class="fas fa-chevron-right text-xl"></i>
+                            </button>
+                        <?php endif; ?>
+                    </div>
 
                     <?php if (count($images) > 1): ?>
-                        <button onclick="prevImage(event)" class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 backdrop-blur-sm">
-                            <i class="fas fa-chevron-left text-xl"></i>
-                        </button>
-                        <button onclick="nextImage(event)" class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 backdrop-blur-sm">
-                            <i class="fas fa-chevron-right text-xl"></i>
-                        </button>
-
-                        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto p-3 bg-black/40 rounded-2xl backdrop-blur-md max-w-[90%] scrollbar-hide z-[10]" onclick="event.stopPropagation()">
+                        <div class="thumbnail-strip flex gap-3 overflow-x-auto py-4 scrollbar-hide">
                             <?php foreach ($images as $index => $img): ?>
-                                <img src="/uploads/ads/<?php echo $img['image_path']; ?>" class="thumbnail-item w-14 h-14 rounded-xl object-cover cursor-pointer border-2 <?php echo $index === 0 ? 'border-primary-500' : 'border-transparent'; ?> hover:border-primary-500 transition-all shadow-lg" onclick="updateMainImage(<?php echo $index; ?>)">
+                                <img src="/uploads/ads/<?php echo $img['image_path']; ?>" class="thumbnail-item w-20 h-20 min-w-[80px] rounded-lg object-cover cursor-pointer border-2 <?php echo $index === 0 ? 'border-green-500' : 'border-transparent'; ?> transition-all shadow-sm" onclick="updateMainImage(<?php echo $index; ?>)">
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
@@ -467,7 +471,7 @@ include __DIR__ . '/templates/header.php';
 
     <div id="lightboxThumbnails" class="mt-8 flex gap-3 overflow-x-auto p-4 max-w-full scrollbar-hide">
         <?php foreach ($images as $index => $img): ?>
-            <img src="/uploads/ads/<?php echo $img['image_path']; ?>" class="lightbox-thumb w-20 h-20 rounded-2xl object-cover cursor-pointer border-4 border-transparent hover:border-primary-500 transition-all shadow-xl opacity-60 hover:opacity-100" onclick="updateMainImage(<?php echo $index; ?>)">
+            <img src="/uploads/ads/<?php echo $img['image_path']; ?>" class="lightbox-thumb w-20 h-20 rounded-2xl object-cover cursor-pointer border-4 border-transparent hover:border-green-500 transition-all shadow-xl opacity-60 hover:opacity-100" onclick="updateMainImage(<?php echo $index; ?>)">
         <?php endforeach; ?>
     </div>
 </div>
@@ -499,12 +503,16 @@ function updateMainImage(index) {
     const src = adImages[index];
 
     // Update main display
-    document.getElementById('mainImage').src = src;
-    document.getElementById('mainImageContainer').style.setProperty('--bg-image', `url('${src}')`);
+    const mainImg = document.getElementById('mainImage');
+    mainImg.style.opacity = '0.5';
+    setTimeout(() => {
+        mainImg.src = src;
+        mainImg.style.opacity = '1';
+    }, 50);
 
     // Update thumbnails active state
     document.querySelectorAll('.thumbnail-item').forEach((el, i) => {
-        el.classList.toggle('border-primary-500', i === index);
+        el.classList.toggle('border-green-500', i === index);
         el.classList.toggle('border-transparent', i !== index);
     });
 
@@ -519,7 +527,7 @@ function updateMainImage(index) {
         }, 200);
 
         document.querySelectorAll('.lightbox-thumb').forEach((el, i) => {
-            el.classList.toggle('border-primary-500', i === index);
+            el.classList.toggle('border-green-500', i === index);
             el.classList.toggle('opacity-100', i === index);
             el.classList.toggle('opacity-60', i !== index);
         });
