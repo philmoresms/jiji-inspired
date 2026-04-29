@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS categories (
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(100),
+    business_name VARCHAR(100) DEFAULT NULL,
     email VARCHAR(100) UNIQUE,
     phone VARCHAR(20),
     password VARCHAR(255),
@@ -117,6 +118,8 @@ CREATE TABLE IF NOT EXISTS reviews (
     stars TINYINT NOT NULL,
     tags JSON DEFAULT NULL,
     body TEXT,
+    reply_text TEXT DEFAULT NULL,
+    reply_at TIMESTAMP NULL DEFAULT NULL,
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     challenged TINYINT(1) DEFAULT 0,
     challenge_resolved_at DATETIME DEFAULT NULL,
@@ -131,4 +134,105 @@ CREATE TABLE IF NOT EXISTS reviews (
 CREATE TABLE IF NOT EXISTS settings (
     setting_key VARCHAR(100) PRIMARY KEY,
     setting_value TEXT
+);
+
+-- Admin Users
+CREATE TABLE IF NOT EXISTS admin_users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(100),
+    full_name VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Login Logs
+CREATE TABLE IF NOT EXISTS login_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50),
+    ip_address VARCHAR(45),
+    is_success TINYINT(1),
+    attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- IP Security
+CREATE TABLE IF NOT EXISTS ip_security (
+    ip_address VARCHAR(45) PRIMARY KEY,
+    status ENUM('whitelisted', 'blacklisted') DEFAULT 'whitelisted',
+    reason TEXT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Payments
+CREATE TABLE IF NOT EXISTS payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ad_id INT,
+    user_id INT,
+    amount DECIMAL(15, 2),
+    status ENUM('pending', 'successful', 'failed') DEFAULT 'pending',
+    payment_method VARCHAR(50),
+    reference VARCHAR(100),
+    proof_image VARCHAR(255) DEFAULT NULL,
+    reject_reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ad_id) REFERENCES ads(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Seller Reputation
+CREATE TABLE IF NOT EXISTS seller_reputation (
+    user_id INT PRIMARY KEY,
+    badge_tier ENUM('new', 'verified', 'active', 'trusted', 'business') DEFAULT 'new',
+    transaction_count INT DEFAULT 0,
+    avg_rating DECIMAL(3, 2) DEFAULT 0,
+    dispute_count INT DEFAULT 0,
+    last_calculated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Notifications
+CREATE TABLE IF NOT EXISTS notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    link VARCHAR(255) DEFAULT NULL,
+    is_read TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Seller Analytics
+CREATE TABLE IF NOT EXISTS seller_analytics (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ad_id INT NOT NULL,
+    viewer_id INT DEFAULT NULL,
+    source VARCHAR(50),
+    ip_address VARCHAR(45),
+    viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ad_id) REFERENCES ads(id) ON DELETE CASCADE
+);
+
+-- Blog Posts
+CREATE TABLE IF NOT EXISTS blog_posts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    slug VARCHAR(150) UNIQUE NOT NULL,
+    summary TEXT,
+    content LONGTEXT,
+    image VARCHAR(255) DEFAULT NULL,
+    meta_desc TEXT,
+    meta_keywords TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CMS Pages
+CREATE TABLE IF NOT EXISTS pages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(150) NOT NULL,
+    slug VARCHAR(100) UNIQUE NOT NULL,
+    content LONGTEXT,
+    meta_desc TEXT,
+    meta_keys TEXT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
