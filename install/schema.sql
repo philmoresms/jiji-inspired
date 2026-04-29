@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS categories (
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(100),
-    business_name VARCHAR(100) DEFAULT NULL,
+    business_name VARCHAR(200) DEFAULT NULL,
     email VARCHAR(100) UNIQUE,
     phone VARCHAR(20),
     password VARCHAR(255),
@@ -42,6 +42,16 @@ CREATE TABLE IF NOT EXISTS users (
     verification_fails INT DEFAULT 0,
     locked_until DATETIME DEFAULT NULL,
     is_suspended TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Admin Users
+CREATE TABLE IF NOT EXISTS admin_users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(100),
+    full_name VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -110,6 +120,19 @@ CREATE TABLE IF NOT EXISTS property_declarations (
     FOREIGN KEY (ad_id) REFERENCES ads(id) ON DELETE CASCADE
 );
 
+-- Property Verifications
+CREATE TABLE IF NOT EXISTS property_verifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    declaration_id INT NOT NULL,
+    document_type VARCHAR(50),
+    document_reference VARCHAR(255),
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    reviewed_at DATETIME DEFAULT NULL,
+    reviewer_id INT DEFAULT NULL,
+    rejection_reason TEXT,
+    FOREIGN KEY (declaration_id) REFERENCES property_declarations(id) ON DELETE CASCADE
+);
+
 -- Reviews
 CREATE TABLE IF NOT EXISTS reviews (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -130,20 +153,22 @@ CREATE TABLE IF NOT EXISTS reviews (
     FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Review Challenges
+CREATE TABLE IF NOT EXISTS review_challenges (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    review_id INT NOT NULL,
+    seller_id INT NOT NULL,
+    evidence_path VARCHAR(255) DEFAULT NULL,
+    status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deadline_at DATETIME NOT NULL,
+    FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE
+);
+
 -- Settings Table
 CREATE TABLE IF NOT EXISTS settings (
     setting_key VARCHAR(100) PRIMARY KEY,
     setting_value TEXT
-);
-
--- Admin Users
-CREATE TABLE IF NOT EXISTS admin_users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(100),
-    full_name VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Login Logs
@@ -235,4 +260,61 @@ CREATE TABLE IF NOT EXISTS pages (
     meta_desc TEXT,
     meta_keys TEXT,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Countries
+CREATE TABLE IF NOT EXISTS countries (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    code CHAR(2) NOT NULL UNIQUE,
+    status ENUM('active', 'inactive') DEFAULT 'active'
+);
+
+-- Hyperlocal Locations
+CREATE TABLE IF NOT EXISTS hyperlocal_locations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    city VARCHAR(100) NOT NULL,
+    neighbourhood VARCHAR(100) NOT NULL,
+    lat DECIMAL(10, 8),
+    lng DECIMAL(11, 8),
+    population INT DEFAULT 0,
+    UNIQUE KEY (city, neighbourhood)
+);
+
+-- Swap Proposals
+CREATE TABLE IF NOT EXISTS swap_proposals (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ad_id INT,
+    offered_ad_id INT,
+    sender_id INT,
+    receiver_id INT,
+    cash_topup DECIMAL(15, 2) DEFAULT 0,
+    message TEXT,
+    status ENUM('pending', 'accepted', 'declined', 'countered', 'expired') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ad_id) REFERENCES ads(id) ON DELETE CASCADE,
+    FOREIGN KEY (offered_ad_id) REFERENCES ads(id) ON DELETE CASCADE,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Saved Ads
+CREATE TABLE IF NOT EXISTS saved_ads (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    ad_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (ad_id) REFERENCES ads(id) ON DELETE CASCADE,
+    UNIQUE KEY (user_id, ad_id)
+);
+
+-- Search History
+CREATE TABLE IF NOT EXISTS search_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    keyword VARCHAR(255),
+    cat_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
