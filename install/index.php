@@ -1,5 +1,5 @@
 <?php
-function h($s) { return htmlspecialchars($s, ENT_QUOTES, "UTF-8"); }
+require_once __DIR__ . '/../inc/functions.php';
 /**
  * Marketplace Installer
  * Stage 1: System Requirements Check
@@ -74,17 +74,17 @@ if (isset($_POST['next']) && $can_proceed) {
                 extend: {
                     colors: {
                         primary: {
-                            50: "#f0f7ff",
-                            100: "#e0effe",
-                            200: "#bae0fd",
-                            300: "#7cc7fb",
-                            400: "#38a9f8",
-                            500: "#1a7fe8",
-                            600: "#0966ce",
-                            700: "#0a52a6",
-                            800: "#0d4687",
-                            900: "#103b71",
-                            950: "#0b264b",
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            200: '#bae0fd',
+                            300: '#7cc7fb',
+                            400: '#38a9f8',
+                            500: '#1a7fe8',
+                            600: '#0966ce',
+                            700: '#0a52a6',
+                            800: '#0d4687',
+                            900: '#103b71',
+                            950: '#0b264b',
                         },
                     }
                 }
