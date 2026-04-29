@@ -56,6 +56,11 @@ if (isset($pdo)) {
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="manifest" href="/manifest.json">
+    <?php
+    $site_initial = mb_substr($settings['site_name'] ?? 'Classifieds', 0, 1);
+    $favicon_svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="#1a7fe8"/><text y="50%" x="50%" text-anchor="middle" dominant-baseline="central" font-size="60" fill="white" font-family="sans-serif" font-weight="bold">' . htmlspecialchars($site_initial) . '</text></svg>';
+    ?>
+    <link rel="icon" href="data:image/svg+xml,<?php echo rawurlencode($favicon_svg); ?>">
     <style>
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
