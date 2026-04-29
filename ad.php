@@ -78,8 +78,9 @@ include __DIR__ . '/templates/header.php';
                 <!-- Gallery -->
                 <div class="product-gallery-wrapper mb-8">
                     <?php $main_img = isset($images[0]) ? '/uploads/ads/'.$images[0]['image_path'] : 'https://placehold.co/800x600?text=No+Image'; ?>
-                    <div id="mainImageContainer" class="main-image-container relative h-[450px] md:h-[500px] bg-gray-50 overflow-hidden group flex items-center justify-center rounded-2xl cursor-zoom-in" onclick="openLightbox()">
-                        <img id="mainImage" src="<?php echo $main_img; ?>" class="max-w-full max-h-full object-contain transition-all duration-300">
+                    <div id="mainImageContainer" class="main-image-container relative aspect-[4/3] w-full bg-gray-100 overflow-hidden group flex items-center justify-center rounded-2xl cursor-zoom-in shadow-inner" style="--bg-image: url('<?php echo $main_img; ?>')" onclick="openLightbox()">
+                        <div class="absolute inset-0 bg-cover bg-center blur-2xl brightness-[0.8] opacity-50 transition-all duration-500 scale-110" style="background-image: var(--bg-image)"></div>
+                        <img id="mainImage" src="<?php echo $main_img; ?>" class="relative z-10 max-w-full max-h-full object-contain transition-all duration-300 shadow-2xl">
 
                         <?php if (count($images) > 1): ?>
                             <button onclick="prevImage(event)" class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/20 hover:bg-black/40 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20 backdrop-blur-sm">
@@ -458,13 +459,13 @@ include __DIR__ . '/templates/header.php';
         <i class="fas fa-times"></i>
     </button>
 
-    <div id="lightboxContainer" class="relative w-full max-w-6xl h-[75vh] flex items-center justify-center fit-to-frame group shadow-2xl rounded-3xl overflow-hidden" style="--bg-image: none">
-        <img id="lightboxImage" src="" class="max-w-full max-h-full object-contain transition-transform duration-500">
+    <div id="lightboxContainer" class="relative w-full max-w-6xl h-[85vh] flex items-center justify-center group">
+        <img id="lightboxImage" src="" class="max-w-full max-h-full object-contain transition-all duration-300 shadow-2xl">
 
-        <button onclick="prevImage(event)" class="absolute left-4 top-1/2 -translate-y-1/2 w-16 h-16 text-white text-3xl flex items-center justify-center hover:bg-white/10 rounded-full transition opacity-0 group-hover:opacity-100 z-30">
+        <button onclick="prevImage(event)" class="absolute left-4 top-1/2 -translate-y-1/2 w-16 h-16 text-white/50 text-4xl flex items-center justify-center hover:text-white hover:bg-white/10 rounded-full transition z-30">
             <i class="fas fa-chevron-left"></i>
         </button>
-        <button onclick="nextImage(event)" class="absolute right-4 top-1/2 -translate-y-1/2 w-16 h-16 text-white text-3xl flex items-center justify-center hover:bg-white/10 rounded-full transition opacity-0 group-hover:opacity-100 z-30">
+        <button onclick="nextImage(event)" class="absolute right-4 top-1/2 -translate-y-1/2 w-16 h-16 text-white/50 text-4xl flex items-center justify-center hover:text-white hover:bg-white/10 rounded-full transition z-30">
             <i class="fas fa-chevron-right"></i>
         </button>
     </div>
@@ -505,6 +506,7 @@ function updateMainImage(index) {
     // Update main display
     const mainImg = document.getElementById('mainImage');
     mainImg.style.opacity = '0.5';
+    document.getElementById('mainImageContainer').style.setProperty('--bg-image', `url('${src}')`);
     setTimeout(() => {
         mainImg.src = src;
         mainImg.style.opacity = '1';
@@ -519,12 +521,11 @@ function updateMainImage(index) {
     // Update lightbox if open
     if (!document.getElementById('lightboxModal').classList.contains('hidden')) {
         const lbImg = document.getElementById('lightboxImage');
-        lbImg.style.opacity = '0';
+        lbImg.style.opacity = '0.5';
         setTimeout(() => {
             lbImg.src = src;
-            document.getElementById('lightboxContainer').style.setProperty('--bg-image', `url('${src}')`);
             lbImg.style.opacity = '1';
-        }, 200);
+        }, 50);
 
         document.querySelectorAll('.lightbox-thumb').forEach((el, i) => {
             el.classList.toggle('border-green-500', i === index);
