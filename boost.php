@@ -22,34 +22,97 @@ if (isset($_GET['ad_id'])) {
     redirect('profile.php');
 }
 
-// Get settings
-$stmt = $pdo->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('paystack_public_key', 'flutterwave_public_key', 'bank_name', 'account_number', 'account_name')");
-$settings = [];
-while ($row = $stmt->fetch()) {
-    $settings[$row['setting_key']] = $row['setting_value'];
-}
-
 // Fetch user wallet balance
 $stmt = $pdo->prepare("SELECT wallet_balance FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $wallet_balance = (float)$stmt->fetchColumn();
 
-// Fetch packages from DB
+// Fetch packages from DB for logic
 $db_packages = $pdo->query("SELECT * FROM packages WHERE price > 0 ORDER BY price ASC")->fetchAll();
 $packages = [];
-$colors = ['premium' => 'green', 'vip' => 'yellow', 'diamond' => 'blue'];
-$icons = ['premium' => '✨', 'vip' => '👑', 'diamond' => '💎'];
-
 foreach ($db_packages as $dp) {
     $packages[$dp['slug']] = [
         'name' => $dp['name'],
         'price' => (float)$dp['price'],
         'duration' => $dp['duration_days'],
         'cashback' => (float)$dp['cashback_amount'],
-        'features' => array_filter(explode("\n", $dp['features'])),
-        'color' => $colors[$dp['slug']] ?? 'primary',
-        'icon' => $icons[$dp['slug']] ?? '🚀'
+        'features' => array_filter(explode("\n", $dp['features']))
     ];
+}
+
+// Handle POST actions BEFORE any HTML output
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['pay_wallet'])) {
+        $pkg_key = $_POST['package'];
+        if (!isset($packages[$pkg_key])) die("Invalid package.");
+        $pkg = $packages[$pkg_key];
+
+        if ($wallet_balance >= $pkg['price']) {
+            $pdo->beginTransaction();
+            try {
+                // Debit Wallet
+                $stmt = $pdo->prepare("UPDATE users SET wallet_balance = wallet_balance - ? WHERE id = ?");
+                $stmt->execute([$pkg['price'], $user_id]);
+
+                // Record Debit Transaction
+                $stmt = $pdo->prepare("INSERT INTO wallet_transactions (user_id, amount, type, description) VALUES (?, ?, 'debit', ?)");
+                $desc = "Payment for " . ucfirst($pkg_key) . " package for Ad #" . $ad_id;
+                $stmt->execute([$user_id, $pkg['price'], $desc]);
+
+                // Extend Ad Expiry
+                $duration = $pkg['duration'];
+                $new_expiry = date('Y-m-d H:i:s', strtotime("+$duration days"));
+                $stmt = $pdo->prepare("UPDATE ads SET is_featured = 1, package_type = ?, status = 'active', expires_at = ?, bumped_at = CURRENT_TIMESTAMP WHERE id = ?");
+                $stmt->execute([$pkg_key, $new_expiry, $ad_id]);
+
+                // Implement Cashback Logic (if applicable)
+                if ($pkg['cashback'] > 0) {
+                    $stmt = $pdo->prepare("UPDATE users SET wallet_balance = wallet_balance + ? WHERE id = ?");
+                    $stmt->execute([$pkg['cashback'], $user_id]);
+
+                    $stmt = $pdo->prepare("INSERT INTO wallet_transactions (user_id, amount, type, description) VALUES (?, ?, 'credit', ?)");
+                    $desc = "Cashback for purchasing " . ucfirst($pkg_key) . " package for Ad #" . $ad_id;
+                    $stmt->execute([$user_id, $pkg['cashback'], $desc]);
+                }
+
+                $pdo->commit();
+                redirect('profile.php', 'Package activated successfully via Wallet!', 'success');
+            } catch (Exception $e) {
+                $pdo->rollBack();
+                $error = "Wallet Payment Error: " . $e->getMessage();
+            }
+        } else {
+            $error = "Insufficient wallet balance.";
+        }
+    }
+
+    if (isset($_POST['bank_transfer'])) {
+        $pkg_key = $_POST['package'];
+        if (!isset($packages[$pkg_key])) die("Invalid package.");
+        $pkg = $packages[$pkg_key];
+        $filename = process_image_upload($_FILES['proof']['tmp_name'], __DIR__ . '/uploads/proofs', 800);
+        if ($filename) {
+            $stmt = $pdo->prepare("INSERT INTO payments (user_id, ad_id, amount, payment_method, reference, status, proof_image) VALUES (?, ?, ?, 'bank_transfer', ?, 'pending', ?)");
+            $reference = 'BT-' . strtoupper($pkg_key) . '-' . time();
+            $stmt->execute([$user_id, $ad_id, $pkg['price'], $reference, $filename]);
+
+            redirect('profile.php', 'Proof submitted! Ad will be boosted after verification.', 'success');
+        }
+    }
+}
+
+// Get settings for UI
+$stmt = $pdo->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('paystack_public_key', 'flutterwave_public_key', 'bank_name', 'account_number', 'account_name')");
+$settings = [];
+while ($row = $stmt->fetch()) {
+    $settings[$row['setting_key']] = $row['setting_value'];
+}
+
+$colors = ['premium' => 'green', 'vip' => 'yellow', 'diamond' => 'blue'];
+$icons = ['premium' => '✨', 'vip' => '👑', 'diamond' => '💎'];
+foreach ($packages as $slug => &$pkg) {
+    $pkg['color'] = $colors[$slug] ?? 'primary';
+    $pkg['icon'] = $icons[$slug] ?? '🚀';
 }
 
 include __DIR__ . '/templates/header.php';
@@ -60,6 +123,9 @@ include __DIR__ . '/templates/header.php';
         <div class="text-center mb-10">
             <h1 class="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tighter">Promote Your Ad</h1>
             <p class="text-gray-500 font-bold">Choose a package for <span class="text-primary-600">"<?php echo h($ad['title']); ?>"</span></p>
+            <?php if (isset($error)): ?>
+                <p class="mt-4 text-red-600 font-bold"><?php echo h($error); ?></p>
+            <?php endif; ?>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
@@ -233,71 +299,6 @@ function payWithFlutterwave() {
         }
     });
 }
-
-// Handle Bank Transfer submission logic via JS if needed, but standard POST works too.
-// Since post to same page, we need to handle it at the top.
 </script>
-
-<?php
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pay_wallet'])) {
-    $pkg_key = $_POST['package'];
-    $pkg = $packages[$pkg_key];
-
-    if ($wallet_balance >= $pkg['price']) {
-        $pdo->beginTransaction();
-        try {
-            // Debit Wallet
-            $stmt = $pdo->prepare("UPDATE users SET wallet_balance = wallet_balance - ? WHERE id = ?");
-            $stmt->execute([$pkg['price'], $user_id]);
-
-            // Record Debit Transaction
-            $stmt = $pdo->prepare("INSERT INTO wallet_transactions (user_id, amount, type, description) VALUES (?, ?, 'debit', ?)");
-            $desc = "Payment for " . ucfirst($pkg_key) . " package for Ad #" . $ad_id;
-            $stmt->execute([$user_id, $pkg['price'], $desc]);
-
-            // Extend Ad Expiry
-            $duration = $pkg['duration'];
-            $new_expiry = date('Y-m-d H:i:s', strtotime("+$duration days"));
-            $stmt = $pdo->prepare("UPDATE ads SET is_featured = 1, package_type = ?, status = 'active', expires_at = ?, bumped_at = CURRENT_TIMESTAMP WHERE id = ?");
-            $stmt->execute([$pkg_key, $new_expiry, $ad_id]);
-
-            // Implement Cashback Logic (if applicable)
-            if ($pkg['cashback'] > 0) {
-                // Update Wallet Balance
-                $stmt = $pdo->prepare("UPDATE users SET wallet_balance = wallet_balance + ? WHERE id = ?");
-                $stmt->execute([$pkg['cashback'], $user_id]);
-
-                // Record Credit Transaction
-                $stmt = $pdo->prepare("INSERT INTO wallet_transactions (user_id, amount, type, description) VALUES (?, ?, 'credit', ?)");
-                $desc = "Cashback for purchasing " . ucfirst($pkg_key) . " package for Ad #" . $ad_id;
-                $stmt->execute([$user_id, $pkg['cashback'], $desc]);
-            }
-
-            $pdo->commit();
-            echo "<script>alert('Package activated successfully via Wallet!'); window.location.href='profile.php';</script>";
-            exit;
-        } catch (Exception $e) {
-            $pdo->rollBack();
-            echo "<script>alert('Wallet Payment Error: " . addslashes($e->getMessage()) . "');</script>";
-        }
-    } else {
-        echo "<script>alert('Insufficient balance.');</script>";
-    }
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bank_transfer'])) {
-    $pkg_key = $_POST['package'];
-    $pkg = $packages[$pkg_key];
-    $filename = process_image_upload($_FILES['proof']['tmp_name'], __DIR__ . '/uploads/proofs', 800);
-    if ($filename) {
-        $stmt = $pdo->prepare("INSERT INTO payments (user_id, ad_id, amount, payment_method, reference, status, proof_image) VALUES (?, ?, ?, 'bank_transfer', ?, 'pending', ?)");
-        $reference = 'BT-' . strtoupper($pkg_key) . '-' . time();
-        $stmt->execute([$user_id, $ad_id, $pkg['price'], $reference, $filename]);
-
-        echo "<script>alert('Proof submitted! Ad will be boosted after verification.'); window.location.href='profile.php';</script>";
-        exit;
-    }
-}
-?>
 
 <?php include __DIR__ . '/templates/footer.php'; ?>

@@ -31,12 +31,7 @@ if (isset($_GET['ref']) && isset($_GET['ad_id']) && isset($_GET['method'])) {
     // --- Server-Side Verification ---
     $verified = false;
 
-    if ($method === 'wallet') {
-        // Wallet payments are verified by internal logic in boost.php,
-        // but for safety, we check if a transaction for this reference already exists.
-        // Actually, for wallet, the reference is usually "WALLET-TIMESTAMP-USERID"
-        $verified = true;
-    } elseif ($method === 'paystack') {
+    if ($method === 'paystack') {
         $secret_key = $settings['paystack_secret_key'] ?? '';
         if (empty($secret_key)) die("Paystack is not configured.");
 
