@@ -47,6 +47,10 @@ if (isset($_POST['complete'])) {
             'paystack_secret_key' => '',
             'flutterwave_public_key' => '',
             'flutterwave_secret_key' => ''
+            'lite_boost_price' => '1000',
+            'lite_boost_duration' => '7',
+            'google_auth_status' => 'disabled',
+            'facebook_auth_status' => 'disabled'
         ];
 
         $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");

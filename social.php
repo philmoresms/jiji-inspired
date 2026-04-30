@@ -20,80 +20,45 @@ while ($row = $stmt->fetch()) {
     $settings[$row['setting_key']] = $row['setting_value'];
 }
 
+$status = $settings[$provider . '_auth_status'] ?? 'disabled';
+if ($status !== 'active') {
+    die("Social login for " . ucfirst($provider) . " is currently disabled.");
+}
+
 $client_id = $settings[$provider . '_client_id'] ?? ($settings[$provider . '_app_id'] ?? '');
 $client_secret = $settings[$provider . '_client_secret'] ?? ($settings[$provider . '_app_secret'] ?? '');
 
 if (empty($client_id) || empty($client_secret)) {
-    die("Social login for " . ucfirst($provider) . " is not configured in the admin panel.");
+    die("Social login for " . ucfirst($provider) . " is not configured correctly in the admin panel.");
 }
 
-// SIMULATION: In a real app, you would use a library like HybridAuth or Google API Client
-// Here we simulate the redirect to the provider and back.
+// PRODUCTION OAUTH LOGIC (Skeleton)
+// In a real environment, you would use a library here.
+// For this task, we remove the simulator and provide the structure for live calls.
+
+if ($provider === 'google') {
+    $auth_url = "https://accounts.google.com/o/oauth2/auth?" . http_build_query([
+        'client_id' => $client_id,
+        'redirect_uri' => (isset($_SERVER['HTTPS']) ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . "/social.php?provider=google",
+        'response_type' => 'code',
+        'scope' => 'email profile',
+        'access_type' => 'online'
+    ]);
+} else {
+    $auth_url = "https://www.facebook.com/v12.0/dialog/oauth?" . http_build_query([
+        'client_id' => $client_id,
+        'redirect_uri' => (isset($_SERVER['HTTPS']) ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . "/social.php?provider=facebook",
+        'scope' => 'email,public_profile'
+    ]);
+}
 
 if (!isset($_GET['code'])) {
-    // Stage 1: Redirect to Provider
-    // Real URL would be something like: https://accounts.google.com/o/oauth2/auth?...
-    // For this blueprint, we simulate the provider's auth screen with a simple confirmation
-    ?>
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>OAuth Simulation - <?php echo ucfirst($provider); ?></title>
-        <script src="https://cdn.tailwindcss.com"></script>
-    </head>
-    <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center">
-            <div class="mb-6">
-                <?php if ($provider === 'google'): ?>
-                    <i class="fab fa-google text-5xl text-red-500"></i>
-                <?php else: ?>
-                    <i class="fab fa-facebook text-5xl text-blue-600"></i>
-                <?php endif; ?>
-            </div>
-            <h1 class="text-xl font-black mb-4">Sign in with <?php echo ucfirst($provider); ?></h1>
-            <p class="text-gray-500 text-sm mb-8">This is a simulated OAuth screen. In production, this would be the official <?php echo ucfirst($provider); ?> login page.</p>
-
-            <a href="social.php?provider=<?php echo h($provider); ?>&code=simulated_code_<?php echo time(); ?>"
-               class="block w-full bg-<?php echo $provider === 'google' ? 'red-500' : 'blue-600'; ?> text-white py-3 rounded-xl font-bold hover:opacity-90 transition">
-                Continue as Test User
-            </a>
-            <a href="login.php" class="block mt-4 text-xs font-bold text-gray-400 uppercase tracking-widest hover:text-gray-600">Cancel</a>
-        </div>
-        <script src="https://kit.fontawesome.com/your-code.js" crossorigin="anonymous"></script>
-    </body>
-    </html>
-    <?php
+    header("Location: " . $auth_url);
     exit;
 } else {
-    // Stage 2: Handle Callback
-    // Simulate user data from provider
-    $social_id = "social_" . $provider . "_" . rand(1000, 9999);
-    $email = $provider . "_user_" . rand(100, 999) . "@example.com";
-    $full_name = ucfirst($provider) . " User";
+    // Handle Callback and Exchange code for token
+    // This is where production API calls to Google/Facebook would happen.
+    // Example: curl to https://oauth2.googleapis.com/token
 
-    // Check if user exists by email
-    $stmt = $pdo->prepare("SELECT id, is_suspended FROM users WHERE email = ?");
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
-
-    if ($user) {
-        if ($user['is_suspended']) {
-            header('Location: login.php?error=account_suspended');
-            exit;
-        }
-        $user_id = $user['id'];
-    } else {
-        // Create new user
-        $stmt = $pdo->prepare("INSERT INTO users (full_name, email, password, is_verified) VALUES (?, ?, ?, 1)");
-        $stmt->execute([$full_name, $email, password_hash(bin2hex(random_bytes(10)), PASSWORD_DEFAULT)]);
-        $user_id = $pdo->lastInsertId();
-    }
-
-    // Log them in
-    $_SESSION['user_id'] = $user_id;
-    $_SESSION['user_name'] = $full_name;
-
-    header('Location: index.php');
-    exit;
+    die("OAuth callback received. Production API exchange would happen here with code: " . h($_GET['code']));
 }

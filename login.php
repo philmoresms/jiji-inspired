@@ -9,6 +9,13 @@ if (isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Fetch global settings
+$stmt_settings = $pdo->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('google_auth_status', 'facebook_auth_status', 'site_name')");
+$settings = [];
+while ($row = $stmt_settings->fetch()) {
+    $settings[$row['setting_key']] = $row['setting_value'];
+}
+
 $error = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -60,17 +67,27 @@ include __DIR__ . '/templates/header.php';
             <button type="submit" class="w-full bg-primary-600 text-white py-3 rounded-lg font-bold hover:bg-primary-700 transition shadow-lg uppercase">Sign In</button>
         </form>
 
+        <?php
+        $google_active = ($settings['google_auth_status'] ?? '') == 'active';
+        $fb_active = ($settings['facebook_auth_status'] ?? '') == 'active';
+
+        if ($google_active || $fb_active): ?>
         <div class="mt-8 border-t pt-6">
             <p class="text-center text-gray-500 font-bold text-sm mb-4">OR LOGIN WITH</p>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid <?php echo ($google_active && $fb_active) ? 'grid-cols-2' : 'grid-cols-1'; ?> gap-4">
+                <?php if ($google_active): ?>
                 <a href="social.php?provider=google" class="flex items-center justify-center bg-white border-2 border-gray-200 py-2 rounded-lg hover:bg-gray-50 transition">
                     <i class="fab fa-google text-red-500 mr-2"></i> Google
                 </a>
+                <?php endif; ?>
+                <?php if ($fb_active): ?>
                 <a href="social.php?provider=facebook" class="flex items-center justify-center bg-white border-2 border-gray-200 py-2 rounded-lg hover:bg-gray-50 transition">
                     <i class="fab fa-facebook text-blue-600 mr-2"></i> Facebook
                 </a>
+                <?php endif; ?>
             </div>
         </div>
+        <?php endif; ?>
 
         <div class="mt-6 text-center text-gray-600 font-bold text-sm">
             Don't have an account? <a href="/register" class="text-primary-600 hover:underline">Register Now</a>

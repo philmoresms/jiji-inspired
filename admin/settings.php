@@ -55,7 +55,7 @@ include __DIR__ . '/../templates/admin_header.php';
                             </div>
                         <?php endif; ?>
                         <input type="file" name="site_logo" class="text-xs">
-                        <p class="text-[10px] text-gray-400 mt-2">Recommended: PNG or JPG with transparent background. Max 400px wide.</p>
+                        <p class="text-[10px] text-gray-400 mt-2">Recommended: PNG or WEBP with transparent background. Max 400px wide.</p>
                     </div>
                 </div>
 
@@ -106,22 +106,38 @@ include __DIR__ . '/../templates/admin_header.php';
                 <h3 class="font-bold text-lg mb-4 text-primary-700">Ad Boosting & Payments</h3>
                 <div class="space-y-4">
                     <div class="p-4 bg-primary-50 rounded border border-primary-200 mb-4">
-                        <label class="block text-sm font-bold text-primary-800 mb-2">Boost Ad Price (₦)</label>
-                        <input type="number" name="s[boost_price]" value="<?php echo h($settings['boost_price'] ?? '2000'); ?>" class="w-full p-2 border rounded font-bold text-primary-700" step="0.01">
-                        <p class="text-[10px] text-primary-600 mt-1 uppercase font-bold tracking-widest">Amount users pay to feature their ads</p>
+                        <h4 class="font-bold text-primary-800 text-sm mb-3 uppercase tracking-widest">Premium Tiers (Standard)</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-primary-600 mb-1">Price (₦)</label>
+                                <input type="number" name="s[boost_price]" value="<?php echo h($settings['boost_price'] ?? '2000'); ?>" class="w-full p-2 border rounded text-sm" step="0.01">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-primary-600 mb-1">Duration (Days)</label>
+                                <input type="number" name="s[premium_ad_duration]" value="<?php echo h($settings['premium_ad_duration'] ?? '30'); ?>" class="w-full p-2 border rounded text-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-yellow-50 rounded border border-yellow-200 mb-4">
+                        <h4 class="font-bold text-yellow-800 text-sm mb-3 uppercase tracking-widest">Lite Boost (Short-term)</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-yellow-600 mb-1">Lite Price (₦)</label>
+                                <input type="number" name="s[lite_boost_price]" value="<?php echo h($settings['lite_boost_price'] ?? '1000'); ?>" class="w-full p-2 border rounded text-sm" step="0.01">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-yellow-600 mb-1">Lite Duration (Days)</label>
+                                <input type="number" name="s[lite_boost_duration]" value="<?php echo h($settings['lite_boost_duration'] ?? '7'); ?>" class="w-full p-2 border rounded text-sm">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="p-4 bg-purple-50 rounded border border-purple-200 mb-4">
-                        <h4 class="font-bold text-purple-800 text-sm mb-3 uppercase tracking-widest">Ad Package Durations</h4>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-purple-600 mb-1">Free Ad (Days)</label>
-                                <input type="number" name="s[free_ad_duration]" value="<?php echo h($settings['free_ad_duration'] ?? '15'); ?>" class="w-full p-2 border rounded text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-purple-600 mb-1">Premium Ad (Days)</label>
-                                <input type="number" name="s[premium_ad_duration]" value="<?php echo h($settings['premium_ad_duration'] ?? '30'); ?>" class="w-full p-2 border rounded text-sm">
-                            </div>
+                        <h4 class="font-bold text-purple-800 text-sm mb-3 uppercase tracking-widest">Free Package</h4>
+                        <div>
+                            <label class="block text-xs font-bold text-purple-600 mb-1">Free Ad (Days)</label>
+                            <input type="number" name="s[free_ad_duration]" value="<?php echo h($settings['free_ad_duration'] ?? '15'); ?>" class="w-full p-2 border rounded text-sm">
                         </div>
                     </div>
 
@@ -176,10 +192,15 @@ include __DIR__ . '/../templates/admin_header.php';
                 <h3 class="font-bold text-lg mt-8 mb-4 text-primary-700">Social Login (OAuth)</h3>
                 <div class="space-y-6">
                     <div class="p-4 bg-red-50 rounded border border-red-200">
-                        <p class="text-sm text-red-800 font-bold mb-3 flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 9V5a1 1 0 112 0v4a1 1 0 11-2 0zm1 4a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
-                            Google Login Configuration
-                        </p>
+                        <div class="flex justify-between items-center mb-3">
+                            <p class="text-sm text-red-800 font-bold flex items-center">
+                                <i class="fab fa-google mr-1"></i> Google Login
+                            </p>
+                            <select name="s[google_auth_status]" class="text-[10px] font-bold border rounded px-2 py-1">
+                                <option value="active" <?php echo ($settings['google_auth_status'] ?? '') == 'active' ? 'selected' : ''; ?>>ACTIVE</option>
+                                <option value="disabled" <?php echo ($settings['google_auth_status'] ?? '') != 'active' ? 'selected' : ''; ?>>DISABLED</option>
+                            </select>
+                        </div>
                         <div class="space-y-3">
                             <div>
                                 <label class="block text-xs font-bold text-gray-600">Client ID</label>
@@ -197,10 +218,15 @@ include __DIR__ . '/../templates/admin_header.php';
                     </div>
 
                     <div class="p-4 bg-blue-50 rounded border border-blue-200">
-                        <p class="text-sm text-blue-800 font-bold mb-3 flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"></path><path d="M12 2.252A8.001 8.001 0 0117.748 8H12V2.252z"></path></svg>
-                            Facebook Login Configuration
-                        </p>
+                        <div class="flex justify-between items-center mb-3">
+                            <p class="text-sm text-blue-800 font-bold flex items-center">
+                                <i class="fab fa-facebook-f mr-1"></i> Facebook Login
+                            </p>
+                            <select name="s[facebook_auth_status]" class="text-[10px] font-bold border rounded px-2 py-1">
+                                <option value="active" <?php echo ($settings['facebook_auth_status'] ?? '') == 'active' ? 'selected' : ''; ?>>ACTIVE</option>
+                                <option value="disabled" <?php echo ($settings['facebook_auth_status'] ?? '') != 'active' ? 'selected' : ''; ?>>DISABLED</option>
+                            </select>
+                        </div>
                         <div class="space-y-3">
                             <div>
                                 <label class="block text-xs font-bold text-gray-600">App ID</label>

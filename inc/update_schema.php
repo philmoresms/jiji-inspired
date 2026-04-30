@@ -195,3 +195,16 @@ foreach ($missing_tables as $sql) {
 }
 
 $_SESSION['schema_verified'] = true;
+
+// Ensure Lite Boost settings exist in database
+$default_lite = [
+    'lite_boost_price' => '1000',
+    'lite_boost_duration' => '7',
+    'google_auth_status' => 'disabled',
+    'facebook_auth_status' => 'disabled'
+];
+foreach ($default_lite as $key => $val) {
+    try {
+        $pdo->prepare("INSERT IGNORE INTO settings (setting_key, setting_value) VALUES (?, ?)")->execute([$key, $val]);
+    } catch (Exception $e) {}
+}
