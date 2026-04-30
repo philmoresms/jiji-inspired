@@ -11,10 +11,6 @@ if (!isset($pdo)) {
 }
 if (!isset($pdo)) return;
 
-// We check every time if not in session to prevent errors, but in session it's fast
-// Actually, let's just run it every time for Tibu 1.1 to ensure total repairability
-// if (isset($_SESSION['schema_verified'])) return;
-
 $is_sqlite = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
 
 // --- STAGE 0: CORE TABLE PROVISIONING ---
@@ -147,20 +143,32 @@ foreach ($core_tables as $sql) {
     }
 }
 
-// --- STAGE 1: INCREMENTAL COLUMN UPDATES ---
+// --- STAGE 1: INCREMENTAL COLUMN UPDATES (REPAIR EXISTING TABLES) ---
 $column_updates = [
     'ads' => [
+        'state_id' => "INT DEFAULT 0",
+        'lga_id' => "INT DEFAULT 0",
+        'is_featured' => "INTEGER DEFAULT 0",
         'package_type' => "TEXT DEFAULT 'free'",
+        'views' => "INTEGER DEFAULT 0",
         'ad_data' => "TEXT DEFAULT NULL",
+        'listing_type' => "TEXT DEFAULT 'for_sale'",
         'expires_at' => "TIMESTAMP NULL DEFAULT NULL",
         'bumped_at' => "TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
     ],
     'users' => [
         'wallet_balance' => "REAL DEFAULT 0.00",
-        'business_name' => "VARCHAR(200) DEFAULT NULL"
+        'business_name' => "VARCHAR(200) DEFAULT NULL",
+        'verification_tier' => "TEXT DEFAULT 'phone_verified'",
+        'is_suspended' => "INTEGER DEFAULT 0"
     ],
     'payments' => [
         'payment_method' => "VARCHAR(50)"
+    ],
+    'categories' => [
+        'is_top' => "INTEGER DEFAULT 0",
+        'sort_order' => "INTEGER DEFAULT 0",
+        'slug' => "VARCHAR(255) DEFAULT NULL"
     ]
 ];
 
