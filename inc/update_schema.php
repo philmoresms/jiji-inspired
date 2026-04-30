@@ -289,9 +289,9 @@ try {
     if ($count == 0) {
         $pkgs = [
             ['free', 'Free', 0, 15, 0, "Basic entry\n15 days duration"],
-            ['premium', 'Premium', 2500, 30, 38500, "5x more clients\n15 ads in Cars\nAds auto-renew every 24h"],
-            ['vip', 'VIP', 6000, 45, 55500, "7x more clients\n30 ads in Cars\nAds auto-renew every 12h\n10 VIP TOP+ promotions"],
-            ['diamond', 'Diamond', 12000, 60, 95100, "20x more clients\n70 ads in Cars\nUnlimited Property listings\nAds auto-renew every 3h\nDedicated Personal Manager"]
+            ['premium', 'Premium', 2500, 30, 500, "5x more clients\n15 ads in Cars\nAds auto-renew every 24h"],
+            ['vip', 'VIP', 6000, 45, 1200, "7x more clients\n30 ads in Cars\nAds auto-renew every 12h\n10 VIP TOP+ promotions"],
+            ['diamond', 'Diamond', 12000, 60, 2500, "20x more clients\n70 ads in Cars\nUnlimited Property listings\nAds auto-renew every 3h\nDedicated Personal Manager"]
         ];
         $sql = "INSERT INTO packages (slug, name, price, duration_days, cashback_amount, features) VALUES (?, ?, ?, ?, ?, ?)";
         if ($is_sqlite) {

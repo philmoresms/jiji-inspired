@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../inc/auth.php';
 require_once __DIR__ . '/../inc/functions.php';
 require_once __DIR__ . '/../inc/security.php';
+require_once __DIR__ . '/../inc/update_schema.php';
 require_admin();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
