@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $duration = (int)($stmt->fetchColumn() ?: 15);
         $expires_at = date('Y-m-d H:i:s', strtotime("+$duration days"));
 
-        $stmt = $pdo->prepare("INSERT INTO ads (user_id, cat_id, state_id, lga_id, title, price, listing_type, estimated_value, swap_preference, allow_cash_topup, description, ad_data, status, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)");
+        $stmt = $pdo->prepare("INSERT INTO ads (user_id, cat_id, state_id, lga_id, title, price, listing_type, estimated_value, swap_preference, allow_cash_topup, description, ad_data, status, package_type, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'free', ?)");
         $stmt->execute([$user_id, $cat_id, $state_id, $lga_id, $title, $price, $listing_type, $estimated_value, $swap_preference, $allow_cash_topup, $description, $ad_data, $expires_at]);
         $ad_id = $pdo->lastInsertId();
 

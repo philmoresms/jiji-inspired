@@ -12,6 +12,8 @@ if (!isset($pdo)) return;
 // Simple guard to prevent running on every page load after first successful run in a session
 if (isset($_SESSION['schema_verified'])) return;
 
+$is_sqlite = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
+
 $tables = [
     'ads' => [
         'ad_data' => "JSON DEFAULT NULL AFTER description",
@@ -20,12 +22,14 @@ $tables = [
         'swap_preference' => "TEXT DEFAULT NULL AFTER estimated_value",
         'allow_cash_topup' => "TINYINT(1) DEFAULT 0 AFTER swap_preference",
         'safety_score' => "INT DEFAULT 50 AFTER status",
+        'package_type' => "ENUM('free', 'premium', 'vip', 'diamond') DEFAULT 'free' AFTER safety_score",
         'video_url' => "VARCHAR(255) DEFAULT NULL",
         'expires_at' => "TIMESTAMP NULL DEFAULT NULL",
         'bumped_at' => "TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
     ],
     'users' => [
         'business_name' => "VARCHAR(200) DEFAULT NULL AFTER full_name",
+        'wallet_balance' => "DECIMAL(15, 2) DEFAULT 0.00 AFTER business_name",
         'verification_tier' => "ENUM('phone_verified', 'nin_verified', 'business_verified') DEFAULT 'phone_verified' AFTER is_verified",
         'nin_number' => "VARCHAR(11) DEFAULT NULL AFTER verification_tier",
         'kyc_reference' => "VARCHAR(100) DEFAULT NULL AFTER nin_number",
@@ -39,23 +43,35 @@ $tables = [
         'slug' => "VARCHAR(255) UNIQUE DEFAULT NULL"
     ],
     'payments' => [
+        'payment_method' => "VARCHAR(50) AFTER amount",
         'reject_reason' => "TEXT DEFAULT NULL",
         'proof_image' => "VARCHAR(255) DEFAULT NULL"
     ],
     'reviews' => [
         'reply_text' => "TEXT DEFAULT NULL AFTER body",
         'replied_at' => "DATETIME DEFAULT NULL AFTER reply_text"
+    ],
+    'seller_analytics' => [
+        'interaction_type' => "VARCHAR(50) DEFAULT 'view' AFTER source"
     ]
 ];
 
 foreach ($tables as $table => $cols) {
     foreach ($cols as $col => $def) {
         try {
-            $pdo->exec("ALTER TABLE `$table` ADD COLUMN `$col` $def");
-        } catch (Exception $e) {
-            if ($col === 'ad_data' && strpos($e->getMessage(), 'JSON') !== false) {
-                try { $pdo->exec("ALTER TABLE ads ADD COLUMN ad_data LONGTEXT DEFAULT NULL AFTER description"); } catch (Exception $e2) {}
+            $sql = "ALTER TABLE `$table` ADD COLUMN `$col` $def";
+            if ($is_sqlite) {
+                // SQLite adjustments
+                $parts = explode(' AFTER ', $def);
+                $sql = "ALTER TABLE `$table` ADD COLUMN `$col` " . $parts[0];
+                $sql = preg_replace('/ENUM\([^)]+\)/', 'TEXT', $sql);
+                $sql = str_replace('TINYINT(1)', 'INTEGER', $sql);
+                $sql = str_replace('JSON', 'TEXT', $sql);
+                $sql = str_replace('DECIMAL(15, 2)', 'REAL', $sql);
             }
+            $pdo->exec($sql);
+        } catch (Exception $e) {
+            // Probably already exists
         }
     }
 }
@@ -122,6 +138,7 @@ $missing_tables = [
         ad_id INT NOT NULL,
         viewer_id INT DEFAULT NULL,
         source VARCHAR(50),
+        interaction_type VARCHAR(50) DEFAULT 'view',
         ip_address VARCHAR(45),
         viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (ad_id) REFERENCES ads(id) ON DELETE CASCADE
@@ -187,11 +204,102 @@ $missing_tables = [
         cat_id INT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )",
+    "CREATE TABLE IF NOT EXISTS settings (
+        setting_key VARCHAR(100) PRIMARY KEY,
+        setting_value TEXT
+    )",
+    "CREATE TABLE IF NOT EXISTS packages (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        slug VARCHAR(50) UNIQUE NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        price DECIMAL(15, 2) NOT NULL,
+        duration_days INT NOT NULL,
+        cashback_amount DECIMAL(15, 2) DEFAULT 0,
+        features TEXT
+    )",
+    "CREATE TABLE IF NOT EXISTS wallet_transactions (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        amount DECIMAL(15, 2) NOT NULL,
+        type ENUM('credit', 'debit') NOT NULL,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )"
 ];
 
 foreach ($missing_tables as $sql) {
-    try { $pdo->exec($sql); } catch (Exception $e) {}
+    try {
+        $final_sql = $sql;
+        if ($is_sqlite) {
+            $final_sql = str_replace('INT AUTO_INCREMENT', 'INTEGER PRIMARY KEY AUTOINCREMENT', $final_sql);
+            $final_sql = str_replace('PRIMARY KEY AUTOINCREMENT PRIMARY KEY', 'PRIMARY KEY AUTOINCREMENT', $final_sql);
+            $final_sql = str_replace('INT ', 'INTEGER ', $final_sql);
+            $final_sql = str_replace('INT,', 'INTEGER,', $final_sql);
+            $final_sql = str_replace('INT)', 'INTEGER)', $final_sql);
+            $final_sql = preg_replace('/ENUM\([^)]+\)/', 'TEXT', $final_sql);
+            $final_sql = str_replace('TINYINT(1)', 'INTEGER', $final_sql);
+            $final_sql = str_replace('DECIMAL(15, 2)', 'REAL', $final_sql);
+            $final_sql = str_replace('LONGTEXT', 'TEXT', $final_sql);
+            $final_sql = str_replace('JSON', 'TEXT', $final_sql);
+            $final_sql = preg_replace('/ON UPDATE CURRENT_TIMESTAMP/i', '', $final_sql);
+            $final_sql = preg_replace('/UNIQUE KEY \([^)]+\)/i', '', $final_sql);
+            $final_sql = rtrim(trim($final_sql), ',');
+            // If we removed UNIQUE KEY, we might have a trailing comma before the closing parenthesis
+            $final_sql = preg_replace('/,\s*\)/', ')', $final_sql);
+        }
+        $pdo->exec($final_sql);
+    } catch (Exception $e) {
+        error_log("Schema Error: " . $e->getMessage() . " in SQL: " . $final_sql);
+    }
 }
+
+// Migration: Handle 'method' to 'payment_method' in payments table
+try {
+    $pdo->exec("UPDATE payments SET payment_method = method WHERE payment_method IS NULL AND method IS NOT NULL");
+} catch (Exception $e) {}
+
+// Seed default package features if not set
+$default_settings = [
+    'premium_features' => "5x more clients\n15 ads in Cars\nAds auto-renew every 24h",
+    'vip_features' => "7x more clients\n30 ads in Cars\nAds auto-renew every 12h\n10 VIP TOP+ promotions",
+    'diamond_features' => "20x more clients\n70 ads in Cars\nUnlimited Property listings\nAds auto-renew every 3h\nDedicated Personal Manager",
+    'premium_ad_duration' => '30',
+    'vip_ad_duration' => '45',
+    'diamond_ad_duration' => '60',
+    'boost_price' => '2500',
+    'vip_price' => '6000',
+    'diamond_price' => '12000'
+];
+
+foreach ($default_settings as $key => $val) {
+    try {
+        $stmt = $pdo->prepare("INSERT IGNORE INTO settings (setting_key, setting_value) VALUES (?, ?)");
+        if ($is_sqlite) {
+            $stmt = $pdo->prepare("INSERT OR IGNORE INTO settings (setting_key, setting_value) VALUES (?, ?)");
+        }
+        $stmt->execute([$key, $val]);
+    } catch (Exception $e) {}
+}
+
+// Seed default packages if empty
+try {
+    $count = $pdo->query("SELECT COUNT(*) FROM packages")->fetchColumn();
+    if ($count == 0) {
+        $pkgs = [
+            ['free', 'Free', 0, 15, 0, "Basic entry\n15 days duration"],
+            ['premium', 'Premium', 2500, 30, 38500, "5x more clients\n15 ads in Cars\nAds auto-renew every 24h"],
+            ['vip', 'VIP', 6000, 45, 55500, "7x more clients\n30 ads in Cars\nAds auto-renew every 12h\n10 VIP TOP+ promotions"],
+            ['diamond', 'Diamond', 12000, 60, 95100, "20x more clients\n70 ads in Cars\nUnlimited Property listings\nAds auto-renew every 3h\nDedicated Personal Manager"]
+        ];
+        $sql = "INSERT INTO packages (slug, name, price, duration_days, cashback_amount, features) VALUES (?, ?, ?, ?, ?, ?)";
+        if ($is_sqlite) {
+            $sql = str_replace("INSERT INTO", "INSERT OR REPLACE INTO", $sql);
+        }
+        $stmt = $pdo->prepare($sql);
+        foreach ($pkgs as $p) $stmt->execute($p);
+    }
+} catch (Exception $e) {}
 
 $_SESSION['schema_verified'] = true;

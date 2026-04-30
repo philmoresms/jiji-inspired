@@ -23,9 +23,9 @@ if (!$ad || ($ad['status'] !== 'active' && (!isset($_SESSION['user_id']) || $_SE
     redirect('index.php', 'Ad not found or pending moderation.');
 }
 
-// Log view for analytics (Feature 07)
+// Log view for analytics
 $viewer_id = $_SESSION["user_id"] ?? null;
-$pdo->prepare("INSERT INTO seller_analytics (ad_id, viewer_id, source, ip_address) VALUES (?, ?, ?, ?)")->execute([$id, $viewer_id, $_GET["source"] ?? "direct", get_client_ip()]);
+$pdo->prepare("INSERT INTO seller_analytics (ad_id, viewer_id, interaction_type, source, ip_address) VALUES (?, ?, 'view', ?, ?)")->execute([$id, $viewer_id, $_GET["source"] ?? "direct", get_client_ip()]);
 
 // Increment views
 $pdo->prepare("UPDATE ads SET views = views + 1 WHERE id = ?")->execute([$id]);
@@ -35,7 +35,7 @@ $stmt = $pdo->prepare("SELECT image_path, is_main FROM ad_images WHERE ad_id = ?
 $stmt->execute([$id]);
 $images = $stmt->fetchAll();
 
-// Calculate Deal Safety Score (Feature 08)
+// Calculate Deal Safety Score
 $safety_score = calculate_safety_score(['verification_tier' => $ad['verification_tier'], 'is_verified' => $ad['is_verified'], 'created_at' => $ad['seller_created_at']], $ad);
 
 // SEO Meta Data
@@ -265,7 +265,7 @@ include __DIR__ . '/templates/header.php';
                     </div>
 
                     <?php if (is_user_logged_in() && $_SESSION['user_id'] != $ad['user_id']): ?>
-                        <a href="chat.php?ad_id=<?php echo $ad['id']; ?>" class="w-full bg-primary-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary-700 transition shadow-xl shadow-primary-100 flex items-center justify-center gap-3 active:scale-95">
+                        <a href="chat.php?ad_id=<?php echo $ad['id']; ?>" onclick="logInteraction(<?php echo $ad['id']; ?>, 'chat')" class="w-full bg-primary-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary-700 transition shadow-xl shadow-primary-100 flex items-center justify-center gap-3 active:scale-95">
                             <i class="fas fa-comment-dots"></i> START CHAT
                         </a>
                         <?php if ($ad['listing_type'] != 'for_sale'): ?>
@@ -487,7 +487,7 @@ include __DIR__ . '/templates/header.php';
         <p class="text-sm text-gray-500 font-bold text-center mb-8">Buyers who chat on <?php echo h($settings['site_name'] ?? 'Classifieds'); ?> before paying have full dispute support. Use our message feature to keep a record of your deal.</p>
 
         <div class="space-y-4">
-            <a href="/chat.php?ad_id=<?php echo $ad["id"]; ?>" class="block w-full bg-primary-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest text-center hover:bg-primary-700 transition shadow-xl">Message on <?php echo h($settings['site_name'] ?? 'Classifieds'); ?></a>
+            <a href="/chat.php?ad_id=<?php echo $ad["id"]; ?>" onclick="logInteraction(<?php echo $ad['id']; ?>, 'chat')" class="block w-full bg-primary-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest text-center hover:bg-primary-700 transition shadow-xl">Message on <?php echo h($settings['site_name'] ?? 'Classifieds'); ?></a>
             <button onclick="revealNumber()" class="block w-full bg-gray-50 text-gray-400 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-center hover:bg-gray-100 transition">Show Number Anyway</button>
             <button onclick="closePhoneModal()" class="block w-full text-gray-300 font-black text-[9px] uppercase tracking-widest mt-4">Maybe Later</button>
         </div>
@@ -584,8 +584,16 @@ function revealNumber() {
     const fullPhone = "<?php echo h($ad["seller_phone"]); ?>";
     const telLink = "tel:" + fullPhone.replace(/^0/, "234");
     document.getElementById("blurredPhone").textContent = fullPhone;
+    logInteraction(<?php echo $ad['id']; ?>, 'call');
     window.location.href = telLink;
     closePhoneModal();
+}
+
+function logInteraction(adId, type) {
+    const formData = new FormData();
+    formData.append('ad_id', adId);
+    formData.append('type', type);
+    fetch('api/log_interaction.php', { method: 'POST', body: formData });
 }
 </script>
 

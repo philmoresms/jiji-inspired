@@ -82,6 +82,19 @@ include __DIR__ . '/templates/header.php';
                     <h3 class="text-[11px] font-black text-gray-800 uppercase tracking-[3px]">Seller Dashboard</h3>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col items-center border-green-400">
+                        <div class="w-12 h-12 rounded-2xl bg-green-50 flex items-center justify-center mb-3 text-green-600">
+                            <i class="fas fa-wallet text-xl"></i>
+                        </div>
+                        <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Wallet</span>
+                        <span class="text-[11px] font-black text-gray-800 uppercase tracking-widest">₦<?php echo number_format($user['wallet_balance'], 2); ?></span>
+                    </div>
+                    <a href="pro_sales.php" class="group bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col items-center hover:border-purple-400 transition-all duration-300">
+                        <div class="w-12 h-12 rounded-2xl bg-purple-50 flex items-center justify-center mb-3 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                            <i class="fas fa-chart-line text-xl"></i>
+                        </div>
+                        <span class="text-[11px] font-black text-gray-800 uppercase tracking-widest">Pro Sales</span>
+                    </a>
                     <a href="/post-ad" class="group bg-gradient-to-br from-primary-600 to-primary-700 p-6 rounded-[2rem] shadow-xl shadow-primary-100 border border-primary-500 flex flex-col items-center text-white hover:scale-105 transition-all duration-300">
                         <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mb-3 group-hover:rotate-12 transition-transform">
                             <i class="fas fa-plus text-xl"></i>

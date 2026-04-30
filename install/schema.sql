@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS ads (
     allow_cash_topup TINYINT(1) DEFAULT 0,
     status ENUM('pending', 'active', 'declined', 'sold', 'swapped', 'expired', 'moderation') DEFAULT 'pending',
     safety_score INT DEFAULT 50,
+    package_type ENUM('free', 'premium', 'vip', 'diamond') DEFAULT 'free',
     is_featured TINYINT(1) DEFAULT 0,
     views INT DEFAULT 0,
     decline_reason TEXT,

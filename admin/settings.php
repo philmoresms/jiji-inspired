@@ -15,10 +15,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
+        $is_sqlite = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
+        if ($is_sqlite) {
+            $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (setting_key, setting_value) VALUES (?, ?)");
+        } else {
+            $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
+        }
+
         foreach ($_POST['s'] as $key => $value) {
             $stmt->execute([$key, $value]);
         }
+
+        // Sync with packages table
+        $sync_pkgs = [
+            'premium' => ['price' => $_POST['s']['boost_price'], 'duration' => $_POST['s']['premium_ad_duration']],
+            'vip' => ['price' => $_POST['s']['vip_price'], 'duration' => $_POST['s']['vip_ad_duration']],
+            'diamond' => ['price' => $_POST['s']['diamond_price'], 'duration' => $_POST['s']['diamond_ad_duration']],
+            'free' => ['price' => 0, 'duration' => $_POST['s']['free_ad_duration']]
+        ];
+
+        foreach ($sync_pkgs as $slug => $data) {
+            $stmt = $pdo->prepare("UPDATE packages SET price = ?, duration_days = ? WHERE slug = ?");
+            $stmt->execute([$data['price'], $data['duration'], $slug]);
+        }
+
         redirect('settings.php', 'Global settings updated successfully.');
     }
 }
@@ -106,9 +126,21 @@ include __DIR__ . '/../templates/admin_header.php';
                 <h3 class="font-bold text-lg mb-4 text-primary-700">Ad Boosting & Payments</h3>
                 <div class="space-y-4">
                     <div class="p-4 bg-primary-50 rounded border border-primary-200 mb-4">
-                        <label class="block text-sm font-bold text-primary-800 mb-2">Boost Ad Price (₦)</label>
-                        <input type="number" name="s[boost_price]" value="<?php echo h($settings['boost_price'] ?? '2000'); ?>" class="w-full p-2 border rounded font-bold text-primary-700" step="0.01">
-                        <p class="text-[10px] text-primary-600 mt-1 uppercase font-bold tracking-widest">Amount users pay to feature their ads</p>
+                        <h4 class="font-bold text-primary-800 text-sm mb-3 uppercase tracking-widest">Package Pricing (₦)</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-primary-600 mb-1">Premium Ad Price</label>
+                                <input type="number" name="s[boost_price]" value="<?php echo h($settings['boost_price'] ?? '2500'); ?>" class="w-full p-2 border rounded text-sm" step="0.01">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-primary-600 mb-1">VIP Ad Price</label>
+                                <input type="number" name="s[vip_price]" value="<?php echo h($settings['vip_price'] ?? '5000'); ?>" class="w-full p-2 border rounded text-sm" step="0.01">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-primary-600 mb-1">Diamond Ad Price</label>
+                                <input type="number" name="s[diamond_price]" value="<?php echo h($settings['diamond_price'] ?? '10000'); ?>" class="w-full p-2 border rounded text-sm" step="0.01">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="p-4 bg-purple-50 rounded border border-purple-200 mb-4">
@@ -121,6 +153,14 @@ include __DIR__ . '/../templates/admin_header.php';
                             <div>
                                 <label class="block text-xs font-bold text-purple-600 mb-1">Premium Ad (Days)</label>
                                 <input type="number" name="s[premium_ad_duration]" value="<?php echo h($settings['premium_ad_duration'] ?? '30'); ?>" class="w-full p-2 border rounded text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-purple-600 mb-1">VIP Ad (Days)</label>
+                                <input type="number" name="s[vip_ad_duration]" value="<?php echo h($settings['vip_ad_duration'] ?? '45'); ?>" class="w-full p-2 border rounded text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-purple-600 mb-1">Diamond Ad (Days)</label>
+                                <input type="number" name="s[diamond_ad_duration]" value="<?php echo h($settings['diamond_ad_duration'] ?? '60'); ?>" class="w-full p-2 border rounded text-sm">
                             </div>
                         </div>
                     </div>
@@ -181,6 +221,16 @@ include __DIR__ . '/../templates/admin_header.php';
                             Google Login Configuration
                         </p>
                         <div class="space-y-3">
+                            <div class="flex items-center mb-4">
+                                <label class="flex items-center cursor-pointer">
+                                    <div class="relative">
+                                        <input type="hidden" name="s[google_auth_active]" value="0">
+                                        <input type="checkbox" name="s[google_auth_active]" value="1" <?php echo ($settings['google_auth_active'] ?? '0') == '1' ? 'checked' : ''; ?> class="sr-only peer">
+                                        <div class="w-10 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-red-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                                    </div>
+                                    <span class="ml-3 text-sm font-bold text-red-800">Activate Google Login</span>
+                                </label>
+                            </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-600">Client ID</label>
                                 <input type="text" name="s[google_client_id]" value="<?php echo h($settings['google_client_id'] ?? ''); ?>" class="w-full p-2 border rounded text-sm">
@@ -202,6 +252,16 @@ include __DIR__ . '/../templates/admin_header.php';
                             Facebook Login Configuration
                         </p>
                         <div class="space-y-3">
+                            <div class="flex items-center mb-4">
+                                <label class="flex items-center cursor-pointer">
+                                    <div class="relative">
+                                        <input type="hidden" name="s[facebook_auth_active]" value="0">
+                                        <input type="checkbox" name="s[facebook_auth_active]" value="1" <?php echo ($settings['facebook_auth_active'] ?? '0') == '1' ? 'checked' : ''; ?> class="sr-only peer">
+                                        <div class="w-10 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    </div>
+                                    <span class="ml-3 text-sm font-bold text-blue-800">Activate Facebook Login</span>
+                                </label>
+                            </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-600">App ID</label>
                                 <input type="text" name="s[facebook_app_id]" value="<?php echo h($settings['facebook_app_id'] ?? ''); ?>" class="w-full p-2 border rounded text-sm">
