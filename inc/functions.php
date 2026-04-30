@@ -59,7 +59,7 @@ function get_client_ip() {
 /**
  * Image Upload & Processing (GD Library) - Enhanced with pHash & Watermark
  */
-function process_image_upload($file_tmp, $target_dir, $max_width = 800, $user_id = 0, $ad_id = 0) {
+function process_image_upload($file_tmp, $target_dir, $max_width = 800, $user_id = 0, $ad_id = 0, $is_logo = false) {
     global $pdo;
     if (!is_dir($target_dir)) {
         mkdir($target_dir, 0755, true);
@@ -74,42 +74,57 @@ function process_image_upload($file_tmp, $target_dir, $max_width = 800, $user_id
         default: return false;
     }
 
-    // Perceptual Hash Check
-    $phash = generate_phash($src);
-    if ($pdo) {
-        $stmt = $pdo->prepare("SELECT id FROM image_hashes WHERE phash = ?");
-        $stmt->execute([$phash]);
-        if ($stmt->fetch()) {
-            imagedestroy($src);
-            return "DUPLICATE";
+    $phash = null;
+    if (!$is_logo) {
+        // Perceptual Hash Check
+        $phash = generate_phash($src);
+        if ($pdo) {
+            $stmt = $pdo->prepare("SELECT id FROM image_hashes WHERE phash = ?");
+            $stmt->execute([$phash]);
+            if ($stmt->fetch()) {
+                imagedestroy($src);
+                return "DUPLICATE";
+            }
         }
+
+        // Fetch seller info for watermark
+        $seller_info = "";
+        if ($pdo && $user_id) {
+            $stmt_s = $pdo->prepare("SELECT full_name, business_name FROM users WHERE id = ?");
+            $stmt_s->execute([$user_id]);
+            $s_info = $stmt_s->fetch();
+            if ($s_info) {
+                $seller_info = $s_info['business_name'] ?: $s_info['full_name'];
+            }
+        }
+
+        // Apply Watermark
+        apply_site_watermark($src, $seller_info);
     }
 
-    // Fetch seller info for watermark
-    $seller_info = "";
-    if ($pdo && $user_id) {
-        $stmt_s = $pdo->prepare("SELECT full_name, business_name FROM users WHERE id = ?");
-        $stmt_s->execute([$user_id]);
-        $s_info = $stmt_s->fetch();
-        if ($s_info) {
-            $seller_info = $s_info['business_name'] ?: $s_info['full_name'];
-        }
-    }
-
-    // Apply Watermark
-    apply_site_watermark($src, $seller_info);
-
-    $filename = md5(uniqid(rand(), true)) . ".jpg";
+    $extension = ($is_logo && $type == IMAGETYPE_PNG) ? "png" : "jpg";
+    $filename = md5(uniqid(rand(), true)) . "." . $extension;
     $target_file = $target_dir . "/" . $filename;
 
     $new_width = min($width, $max_width);
     $new_height = ($height / $width) * $new_width;
     $tmp = imagecreatetruecolor($new_width, $new_height);
+
+    if ($is_logo && $type == IMAGETYPE_PNG) {
+        imagealphablending($tmp, false);
+        imagesavealpha($tmp, true);
+    }
+
     imagecopyresampled($tmp, $src, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
-    imagejpeg($tmp, $target_file, 80);
+
+    if ($is_logo && $type == IMAGETYPE_PNG) {
+        imagepng($tmp, $target_file, 9);
+    } else {
+        imagejpeg($tmp, $target_file, 80);
+    }
 
     // Save hash
-    if ($pdo && $ad_id) {
+    if (!$is_logo && $pdo && $ad_id) {
         $pdo->prepare("INSERT INTO image_hashes (ad_id, user_id, phash) VALUES (?, ?, ?)")->execute([$ad_id, $user_id, $phash]);
     }
 
