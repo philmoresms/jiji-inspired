@@ -15,6 +15,7 @@ if (!file_exists(ROOT_PATH . '/config/config.php')) {
 // Load configuration
 require_once ROOT_PATH . '/config/config.php';
 require_once ROOT_PATH . '/inc/functions.php';
+require_once ROOT_PATH . '/inc/update_schema.php';
 require_once ROOT_PATH . '/inc/security.php';
 require_once ROOT_PATH . '/inc/user_auth.php';
 

@@ -4,6 +4,8 @@
  * Ensures all required columns exist by trying to add them.
  */
 
+if (session_status() === PHP_SESSION_NONE) session_start();
+
 if (!isset($pdo)) {
     require_once __DIR__ . '/../config/config.php';
 }
@@ -56,6 +58,29 @@ $tables = [
     ]
 ];
 
+// Ensure basic tables exist before altering them
+$pre_tables = [
+    "CREATE TABLE IF NOT EXISTS ads (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, cat_id INT, title VARCHAR(255), description TEXT, price DECIMAL(15,2), status VARCHAR(50), views INT DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)",
+    "CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, full_name VARCHAR(255), email VARCHAR(255) UNIQUE, password VARCHAR(255), phone VARCHAR(20), is_verified TINYINT(1) DEFAULT 0, is_suspended TINYINT(1) DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)",
+    "CREATE TABLE IF NOT EXISTS categories (id INT AUTO_INCREMENT PRIMARY KEY, parent_id INT DEFAULT 0, name VARCHAR(100), slug VARCHAR(255) UNIQUE, icon_class VARCHAR(50), sort_order INT DEFAULT 0, is_top TINYINT(1) DEFAULT 0)",
+    "CREATE TABLE IF NOT EXISTS reviews (id INT AUTO_INCREMENT PRIMARY KEY, seller_id INT, reviewer_id INT, stars INT, body TEXT, submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"
+];
+
+foreach ($pre_tables as $st) {
+    try {
+        $fst = $st;
+        if ($is_sqlite) {
+            $fst = str_replace('INT AUTO_INCREMENT', 'INTEGER PRIMARY KEY AUTOINCREMENT', $fst);
+            $fst = str_replace('PRIMARY KEY AUTOINCREMENT PRIMARY KEY', 'PRIMARY KEY AUTOINCREMENT', $fst);
+            $fst = str_replace('INT ', 'INTEGER ', $fst);
+            $fst = str_replace('INT,', 'INTEGER,', $fst);
+            $fst = str_replace('INT)', 'INTEGER)', $fst);
+            $fst = str_replace('DECIMAL(15,2)', 'REAL', $fst);
+        }
+        $pdo->exec($fst);
+    } catch (Exception $e) {}
+}
+
 foreach ($tables as $table => $cols) {
     foreach ($cols as $col => $def) {
         try {
@@ -83,6 +108,15 @@ try {
 
 // Missing Tables
 $missing_tables = [
+    "CREATE TABLE IF NOT EXISTS categories (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        parent_id INT DEFAULT 0,
+        name VARCHAR(100) NOT NULL,
+        slug VARCHAR(255) UNIQUE NOT NULL,
+        icon_class VARCHAR(50) DEFAULT 'fa-th-large',
+        sort_order INT DEFAULT 0,
+        is_top TINYINT(1) DEFAULT 0
+    )",
     "CREATE TABLE IF NOT EXISTS countries (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(100) NOT NULL,

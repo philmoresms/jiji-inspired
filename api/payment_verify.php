@@ -104,8 +104,13 @@ if (isset($_GET['ref']) && isset($_GET['ad_id']) && isset($_GET['method'])) {
         redirect('../profile.php', 'Payment already processed.');
     }
 
-    $stmt = $pdo->prepare("INSERT INTO payments (ad_id, reference, payment_method, amount, status) VALUES (?, ?, ?, ?, 'successful')");
-    $stmt->execute([$ad_id, $ref, $method, $price]);
+    // Fetch owner ID for recording payment
+    $stmt = $pdo->prepare("SELECT user_id FROM ads WHERE id = ?");
+    $stmt->execute([$ad_id]);
+    $user_id = $stmt->fetchColumn();
+
+    $stmt = $pdo->prepare("INSERT INTO payments (ad_id, user_id, reference, payment_method, amount, status) VALUES (?, ?, ?, ?, ?, 'successful')");
+    $stmt->execute([$ad_id, $user_id, $ref, $method, $price]);
 
     $new_expiry = date('Y-m-d H:i:s', strtotime("+$duration days"));
 

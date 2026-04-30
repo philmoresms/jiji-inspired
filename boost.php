@@ -206,7 +206,11 @@ function payWithPaystack() {
     const pkg = packages[selectedPkg];
     const handler = PaystackPop.setup({
         key: '<?php echo $settings['paystack_public_key'] ?? ''; ?>',
-        email: 'user@example.com',
+        email: '<?php
+            $stmt_u = $pdo->prepare("SELECT email FROM users WHERE id = ?");
+            $stmt_u->execute([$_SESSION['user_id']]);
+            echo h($stmt_u->fetchColumn());
+        ?>',
         amount: pkg.price * 100,
         currency: 'NGN',
         callback: function(response) {

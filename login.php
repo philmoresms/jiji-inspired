@@ -2,6 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/inc/functions.php';
+require_once __DIR__ . '/inc/update_schema.php';
 require_once __DIR__ . '/inc/security.php';
 
 if (isset($_SESSION['user_id'])) {
