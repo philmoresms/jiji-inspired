@@ -12,6 +12,7 @@ if (!isset($pdo)) {
 if (!isset($pdo)) return;
 
 $is_sqlite = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
+$ignore = $is_sqlite ? "OR IGNORE" : "IGNORE";
 
 // --- STAGE 0: CORE TABLE PROVISIONING ---
 $core_tables = [
@@ -197,7 +198,7 @@ if ($count == 0) {
         ['Jobs', 'jobs', 'fa-briefcase'],
         ['Services', 'services', 'fa-concierge-bell']
     ];
-    $stmt = $pdo->prepare("INSERT INTO categories (name, slug, icon_class) VALUES (?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT $ignore INTO categories (name, slug, icon_class) VALUES (?, ?, ?)");
     foreach ($default_cats as $cat) $stmt->execute($cat);
 }
 
@@ -210,7 +211,7 @@ if ($count == 0) {
         ['vip', 'VIP', 6000, 45, 1200, "7x more clients\n30 ads in Cars\nAds auto-renew every 12h\n10 VIP TOP+ promotions"],
         ['diamond', 'Diamond', 12000, 60, 2500, "20x more clients\n70 ads in Cars\nUnlimited Property listings\nAds auto-renew every 3h\nDedicated Personal Manager"]
     ];
-    $stmt = $pdo->prepare("INSERT INTO packages (slug, name, price, duration_days, cashback_amount, features) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT $ignore INTO packages (slug, name, price, duration_days, cashback_amount, features) VALUES (?, ?, ?, ?, ?, ?)");
     foreach ($pkgs as $p) $stmt->execute($p);
 }
 
@@ -218,7 +219,7 @@ if ($count == 0) {
 $count = $pdo->query("SELECT COUNT(*) FROM states")->fetchColumn();
 if ($count == 0) {
     $states = ['Lagos', 'Abuja (FCT)', 'Rivers', 'Oyo', 'Kano', 'Kaduna', 'Edo', 'Ogun', 'Delta', 'Anambra'];
-    $stmt = $pdo->prepare("INSERT INTO states (name) VALUES (?)");
+    $stmt = $pdo->prepare("INSERT $ignore INTO states (name) VALUES (?)");
     foreach ($states as $s) $stmt->execute([$s]);
 }
 

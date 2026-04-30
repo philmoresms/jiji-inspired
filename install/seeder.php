@@ -7,6 +7,9 @@ require_once __DIR__ . '/../inc/seeding_functions.php';
  */
 
 function seed_database($pdo) {
+    $is_sqlite = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
+    $ignore = $is_sqlite ? "OR IGNORE" : "IGNORE";
+
     // 1. Seed COMPLETE Jiji-Standard Categories
     seed_categories($pdo);
 
@@ -41,7 +44,7 @@ function seed_database($pdo) {
         "Niger" => ["Agaie", "Agwara", "Bida", "Borgu", "Bosso", "Chanchaga", "Edati", "Gbako", "Gurara", "Katcha", "Kontagora", "Lapai", "Lavun", "Magama", "Mariga", "Mashegu", "Mokwa", "Muya", "Pailoro", "Rafi", "Rijau", "Shiroro", "Suleja", "Tafa", "Wushishi"],
         "Ogun" => ["Abeokuta North", "Abeokuta South", "Ado-Odo/Ota", "Ewekoro", "Ifo", "Ijebu East", "Ijebu North", "Ijebu North East", "Ijebu Ode", "Ikenne", "Imeko Afon", "Ipokia", "Obafemi Owode", "Odeda", "Odogbolu", "Ogun Waterside", "Remo North", "Shagamu", "Yewa North", "Yewa South"],
         "Ondo" => ["Akoko North-East", "Akoko North-West", "Akoko South-West", "Akoko South-East", "Akure North", "Akure South", "Ese Odo", "Idanre", "Ifedore", "Ilaje", "Ile Oluji/Okeigbo", "Irele", "Odigbo", "Okitipupa", "Ondo East", "Ondo West", "Ose", "Owo"],
-        "Osun" => ["Atakunmosa East", "Atakunmosa West", "Aiyedaade", "Aiyedaire", "Boluwaduro", "Boripe", "Ede North", "Ede South", "Ife Central", "Ife East", "Ife North", "Ife South", "Egbedore", "Ejigbo", "Ifedayo", "Ifelodun", "Ila", "Ilesa North", "Ilesa South", "Irepodun", "Irewole", "Isokan", "Iwo", "Obokun", "Odo Otin", "Ola Oluwa", "Olorunda", "Oriade", "Orolu", "Osogbo"],
+        "Osun" => ["Atakunmosa East", "Atakunmosa West", "Aiyedaade", "Aiyedaaire", "Boluwaduro", "Boripe", "Ede North", "Ede South", "Ife Central", "Ife East", "Ife North", "Ife South", "Egbedore", "Ejigbo", "Ifedayo", "Ifelodun", "Ila", "Ilesa North", "Ilesa South", "Irepodun", "Irewole", "Isokan", "Iwo", "Obokun", "Odo Otin", "Ola Oluwa", "Olorunda", "Oriade", "Orolu", "Osogbo"],
         "Oyo" => ["Afijio", "Akinyele", "Atiba", "Atisbo", "Egbeda", "Ibadan North", "Ibadan North-East", "Ibadan North-West", "Ibadan South-East", "Ibadan South-West", "Ibarapa Central", "Ibarapa East", "Ibarapa North", "Ido", "Irepo", "Iseyin", "Itesiwaju", "Iwajowa", "Kajola", "Lagelu", "Ogbomosho North", "Ogbomosho South", "Ogo Oluwa", "Olorunsogo", "Oluyole", "Ona Ara", "Orelope", "Ori Ire", "Oyo", "Oyo East", "Saki East", "Saki West", "Surulere"],
         "Plateau" => ["Bokkos", "Barkin Ladi", "Bassa", "Jos East", "Jos North", "Jos South", "Kanam", "Kanke", "Langtang North", "Langtang South", "Mangu", "Mikang", "Pankshin", "Qua'an Pan", "Riyom", "Shendam", "Wase"],
         "Rivers" => ["Abua/Odual", "Ahoada East", "Ahoada West", "Akuku-Toru", "Andoni", "Asari-Toru", "Bonny", "Degema", "Eleme", "Emuoha", "Etche", "Gokana", "Ikwerre", "Khana", "Obio/Akpor", "Ogba/Egbema/Ndoni", "Ogu/Bolo", "Okrika", "Omuma", "Opobo/Nkoro", "Oyigbo", "Port Harcourt", "Tai"],
@@ -51,12 +54,18 @@ function seed_database($pdo) {
         "Zamfara" => ["Anka", "Bakura", "Birnin Magaji/Kiyaw", "Bukkuyum", "Bungudu", "Gummi", "Gusau", "Kaura Namoda", "Maradun", "Maru", "Shinkafi", "Talata Mafara", "Chafe", "Zurmi"]
     ];
 
-    $state_stmt = $pdo->prepare("INSERT INTO states (name) VALUES (?)");
-    $lga_stmt = $pdo->prepare("INSERT INTO lgas (state_id, name) VALUES (?, ?)");
+    $state_stmt = $pdo->prepare("INSERT $ignore INTO states (name) VALUES (?)");
+    $lga_stmt = $pdo->prepare("INSERT $ignore INTO lgas (state_id, name) VALUES (?, ?)");
 
     foreach ($nigeria_data as $state => $lgas) {
         $state_stmt->execute([$state]);
-        $state_id = $pdo->lastInsertId();
+
+        // For LGAs, we need the state ID. If we IGNORED the state insert,
+        // we must fetch the existing ID.
+        $stmt_f = $pdo->prepare("SELECT id FROM states WHERE name = ?");
+        $stmt_f->execute([$state]);
+        $state_id = $stmt_f->fetchColumn();
+
         foreach ($lgas as $lga) {
             $lga_stmt->execute([$state_id, $lga]);
         }
@@ -75,7 +84,7 @@ function seed_database($pdo) {
         ['China', 'CN'],
         ['India', 'IN']
     ];
-    $country_stmt = $pdo->prepare("INSERT INTO countries (name, code) VALUES (?, ?)");
+    $country_stmt = $pdo->prepare("INSERT $ignore INTO countries (name, code) VALUES (?, ?)");
     foreach ($countries as $country) {
         $country_stmt->execute($country);
     }
@@ -88,7 +97,7 @@ function seed_database($pdo) {
         ['Safety Tips', 'safety', 'Meet in public...', 'Stay safe while buying and selling', 'safety, tips, security'],
         ['FAQ', 'faq', 'Frequently asked questions...', 'Classifieds Help Center', 'faq, help, questions']
     ];
-    $page_stmt = $pdo->prepare("INSERT INTO pages (title, slug, content, meta_desc, meta_keys) VALUES (?, ?, ?, ?, ?)");
+    $page_stmt = $pdo->prepare("INSERT $ignore INTO pages (title, slug, content, meta_desc, meta_keys) VALUES (?, ?, ?, ?, ?)");
     foreach ($default_pages as $page) {
         $page_stmt->execute($page);
     }
