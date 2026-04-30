@@ -118,7 +118,7 @@ if (isset($pdo)) {
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <a href="/" class="flex items-center gap-3">
                 <?php if (!empty($settings['site_logo'])): ?>
-                    <img src="/uploads/branding/<?php echo h($settings['site_logo']); ?>" alt="<?php echo h($settings['site_name'] ?? 'Logo'); ?>" class="h-8 md:h-12 w-auto object-contain">
+                    <img src="/uploads/branding/<?php echo h($settings['site_logo']); ?>" alt="<?php echo h($settings['site_name'] ?? 'Logo'); ?>" class="h-12 md:h-20 w-auto object-contain">
                 <?php else: ?>
                     <div class="flex flex-col">
                         <span class="text-lg md:text-2xl font-black text-primary-600 leading-none"><?php echo h($settings['site_name'] ?? 'Classifieds'); ?></span>

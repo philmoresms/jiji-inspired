@@ -51,7 +51,7 @@ include __DIR__ . '/../templates/admin_header.php';
                         <label class="block text-gray-700 font-bold mb-2 text-sm">Site Logo</label>
                         <?php if (!empty($settings['site_logo'])): ?>
                             <div class="mb-3">
-                                <img src="/uploads/branding/<?php echo h($settings['site_logo']); ?>" class="h-12 w-auto object-contain bg-white p-2 border rounded-lg">
+                                <img src="/uploads/branding/<?php echo h($settings['site_logo']); ?>" class="h-24 w-auto object-contain bg-white p-2 border rounded-lg">
                             </div>
                         <?php endif; ?>
                         <input type="file" name="site_logo" class="text-xs">
